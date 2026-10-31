@@ -142,7 +142,7 @@ jobs:
             "Release $tag is prepared; existing release notes were preserved."
           } else {
             $notesPath = Join-Path $env:RUNNER_TEMP 'release-notes.md'
-            .\.github\scripts\New-ReleaseNotes.ps1 -SourceCommit $env:SOURCE_COMMIT -PackageVersion $env:PACKAGE_VERSION -Repository $env:GH_REPO -BaselineCommit 2153034dbc2de91208e443197ef1114cc39d3d22 -OutputPath $notesPath -Releases $releases
+            .\.github\scripts\New-ReleaseNotes.ps1 -SourceCommit $env:SOURCE_COMMIT -PackageVersion $env:PACKAGE_VERSION -Repository $env:GH_REPO -BaselineCommit 6b991362569b984a23f8be53a0d374d56400503a -OutputPath $notesPath -Releases $releases
             $arguments = @('release', 'create', $tag, $packagePath, '--draft', '--verify-tag', '--notes-file', $notesPath, '--title', $tag)
             if ($isPreview) { $arguments += @('--prerelease', '--latest=false') }
             gh @arguments
