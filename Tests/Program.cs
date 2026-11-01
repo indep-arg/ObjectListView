@@ -131,7 +131,10 @@ namespace BrightIdeasSoftware.Tests
 
         static bool IsStatic(PropertyInfo prop) {
             if (prop.GetGetMethod() == null)
+            {
                 return false;
+            }
+
             return prop.GetGetMethod().IsStatic;
         }
 
@@ -152,7 +155,9 @@ namespace BrightIdeasSoftware.Tests
                 BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.DeclaredOnly
             ));
             if (properties.Count == 0)
+            {
                 return;
+            }
 
             properties.Sort(delegate(PropertyInfo x, PropertyInfo y) {
                 if (IsStatic(x) == IsStatic(y)) {
@@ -181,11 +186,14 @@ namespace BrightIdeasSoftware.Tests
                     });
                 DefaultValueAttribute defaultValueAttr = Attribute.GetCustomAttribute(pinfo, typeof(DefaultValueAttribute)) as DefaultValueAttribute;
                 if (defaultValueAttr != null)
+                {
                     values.Add(new string[] {                 
                             String.Empty,
                             String.Format("* Default: {0}",  Convert.ToString(defaultValueAttr.Value)),
                             String.Empty
                         });
+                }
+
                 CategoryAttribute categoryAttr = Attribute.GetCustomAttribute(pinfo, typeof(CategoryAttribute)) as CategoryAttribute;
                 values.Add(new string[] {                 
                         String.Empty,
@@ -213,7 +221,9 @@ namespace BrightIdeasSoftware.Tests
                 BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly
             ));
             if (events.Count == 0)
+            {
                 return;
+            }
 
             events.Sort(delegate(EventInfo x, EventInfo y) {
                 return x.Name.CompareTo(y.Name);
@@ -247,7 +257,9 @@ namespace BrightIdeasSoftware.Tests
             // add_ and remove_ of event handlers
             methods = methods.FindAll(delegate(MethodInfo x) { return !x.IsSpecialName && !x.IsPrivate; });
             if (methods.Count == 0)
+            {
                 return;
+            }
 
             methods.Sort(delegate(MethodInfo x, MethodInfo y) {
                 return x.Name.CompareTo(y.Name);
@@ -293,8 +305,10 @@ namespace BrightIdeasSoftware.Tests
                 }
             }
 
-            if (IsStatic(pinfo)) 
+            if (IsStatic(pinfo))
+            {
                 name += " (static)";
+            }
 
             return name;
         }
@@ -318,8 +332,10 @@ namespace BrightIdeasSoftware.Tests
         }
 
         private static string GetDefaultValue(DefaultValueAttribute attr) {
-            if (attr == null || attr.Value == null) 
+            if (attr == null || attr.Value == null)
+            {
                 return String.Empty;
+            }
 
             return attr.Value.ToString();
         }
@@ -331,26 +347,40 @@ namespace BrightIdeasSoftware.Tests
 
         private static string GetAccessLevel(MethodInfo minfo) {
             if (minfo == null)
+            {
                 return String.Empty;
+            }
 
             StringBuilder sb = new StringBuilder();
             MethodAttributes attrs = minfo.Attributes;
             if ((attrs & MethodAttributes.NewSlot) == MethodAttributes.NewSlot) {
                 if (minfo != minfo.GetBaseDefinition())
+                {
                     sb.Append("new ");
+                }
             }
 
             if ((attrs & MethodAttributes.Public) == MethodAttributes.Public)
+            {
                 sb.Append("public");
+            }
             else if ((attrs & MethodAttributes.FamANDAssem) == MethodAttributes.FamANDAssem)
+            {
                 sb.Append("internal");
+            }
             else if ((attrs & MethodAttributes.Family) == MethodAttributes.Family)
+            {
                 sb.Append("protected");
+            }
             else if ((attrs & MethodAttributes.Private) == MethodAttributes.Private)
+            {
                 sb.Append("private");
+            }
 
             if ((attrs & MethodAttributes.Virtual) == MethodAttributes.Virtual)
+            {
                 sb.Append(" virtual");
+            }
 
             return sb.ToString();
         }
@@ -363,7 +393,9 @@ namespace BrightIdeasSoftware.Tests
                 }
             }
             for (int i = 0; i < valueMaxLength.Length; i++)
+            {
                 valueMaxLength[i] = Math.Max(20, valueMaxLength[i]+2);
+            }
 
             string titleDivider = "";
             string rowDivider = "";
@@ -380,9 +412,13 @@ namespace BrightIdeasSoftware.Tests
             foreach (string[] value in values) {
                 if (value.Length == 0) {
                     if (rowCount <= 1)
+                    {
                         sb.AppendLine(titleDivider);
+                    }
                     else
+                    {
                         sb.AppendLine(rowDivider);
+                    }
                 } else {
                     for (int i = 0; i < value.Length; i++) {
                         string formatString = String.Format("{0}0,-{1}{2} ", "{", valueMaxLength[i], "}");
@@ -407,7 +443,9 @@ namespace BrightIdeasSoftware.Tests
 
             // remove trailing comma and space
             if (sb.Length > 2)
+            {
                 sb.Length -= 2;
+            }
 
             return sb.ToString();
         }

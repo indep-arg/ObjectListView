@@ -127,7 +127,9 @@ namespace BrightIdeasSoftware
             foreach (object modelObject in modelObjects) {
                 int i = this.IndexOf(modelObject);
                 if (i >= 0 && i < index)
+                {
                     displacedObjectCount++;
+                }
             }
             index -= displacedObjectCount;
 
@@ -179,8 +181,10 @@ namespace BrightIdeasSoftware
         /// <returns></returns>
         public override object GetNthObject(int n) {
             if (n >= 0 && n < this.filteredObjectList.Count)
+            {
                 return this.filteredObjectList[n];
-            
+            }
+
             return null;
         }
 
@@ -201,8 +205,10 @@ namespace BrightIdeasSoftware
             int index;
 
             if (model != null && this.objectsToIndexMap.TryGetValue(model, out index))
+            {
                 return index;
-            
+            }
+
             return -1;
         }
 
@@ -219,13 +225,17 @@ namespace BrightIdeasSoftware
                 for (int i = first; i <= last; i++) {
                     string data = column.GetStringValue(this.listView.GetNthItemInDisplayOrder(i).RowObject);
                     if (data.StartsWith(text, StringComparison.CurrentCultureIgnoreCase))
+                    {
                         return i;
+                    }
                 }
             } else {
                 for (int i = first; i >= last; i--) {
                     string data = column.GetStringValue(this.listView.GetNthItemInDisplayOrder(i).RowObject);
                     if (data.StartsWith(text, StringComparison.CurrentCultureIgnoreCase))
+                    {
                         return i;
+                    }
                 }
             }
 
@@ -254,7 +264,9 @@ namespace BrightIdeasSoftware
             ArrayList snapshot = ObjectListViewBase.EnumerableToArray(modelObjects, true);
             foreach (object modelObject in snapshot) {
                 if (modelObject != null)
+                {
                     this.fullObjectList.Add(modelObject);
+                }
             }
             this.FilterObjects();
             this.RebuildIndexMap();
@@ -284,7 +296,9 @@ namespace BrightIdeasSoftware
             foreach (object modelObject in snapshot) {
                 int i = this.GetObjectIndex(modelObject);
                 if (i >= 0)
+                {
                     indicesToRemove.Add(i);
+                }
             }
 
             // Sort the indices from highest to lowest so that we
@@ -293,12 +307,16 @@ namespace BrightIdeasSoftware
             indicesToRemove.Sort();
             indicesToRemove.Reverse();
 
-            foreach (int i in indicesToRemove) 
+            foreach (int i in indicesToRemove)
+            {
                 this.listView.SelectedIndices.Remove(i);
+            }
 
             // Remove the objects from the unfiltered list
             foreach (object modelObject in snapshot)
+            {
                 this.fullObjectList.Remove(modelObject);
+            }
 
             this.FilterObjects();
             this.RebuildIndexMap();
@@ -323,14 +341,20 @@ namespace BrightIdeasSoftware
         /// <param name="modelObject"></param>
         public override void UpdateObject(int index, object modelObject) {
             if (index < 0 || index >= this.filteredObjectList.Count)
+            {
                 return;
+            }
 
             int i = this.fullObjectList.IndexOf(this.filteredObjectList[index]);
             if (i < 0)
+            {
                 return;
+            }
 
             if (ReferenceEquals(this.fullObjectList[i], modelObject))
+            {
                 return;
+            }
 
             this.fullObjectList[i] = modelObject;
             this.filteredObjectList[index] = modelObject;
@@ -382,7 +406,9 @@ namespace BrightIdeasSoftware
         protected void RebuildIndexMap() {
             this.objectsToIndexMap.Clear();
             for (int i = 0; i < this.filteredObjectList.Count; i++)
+            {
                 this.objectsToIndexMap[this.filteredObjectList[i]] = i;
+            }
         }
         readonly Dictionary<Object, int> objectsToIndexMap = new Dictionary<Object, int>();
 
@@ -416,7 +442,9 @@ namespace BrightIdeasSoftware
                 this.filteredObjectList = new ArrayList();
                 foreach (object model in objects) {
                     if (this.modelFilter.Filter(model))
+                    {
                         this.filteredObjectList.Add(model);
+                    }
                 }
             }
         }

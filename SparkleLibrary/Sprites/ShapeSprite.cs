@@ -252,9 +252,13 @@ namespace BrightIdeasSoftware
 
         protected Color ApplyOpacityToColor(float opacity, Color c) {
             if (opacity < 1.0f)
+            {
                 return Color.FromArgb((int)(opacity * c.A), this.BackColor);
+            }
             else
+            {
                 return c;
+            }
         }
 
         protected virtual GraphicsPath GetGraphicsPath(Rectangle r) {

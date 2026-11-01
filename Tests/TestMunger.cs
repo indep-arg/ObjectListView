@@ -260,7 +260,7 @@ namespace BrightIdeasSoftware.Tests
             }
             private string subTestProperty2;
 
-            public bool subClassPropertyModified = false;
+            public bool subClassPropertyModified;
         }
     }
 }

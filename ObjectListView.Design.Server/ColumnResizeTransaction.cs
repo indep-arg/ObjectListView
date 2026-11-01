@@ -34,7 +34,10 @@ namespace BrightIdeasSoftware.Design
         public void Complete(bool accept) {
             DesignerTransaction current = this.transaction;
             if (current == null)
+            {
                 return;
+            }
+
             this.transaction = null;
             try {
                 if (accept && this.column.Width != this.originalWidth) {

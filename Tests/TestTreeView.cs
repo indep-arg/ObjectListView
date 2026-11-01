@@ -325,12 +325,16 @@ namespace BrightIdeasSoftware.Tests {
             this.olv.CheckObject(firstRoot);
 
             foreach (Person child in firstRoot.Children)
+            {
                 Assert.IsTrue(this.olv.IsChecked(child));
+            }
 
             this.olv.UncheckObject(firstRoot);
 
             foreach (Person child in firstRoot.Children)
+            {
                 Assert.IsFalse(this.olv.IsChecked(child));
+            }
         }
 
         [TestMethod]
@@ -343,12 +347,16 @@ namespace BrightIdeasSoftware.Tests {
             this.olv.Expand(firstRoot);
 
             foreach (Person child in firstRoot.Children)
+            {
                 Assert.IsTrue(this.olv.IsChecked(child));
+            }
 
             this.olv.UncheckObject(firstRoot);
 
             foreach (Person child in firstRoot.Children)
+            {
                 Assert.IsFalse(this.olv.IsChecked(child));
+            }
         }
 
         [TestMethod]
@@ -362,7 +370,9 @@ namespace BrightIdeasSoftware.Tests {
             Assert.IsFalse(this.olv.IsChecked(firstRoot));
 
             foreach (Person child in firstRoot.Children)
+            {
                 this.olv.CheckObject(child);
+            }
 
             Assert.IsTrue(this.olv.IsChecked(firstRoot));
         }
@@ -378,7 +388,10 @@ namespace BrightIdeasSoftware.Tests {
             Assert.IsFalse(this.olv.IsChecked(firstRoot));
 
             foreach (Person child in firstRoot.Children)
+            {
                 this.olv.CheckObject(child);
+            }
+
             this.olv.UncheckObject(firstRoot.Children[0]);
 
             Assert.IsTrue(this.olv.IsCheckedIndeterminate(firstRoot));
@@ -395,7 +408,9 @@ namespace BrightIdeasSoftware.Tests {
             this.olv.CheckObject(firstRoot);
 
             foreach (Person child in firstRoot.Children)
+            {
                 this.olv.UncheckObject(child);
+            }
 
             Assert.IsFalse(this.olv.IsChecked(firstRoot));
         }
@@ -414,7 +429,9 @@ namespace BrightIdeasSoftware.Tests {
             Assert.IsTrue(this.olv.IsChecked(firstRoot));
 
             foreach (Person child in firstRoot.Children)
+            {
                 Assert.IsTrue(this.olv.IsChecked(child));
+            }
         }
 
         [TestMethod]
@@ -428,12 +445,16 @@ namespace BrightIdeasSoftware.Tests {
             this.olv.CheckObject(firstRoot);
 
             foreach (Person child in this.olv.GetChildren(firstRoot))
+            {
                 Assert.IsTrue(this.olv.IsChecked(child));
+            }
 
             this.olv.UncheckObject(firstRoot);
 
             foreach (Person child in firstRoot.Children)
+            {
                 Assert.IsFalse(this.olv.IsChecked(child));
+            }
         }
 
         [TestMethod]
@@ -466,7 +487,9 @@ namespace BrightIdeasSoftware.Tests {
             Assert.AreEqual(1 + firstRoot.Children.Count, checkedObjects.Count);
             Assert.IsTrue(checkedObjects.Contains(firstRoot));
             foreach (Person child in firstRoot.Children)
+            {
                 Assert.IsTrue(checkedObjects.Contains(child));
+            }
         }
 
         [TestMethod]
@@ -502,7 +525,9 @@ namespace BrightIdeasSoftware.Tests {
             Assert.AreEqual(1 + firstRoot.Children.Count, checkedObjects.Count);
             Assert.IsTrue(checkedObjects.Contains(firstRoot));
             foreach (Person child in firstRoot.Children)
+            {
                 Assert.IsTrue(checkedObjects.Contains(child));
+            }
         }
 
         [TestMethod]

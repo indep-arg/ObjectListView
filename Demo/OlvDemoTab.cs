@@ -33,7 +33,9 @@ namespace ObjectListViewDemo {
 
         private void SetupGeneralListViewEvents() {
             if (this.ListView == null || this.Coordinator == null)
+            {
                 return;
+            }
 
             this.ListView.SelectionChanged += delegate(object sender, EventArgs args) {
                 this.Coordinator.HandleSelectionChanged(this.ListView);

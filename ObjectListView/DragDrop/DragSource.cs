@@ -173,7 +173,9 @@ namespace BrightIdeasSoftware
         public virtual Object StartDrag(ObjectListViewBase olv, MouseButtons button, OLVListItem item) {
             // We only drag on left mouse
             if (button != MouseButtons.Left)
+            {
                 return null;
+            }
 
             return this.CreateDataObject(olv);
         }
@@ -195,10 +197,14 @@ namespace BrightIdeasSoftware
         public virtual void EndDrag(Object dragObject, DragDropEffects effect) {
             OLVDataObject data = dragObject as OLVDataObject;
             if (data == null)
+            {
                 return;
+            }
 
             if (this.RefreshAfterDrop)
+            {
                 data.ListView.RefreshObjects(data.ModelObjects);
+            }
         }
 
         /// <summary>

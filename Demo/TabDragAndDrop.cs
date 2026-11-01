@@ -44,8 +44,12 @@ namespace ObjectListViewDemo
 
             // Make each listview capable of accepting drops.
             // More than that, make it so it's items can be rearranged
-            this.olvGeeks.DropSink = new RearrangingDropSink(true);
-            this.olvFroods.DropSink = new RearrangingDropSink(true);
+            var geeksSink = new RearrangingDropSink(true);
+            var froodsSink = new RearrangingDropSink(true);
+            this.olvGeeks.DropSink = geeksSink;
+            this.olvFroods.DropSink = froodsSink;
+            this.olvGeeks.Disposed += delegate { geeksSink.Dispose(); };
+            this.olvFroods.Disposed += delegate { froodsSink.Dispose(); };
 
             // For a normal drag and drop situation, you will need to create a SimpleDropSink
             // and then listen for ModelCanDrop and ModelDropped events

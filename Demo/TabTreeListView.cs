@@ -53,12 +53,18 @@ namespace ObjectListViewDemo
             treeListView.ModelCanDrop += delegate(object sender, ModelDropEventArgs e) {
                 e.Effect = DragDropEffects.None;
                 if (e.TargetModel == null)
+                {
                     return;
+                }
 
                 if (e.TargetModel is DirectoryInfo)
+                {
                     e.Effect = e.StandardDropActionFromKeys;
+                }
                 else
+                {
                     e.InfoMessage = "Can only drop on directories";
+                }
             };
 
             treeListView.ModelDropped += delegate(object sender, ModelDropEventArgs e) {
@@ -110,7 +116,9 @@ namespace ObjectListViewDemo
             foreach (DriveInfo di in DriveInfo.GetDrives())
             {
                 if (di.IsReady)
+                {
                     roots.Add(new MyFileSystemInfo(new DirectoryInfo(di.Name)));
+                }
             }
             this.treeListView.Roots = roots;
         }
@@ -133,7 +141,9 @@ namespace ObjectListViewDemo
                 MyFileSystemInfo myFileSystemInfo = (MyFileSystemInfo) x;
 
                 if (myFileSystemInfo.IsDirectory)
+                {
                     return (long) -1;
+                }
 
                 try {
                     return myFileSystemInfo.Length;
@@ -151,7 +161,10 @@ namespace ObjectListViewDemo
             this.olvColumnSize.AspectToStringConverter = delegate(object x) {
                 long sizeInBytes = (long) x;
                 if (sizeInBytes < 0) // folder or error
+                {
                     return "";
+                }
+
                 return Coordinator.FormatFileSize(sizeInBytes);
             };
 
@@ -185,7 +198,9 @@ namespace ObjectListViewDemo
         {
             Object model = this.treeListView.SelectedObject;
             if (model != null)
+            {
                 this.treeListView.ToggleExpansion(model);
+            }
         }
 
         private void checkBoxHierarchicalCheckboxes_CheckedChanged(object sender, EventArgs e) {
@@ -223,7 +238,9 @@ namespace ObjectListViewDemo
         private void buttonRestoreState_Click(object sender, EventArgs e)
         {
             if (!this.treeListView.RestoreState(this.treeListViewViewState))
+            {
                 MessageBox.Show(this, "The saved layout is incompatible. Save a new layout.", "Restore layout");
+            }
         }
 
         private void buttonColumns_Click(object sender, EventArgs e)
@@ -236,9 +253,13 @@ namespace ObjectListViewDemo
         {
             bool isControlKeyDown = ((Control.ModifierKeys & Keys.Control) == Keys.Control);
             if (isControlKeyDown)
+            {
                 this.ListView.EnableObjects(this.ListView.DisabledObjects);
+            }
             else
+            {
                 this.ListView.DisableObjects(this.ListView.SelectedObjects);
+            }
         }
 
         #endregion

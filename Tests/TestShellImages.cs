@@ -12,12 +12,17 @@ namespace BrightIdeasSoftware.Tests {
         [TestMethod]
         public void Test_ShellIcons_DoNotLeakNativeHandles() {
             using (Icon warmup = ShellUtilities.GetFileIcon(".txt", true, true))
+            {
                 Assert.IsNotNull(warmup);
+            }
+
             using (Process process = Process.GetCurrentProcess()) {
                 int before = GetGuiResources(process.Handle, 1);
                 for (int i = 0; i < 200; i++) {
                     using (Icon icon = ShellUtilities.GetFileIcon(".txt", true, true))
+                    {
                         Assert.IsNotNull(icon);
+                    }
                 }
                 int after = GetGuiResources(process.Handle, 1);
                 Assert.IsLessThanOrEqualTo(before + 5, after);

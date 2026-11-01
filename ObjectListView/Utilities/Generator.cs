@@ -181,7 +181,10 @@ namespace BrightIdeasSoftware
             IList<OLVColumn> columns = this.GenerateColumns(type, allProperties);
             TreeListView tlv = olv as TreeListView;
             if (tlv != null)
+            {
                 this.TryGenerateChildrenDelegates(tlv, type);
+            }
+
             this.ReplaceColumns(olv, columns);
         }
 
@@ -198,18 +201,24 @@ namespace BrightIdeasSoftware
             
             // Sanity
             if (type == null)
+            {
                 return columns;
+            }
 
             // Iterate all public properties in the class and build columns from those that have
             // an OLVColumn attribute and that are not ignored.
             foreach (PropertyInfo pinfo in type.GetProperties()) {
                 if (Attribute.GetCustomAttribute(pinfo, typeof(OLVIgnoreAttribute)) != null)
+                {
                     continue;
+                }
 
                 OLVColumnAttribute attr = Attribute.GetCustomAttribute(pinfo, typeof(OLVColumnAttribute)) as OLVColumnAttribute;
                 if (attr == null) {
                     if (allProperties)
+                    {
                         columns.Add(this.MakeColumnFromPropertyInfo(pinfo));
+                    }
                 } else {
                     columns.Add(this.MakeColumnFromAttribute(pinfo, attr));
                 }
@@ -219,14 +228,20 @@ namespace BrightIdeasSoftware
             int countPositiveDisplayIndex = 0;
             foreach (OLVColumn col in columns) {
                 if (col.DisplayIndex >= 0)
+                {
                     countPositiveDisplayIndex += 1;
+                }
             }
 
             // Give columns that don't have a DisplayIndex an incremental index
             int columnIndex = countPositiveDisplayIndex;
             foreach (OLVColumn col in columns)
+            {
                 if (col.DisplayIndex < 0)
+                {
                     col.DisplayIndex = (columnIndex++);
+                }
+            }
 
             columns.Sort(delegate(OLVColumn x, OLVColumn y) {
                 return x.DisplayIndex.CompareTo(y.DisplayIndex);
@@ -248,8 +263,10 @@ namespace BrightIdeasSoftware
             olv.Reset();
 
             // Are there new columns to add?
-            if (columns == null || columns.Count == 0) 
+            if (columns == null || columns.Count == 0)
+            {
                 return;
+            }
 
             // Setup the columns
             olv.AllColumns.AddRange(columns);
@@ -262,9 +279,15 @@ namespace BrightIdeasSoftware
         /// <param name="olv"></param>
         public virtual void PostCreateColumns(ObjectListViewBase olv) {
             if (olv.AllColumns.Exists(delegate(OLVColumn x) { return x.CheckBoxes; }))
+            {
                 olv.UseSubItemCheckBoxes = true;
+            }
+
             if (olv.AllColumns.Exists(delegate(OLVColumn x) { return x.Index > 0 && (x.ImageGetter != null || !String.IsNullOrEmpty(x.ImageAspectName)); }))
+            {
                 olv.ShowImagesOnSubItems = true;
+            }
+
             olv.RebuildColumns();
             olv.AutoSizeColumns();
         }
@@ -321,11 +344,17 @@ namespace BrightIdeasSoftware
 
             column.AspectToStringFormat = attr.AspectToStringFormat;
             if (attr.IsCheckBoxesSet)
+            {
                 column.CheckBoxes = attr.CheckBoxes;
+            }
+
             column.DisplayIndex = attr.DisplayIndex;
             column.FillsFreeSpace = attr.FillsFreeSpace;
             if (attr.IsFreeSpaceProportionSet)
+            {
                 column.FreeSpaceProportion = attr.FreeSpaceProportion;
+            }
+
             column.GroupWithItemCountFormat = attr.GroupWithItemCountFormat;
             column.GroupWithItemCountSingularFormat = attr.GroupWithItemCountSingularFormat;
             column.Hyperlink = attr.Hyperlink;
@@ -337,14 +366,23 @@ namespace BrightIdeasSoftware
             column.MinimumWidth = attr.MinimumWidth;
             column.Tag = attr.Tag;
             if (attr.IsTextAlignSet)
+            {
                 column.TextAlign = attr.TextAlign;
+            }
+
             column.ToolTipText = attr.ToolTipText;
             if (attr.IsTriStateCheckBoxesSet)
+            {
                 column.TriStateCheckBoxes = attr.TriStateCheckBoxes;
+            }
+
             column.UseInitialLetterForGroup = attr.UseInitialLetterForGroup;
             column.Width = attr.Width;
             if (attr.GroupCutoffs != null && attr.GroupDescriptions != null)
+            {
                 column.MakeGroupies(attr.GroupCutoffs, attr.GroupDescriptions);
+            }
+
             return column;
         }
 
@@ -378,8 +416,10 @@ namespace BrightIdeasSoftware
         /// <param name="column"></param>
         /// <param name="propertyType"></param>
         protected virtual void ConfigurePossibleBooleanColumn(OLVColumn column, Type propertyType) {
-            if (propertyType != typeof(bool) && propertyType != typeof(bool?) && propertyType != typeof(CheckState)) 
+            if (propertyType != typeof(bool) && propertyType != typeof(bool?) && propertyType != typeof(CheckState))
+            {
                 return;
+            }
 
             column.CheckBoxes = true;
             column.TextAlign = HorizontalAlignment.Center;

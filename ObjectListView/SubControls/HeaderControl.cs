@@ -148,11 +148,15 @@ namespace BrightIdeasSoftware {
         /// <returns></returns>
         protected bool IsPointOverHeaderCheckBox(int columnIndex, Point pt) {
             if (columnIndex < 0 || columnIndex >= this.ListView.Columns.Count)
+            {
                 return false;
+            }
 
             OLVColumn column = this.ListView.GetColumn(columnIndex);
             if (!this.HasCheckBox(column))
+            {
                 return false;
+            }
 
             Rectangle r = this.GetCheckBoxBounds(column);
             r.Inflate(1, 1); // make the target slightly bigger
@@ -171,7 +175,9 @@ namespace BrightIdeasSoftware {
                     OLVColumn column = this.ListView.GetColumn(dividerIndex);
                     return column.IsFixedWidth || column.FillsFreeSpace;
                 } else
+                {
                     return false;
+                }
             }
         }
 
@@ -257,21 +263,37 @@ namespace BrightIdeasSoftware {
         private float CalculateColumnHeight(Graphics g, OLVColumn column, TextFormatFlags flags, bool isHot, int i) {
             Font f = this.CalculateFont(column, isHot, false);
             if (column.IsHeaderVertical)
+            {
                 return TextRenderer.MeasureText(g, column.Text, f, new Size(10000, 10000), flags).Width;
+            }
 
             const int fudge = 9; // 9 is a magic constant that makes it perfectly match XP behavior
             if (!this.WordWrap)
+            {
                 return f.Height + fudge;
+            }
 
             Rectangle r = this.GetHeaderDrawRect(i);
             if (this.HasSortIndicator(column))
+            {
                 r.Width -= this.CalculateSortIndicatorWidth(g, column, f);
+            }
+
             if (column.HasHeaderImage)
+            {
                 r.Width -= column.ImageList.ImageSize.Width + 3;
+            }
+
             if (this.HasFilterIndicator(column))
+            {
                 r.Width -= this.CalculateFilterIndicatorWidth(r);
+            }
+
             if (this.HasCheckBox(column))
+            {
                 r.Width -= this.CalculateCheckBoxBounds(g, r).Width;
+            }
+
             SizeF size = TextRenderer.MeasureText(g, column.Text, f, new Size(r.Width, 100), flags);
             return size.Height + fudge;
         }
@@ -285,7 +307,9 @@ namespace BrightIdeasSoftware {
             Rectangle r = this.GetHeaderDrawRect(column.Index);
 
             using (Graphics g = this.ListView.CreateGraphics())
+            {
                 return this.CalculateCheckBoxBounds(g, r);
+            }
         }
 
         /// <summary>
@@ -304,7 +328,10 @@ namespace BrightIdeasSoftware {
         /// <returns></returns>
         protected bool HasSortIndicator(OLVColumn column) {
             if (!this.ListView.ShowSortIndicators)
+            {
                 return false;
+            }
+
             return this.ListView.GetSortPriority(column) > 0;
         }
 
@@ -324,12 +351,19 @@ namespace BrightIdeasSoftware {
         /// <returns></returns>
         protected bool HasNonThemedSortIndicator(OLVColumn column) {
             if (!this.ListView.ShowSortIndicators)
+            {
                 return false;
+            }
+
             if (VisualStyleRenderer.IsSupported)
+            {
                 return !VisualStyleRenderer.IsElementDefined(VisualStyleElement.Header.SortArrow.SortedUp) &&
                     this.HasSortIndicator(column);
+            }
             else
+            {
                 return this.HasSortIndicator(column);
+            }
         }
 
         /// <summary>
@@ -415,42 +449,66 @@ namespace BrightIdeasSoftware {
             switch (m.Msg) {
                 case WM_SETCURSOR:
                     if (!this.HandleSetCursor(ref m))
+                    {
                         return;
+                    }
+
                     break;
 
                 case WM_NOTIFY:
                     if (!this.HandleNotify(ref m))
+                    {
                         return;
+                    }
+
                     break;
 
                 case WM_MOUSEMOVE:
                     if (!this.HandleMouseMove(ref m))
+                    {
                         return;
+                    }
+
                     break;
 
                 case WM_MOUSELEAVE:
                     if (!this.HandleMouseLeave(ref m))
+                    {
                         return;
+                    }
+
                     break;
 
                 case HDM_LAYOUT:
                     if (!this.HandleLayout(ref m))
+                    {
                         return;
+                    }
+
                     break;
 
                 case WM_DESTROY:
                     if (!this.HandleDestroy(ref m))
+                    {
                         return;
+                    }
+
                     break;
 
                 case WM_LBUTTONDOWN:
                     if (!this.HandleLButtonDown(ref m))
+                    {
                         return;
+                    }
+
                     break;
 
                 case WM_LBUTTONUP:
                     if (!this.HandleLButtonUp(ref m))
+                    {
                         return;
+                    }
+
                     break;
             }
 
@@ -474,7 +532,9 @@ namespace BrightIdeasSoftware {
             // Was there a header checkbox under the cursor?
             this.columnIndexCheckBoxMouseDown = this.GetColumnCheckBoxUnderCursor();
             if (this.columnIndexCheckBoxMouseDown < 0)
+            {
                 return true;
+            }
 
             // Redraw the header so the checkbox redraws
             this.Invalidate();
@@ -497,11 +557,15 @@ namespace BrightIdeasSoftware {
 
             // Was the mouse released over a header checkbox?
             if (this.columnIndexCheckBoxMouseDown < 0)
+            {
                 return true;
+            }
 
             // Was the mouse released over the same checkbox on which it was pressed?
             if (this.columnIndexCheckBoxMouseDown != this.GetColumnCheckBoxUnderCursor())
+            {
                 return true;
+            }
 
             // Toggle the header's checkbox
             OLVColumn column = this.ListView.GetColumn(this.columnIndexCheckBoxMouseDown);
@@ -568,7 +632,9 @@ namespace BrightIdeasSoftware {
         protected bool HandleMouseLeave(ref Message m) {
             // Forward the mouse leave event to the ListView itself
             if (this.ListView.TriggerCellOverEventsWhenOverHeader)
+            {
                 this.ListView.HandleMouseMove(new Point(-1, -1));
+            }
 
             return true;
         }
@@ -581,7 +647,9 @@ namespace BrightIdeasSoftware {
         protected bool HandleNotify(ref Message m) {
             // Can this ever happen? JPP 2009-05-22
             if (m.LParam == IntPtr.Zero)
+            {
                 return false;
+            }
 
             NativeMethods.NMHDR nmhdr = (NativeMethods.NMHDR)m.GetLParam(typeof(NativeMethods.NMHDR));
             switch (nmhdr.code)
@@ -675,11 +743,16 @@ namespace BrightIdeasSoftware {
                         Rectangle bounds = this.ClientRectangle;
                         int right = bounds.Left;
                         for (int i = 0; i < this.ListView.Columns.Count; i++)
+                        {
                             right = Math.Max(right, this.GetItemRect(i).Right);
+                        }
+
                         if (right < bounds.Right) {
                             using (Graphics graphics = Graphics.FromHdc(nmcustomdraw.hdc))
                             using (Brush brush = new SolidBrush(ObjectListViewTheme.ControlColor))
+                            {
                                 graphics.FillRectangle(brush, right, bounds.Top, bounds.Right - right, bounds.Height);
+                            }
                         }
                     }
                     break;
@@ -699,7 +772,9 @@ namespace BrightIdeasSoftware {
         /// <returns></returns>
         protected bool HandleLayout(ref Message m) {
             if (this.ListView.HeaderStyle == ColumnHeaderStyle.None)
+            {
                 return true;
+            }
 
             NativeMethods.HDLAYOUT hdlayout = (NativeMethods.HDLAYOUT) m.GetLParam(typeof (NativeMethods.HDLAYOUT));
             NativeMethods.RECT rect = (NativeMethods.RECT) Marshal.PtrToStructure(hdlayout.prc, typeof (NativeMethods.RECT));
@@ -752,16 +827,25 @@ namespace BrightIdeasSoftware {
         /// can change the font natively.</remarks>
         protected bool NeedsCustomDraw() {
             if (ObjectListViewTheme.UsesCustomHeaderColors)
+            {
                 return true;
+            }
+
             if (this.WordWrap || (this.ListView.ShowSortIndicators && this.ListView.SortDescriptions.Count > 0))
+            {
                 return true;
-            
+            }
+
             if (this.ListView.HeaderUsesThemes)
+            {
                 return false;
+            }
 
             if (this.NeedsCustomDraw(this.ListView.HeaderFormatStyle))
+            {
                 return true;
-            
+            }
+
             foreach (OLVColumn column in this.ListView.Columns) {
                 if (column.HasHeaderImage ||
                     !column.ShowTextInHeader ||
@@ -771,7 +855,9 @@ namespace BrightIdeasSoftware {
                     column.TextAlign != column.HeaderTextAlignOrDefault ||
                     (column.Index == 0 && column.HeaderTextAlignOrDefault != HorizontalAlignment.Left) ||
                     this.NeedsCustomDraw(column.HeaderFormatStyle))
+                {
                     return true;
+                }
             }
 
             return false;
@@ -779,7 +865,9 @@ namespace BrightIdeasSoftware {
 
         private bool NeedsCustomDraw(HeaderFormatStyle style) {
             if (style == null)
+            {
                 return false;
+            }
 
             return (this.NeedsCustomDraw(style.Normal) || 
                 this.NeedsCustomDraw(style.Hot) ||
@@ -788,15 +876,21 @@ namespace BrightIdeasSoftware {
 
         private bool NeedsCustomDraw(HeaderStateStyle style) {
             if (style == null)
+            {
                 return false;
+            }
 
             // If we want fancy colors or frames, we have to custom draw. Oddly enough, we 
             // can handle font changes without custom drawing.
             if (!style.BackColor.IsEmpty)
+            {
                 return true;
-            
+            }
+
             if (style.FrameWidth > 0f && !style.FrameColor.IsEmpty)
+            {
                 return true;
+            }
 
             return (!style.ForeColor.IsEmpty && style.ForeColor != Color.Black);
         }
@@ -828,17 +922,23 @@ namespace BrightIdeasSoftware {
             if (column.HeaderDrawing != null)
             {
                 if (!column.HeaderDrawing(g, fullCellBounds, columnIndex, column, isPressed, stateStyle))
+                {
                     return;
+                }
             }
 
             // Draw the background
             if (this.ListView.HeaderUsesThemes &&
                 (ObjectListViewTheme.IsDarkMode || (VisualStyleRenderer.IsSupported &&
                 VisualStyleRenderer.IsElementDefined(VisualStyleElement.Header.Item.Normal))))
+            {
                 this.DrawThemedBackground(g, fullCellBounds, columnIndex, isPressed, isHot);
+            }
             else
+            {
                 this.DrawUnthemedBackground(g, fullCellBounds, columnIndex, isPressed, isHot, stateStyle);
-            
+            }
+
             Rectangle r = this.GetHeaderDrawRect(columnIndex);
 
             // Draw the sort indicator if this column has one
@@ -856,9 +956,11 @@ namespace BrightIdeasSoftware {
                     if (this.ListView.SortDescriptions.Count > 1) {
                         indicatorBounds.Width -= 16;
                         using (Font priorityFont = CreateSortPriorityFont(font))
+                        {
                             TextRenderer.DrawText(g, label, priorityFont, indicatorBounds, ObjectListViewTheme.GrayTextColor,
                                 TextFormatFlags.Right | TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine |
                                 TextFormatFlags.NoPrefix | TextFormatFlags.PreserveGraphicsClipping);
+                        }
                     }
                 } finally {
                     g.Restore(savedState);
@@ -867,10 +969,14 @@ namespace BrightIdeasSoftware {
             }
 
             if (this.HasFilterIndicator(column))
+            {
                 r = this.DrawFilterIndicator(g, r);
+            }
 
             if (hasCheckBox)
+            {
                 r = this.DrawCheckBox(g, r, column.HeaderCheckState, column.HeaderCheckBoxDisabled, isMouseOverCheckBox, isMouseDownOnCheckBox);
+            }
 
             // Debugging - Where is the text going to be drawn
             //            g.DrawRectangle(Pens.Blue, r);
@@ -881,12 +987,16 @@ namespace BrightIdeasSoftware {
 
         private int CalculateSortIndicatorWidth(Graphics g, OLVColumn column, Font font) {
             if (this.ListView.SortDescriptions.Count == 1)
+            {
                 return 16;
+            }
 
             string label = this.ListView.GetSortPriority(column).ToString();
             using (Font priorityFont = CreateSortPriorityFont(font))
+            {
                 return TextRenderer.MeasureText(g, label, priorityFont, Size.Empty,
                     TextFormatFlags.SingleLine | TextFormatFlags.NoPrefix).Width + 16;
+            }
         }
 
         private static Font CreateSortPriorityFont(Font headerFont) {
@@ -974,20 +1084,31 @@ namespace BrightIdeasSoftware {
         /// <param name="stateStyle"></param>
         protected void DrawUnthemedBackground(Graphics g, Rectangle r, int columnIndex, bool isPressed, bool isHot, HeaderStateStyle stateStyle) {
             if (stateStyle.BackColor.IsEmpty)
+            {
                 // I know we're supposed to be drawing the unthemed background, but let's just see if we
                 // can draw something more interesting than the dull raised block
                 if (ObjectListViewTheme.IsDarkMode || (VisualStyleRenderer.IsSupported &&
                     VisualStyleRenderer.IsElementDefined(VisualStyleElement.Header.Item.Normal)))
+                {
                     this.DrawThemedBackground(g, r, columnIndex, isPressed, isHot);
+                }
                 else {
                     if (ObjectListViewTheme.UsesCustomHeaderColors)
+                    {
                         using (Brush brush = new SolidBrush(ObjectListViewTheme.ControlColor))
+                        {
                             g.FillRectangle(brush, r);
+                        }
+                    }
+
                     ControlPaint.DrawBorder3D(g, r, Border3DStyle.RaisedInner);
                 }
+            }
             else {
                 using (Brush b = new SolidBrush(stateStyle.BackColor))
+                {
                     g.FillRectangle(b, r);
+                }
             }
 
             // Draw the frame if the style asks for one
@@ -995,7 +1116,9 @@ namespace BrightIdeasSoftware {
                 RectangleF r2 = r;
                 r2.Inflate(-stateStyle.FrameWidth, -stateStyle.FrameWidth);
                 using (Pen pen = new Pen(stateStyle.FrameColor, stateStyle.FrameWidth))
+                {
                     g.DrawRectangle(pen, r2.X, r2.Y, r2.Width, r2.Height);
+                }
             }
         }
 
@@ -1012,25 +1135,40 @@ namespace BrightIdeasSoftware {
             if (ObjectListViewTheme.IsDarkMode) {
                 Color backColor = ObjectListViewTheme.GetHeaderBackColor(isPressed, isHot);
                 using (Brush brush = new SolidBrush(backColor))
+                {
                     g.FillRectangle(brush, r);
+                }
+
                 using (Pen pen = new Pen(ObjectListViewTheme.ControlDarkColor))
+                {
                     g.DrawLine(pen, r.Right - 1, r.Top, r.Right - 1, r.Bottom - 1);
+                }
+
                 return;
             }
 
             int part = 1; // normal item
             if (columnIndex == 0 &&
                 VisualStyleRenderer.IsElementDefined(VisualStyleElement.Header.ItemLeft.Normal))
+            {
                 part = 2; // left item
+            }
+
             if (columnIndex == this.ListView.Columns.Count - 1 &&
                 VisualStyleRenderer.IsElementDefined(VisualStyleElement.Header.ItemRight.Normal))
+            {
                 part = 3; // right item
+            }
 
             int state = 1; // normal state
             if (isPressed)
+            {
                 state = 3; // pressed
+            }
             else if (isHot)
+            {
                 state = 2; // hot
+            }
 
             VisualStyleRenderer renderer = new VisualStyleRenderer("HEADER", part, state);
             renderer.DrawBackground(g, r);
@@ -1044,15 +1182,24 @@ namespace BrightIdeasSoftware {
         protected void DrawThemedSortIndicator(Graphics g, Rectangle r) {
             VisualStyleRenderer renderer2 = null;
             if (this.ListView.LastSortOrder == SortOrder.Ascending)
+            {
                 renderer2 = new VisualStyleRenderer(VisualStyleElement.Header.SortArrow.SortedUp);
+            }
+
             if (this.ListView.LastSortOrder == SortOrder.Descending)
+            {
                 renderer2 = new VisualStyleRenderer(VisualStyleElement.Header.SortArrow.SortedDown);
+            }
+
             if (renderer2 != null) {
                 Size sz = renderer2.GetPartSize(g, ThemeSizeType.True);
                 Point pt = renderer2.GetPoint(PointProperty.Offset);
                 // GetPoint() should work, but if it doesn't, put the arrow in the top middle
                 if (pt.X == 0 && pt.Y == 0)
+                {
                     pt = new Point(r.X + (r.Width/2) - (sz.Width/2), r.Y);
+                }
+
                 renderer2.DrawBackground(g, new Rectangle(pt, sz));
             }
         }
@@ -1104,7 +1251,9 @@ namespace BrightIdeasSoftware {
         protected Rectangle DrawFilterIndicator(Graphics g, Rectangle r) {
             int width = this.CalculateFilterIndicatorWidth(r);
             if (width <= 0)
+            {
                 return r;
+            }
 
             Image indicator = Resources.ColumnFilterIndicator;
             int x = r.Right - width;
@@ -1117,7 +1266,10 @@ namespace BrightIdeasSoftware {
 
         private int CalculateFilterIndicatorWidth(Rectangle r) {
             if (Resources.ColumnFilterIndicator == null || r.Width < 48)
+            {
                 return 0;
+            }
+
             return Resources.ColumnFilterIndicator.Width + 1;
         }
 
@@ -1133,15 +1285,22 @@ namespace BrightIdeasSoftware {
             TextFormatFlags flags = this.TextFormatFlags;
             flags |= TextFormatFlags.VerticalCenter;
             if (column.HeaderTextAlignOrDefault == HorizontalAlignment.Center)
+            {
                 flags |= TextFormatFlags.HorizontalCenter;
+            }
+
             if (column.HeaderTextAlignOrDefault == HorizontalAlignment.Right)
+            {
                 flags |= TextFormatFlags.Right;
+            }
 
             Font f = this.ListView.HeaderUsesThemes ? this.ListView.Font : stateStyle.Font ?? this.ListView.Font;
             Color defaultColor = ObjectListViewTheme.HeaderTextColor;
             Color color = this.ListView.HeaderUsesThemes ? defaultColor : stateStyle.ForeColor;
             if (color.IsEmpty)
+            {
                 color = defaultColor;
+            }
 
             const int imageTextGap = 3;
 
@@ -1150,15 +1309,21 @@ namespace BrightIdeasSoftware {
             } else {
                 // Does the column have a header image and is there space for it?
                 if (column.HasHeaderImage && r.Width > column.ImageList.ImageSize.Width*2)
+                {
                     DrawImageAndText(g, r, column, flags, f, color, imageTextGap);
+                }
                 else
+                {
                     DrawText(g, r, column, flags, f, color);
+                }
             }
         }
 
         private void DrawText(Graphics g, Rectangle r, OLVColumn column, TextFormatFlags flags, Font f, Color color) {
             if (column.ShowTextInHeader)
+            {
                 TextRenderer.DrawText(g, column.Text, f, r, color, Color.Transparent, flags);
+            }
         }
 
         private void DrawImageAndText(Graphics g, Rectangle r, OLVColumn column, TextFormatFlags flags, Font f,
@@ -1169,14 +1334,22 @@ namespace BrightIdeasSoftware {
 
             Size textSize = Size.Empty;
             if (column.ShowTextInHeader)
+            {
                 textSize = TextRenderer.MeasureText(g, column.Text, f, textRect.Size, flags);
+            }
 
             int imageY = r.Top + ((r.Height - column.ImageList.ImageSize.Height)/2);
             int imageX = textRect.Left;
             if (column.HeaderTextAlignOrDefault == HorizontalAlignment.Center)
+            {
                 imageX = textRect.Left + ((textRect.Width - textSize.Width)/2);
+            }
+
             if (column.HeaderTextAlignOrDefault == HorizontalAlignment.Right)
+            {
                 imageX = textRect.Right - textSize.Width;
+            }
+
             imageX -= (column.ImageList.ImageSize.Width + imageTextGap);
 
             column.ImageList.Draw(g, imageX, imageY, column.ImageList.Images.IndexOfKey(column.HeaderImageKey));
@@ -1204,7 +1377,9 @@ namespace BrightIdeasSoftware {
                 textRect.Width = r.Height;
                 textRect.Height = r.Width;
                 using (Brush b = new SolidBrush(color))
+                {
                     g.DrawString(column.Text, f, b, textRect, fmt);
+                }
             }
             finally {
                 g.ResetTransform();
@@ -1229,12 +1404,21 @@ namespace BrightIdeasSoftware {
         /// <returns></returns>
         protected HeaderStateStyle CalculateStateStyle(OLVColumn column, bool isHot, bool isPressed) {
             HeaderFormatStyle headerStyle = this.CalculateHeaderStyle(column);
-            if (this.ListView.IsDesignMode) 
+            if (this.ListView.IsDesignMode)
+            {
                 return headerStyle.Normal;
+            }
+
             if (isPressed)
+            {
                 return headerStyle.Pressed;
+            }
+
             if (isHot)
+            {
                 return headerStyle.Hot;
+            }
+
             return headerStyle.Normal;
         }
 
@@ -1260,11 +1444,18 @@ namespace BrightIdeasSoftware {
                     TextFormatFlags.WordEllipsis | 
                     TextFormatFlags.PreserveGraphicsTranslateTransform;
                 if (this.WordWrap)
+                {
                     flags |= TextFormatFlags.WordBreak;
+                }
                 else
+                {
                     flags |= TextFormatFlags.SingleLine;
+                }
+
                 if (this.ListView.RightToLeft == RightToLeft.Yes)
+                {
                     flags |= TextFormatFlags.RightToLeft;
+                }
 
                 return flags;
             }
@@ -1280,7 +1471,9 @@ namespace BrightIdeasSoftware {
         {
             Rectangle r = this.ClientRectangle;
             if (!r.Contains(x, y))
+            {
                 return null;
+            }
 
             Point pt = new Point(x + this.ListView.LowLevelScrollPosition.X, y);
 

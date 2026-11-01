@@ -8,6 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace BrightIdeasSoftware.Tests
 {
     [TestClass]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1001", Justification = "TestCleanup disposes the fixture form and its owned controls.")]
     public abstract class WinFormsTestFixture
     {
         protected MainForm mainForm;
@@ -37,7 +38,9 @@ namespace BrightIdeasSoftware.Tests
         public void DisposeTestForm()
         {
             if (mainForm != null)
+            {
                 mainForm.Dispose();
+            }
         }
 
         internal sealed class SingleUseEnumerable<T> : IEnumerable<T>
@@ -51,7 +54,10 @@ namespace BrightIdeasSoftware.Tests
 
             public IEnumerator<T> GetEnumerator() {
                 if (enumerated)
+                {
                     throw new InvalidOperationException("The sequence was enumerated more than once.");
+                }
+
                 enumerated = true;
                 return source.GetEnumerator();
             }
@@ -94,7 +100,9 @@ namespace BrightIdeasSoftware.Tests
 
             public override void RemoveObjects(IEnumerable models) {
                 foreach (object model in models)
+                {
                     objects.Remove(model);
+                }
             }
 
             public override void UpdateObject(int index, object model) {

@@ -36,6 +36,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
@@ -47,6 +48,7 @@ namespace BrightIdeasSoftware
     /// are taken directly from the SDK and many are not used by ObjectListView.
     /// </summary>
     [Flags]
+    [SuppressMessage("Naming", "CA1707", Justification = "Member names mirror the Win32 group-state constants.")]
     public enum GroupState
     {
         /// <summary>
@@ -105,6 +107,7 @@ namespace BrightIdeasSoftware
     /// are taken directly from the SDK and many are not used by ObjectListView.
     /// </summary>
     [Flags]
+    [SuppressMessage("Naming", "CA1707", Justification = "Member names mirror the Win32 group-mask constants.")]
     public enum GroupMask
     {
         /// <summary>
@@ -187,6 +190,7 @@ namespace BrightIdeasSoftware
     /// This mask indicates which members of a GROUPMETRICS structure are valid
     /// </summary>
     [Flags]
+    [SuppressMessage("Naming", "CA1707", Justification = "Member names mirror the Win32 group-metrics constants.")]
     public enum GroupMetricsMask
     {
         /// <summary>
@@ -336,7 +340,9 @@ namespace BrightIdeasSoftware
         public int GroupId {
             get {
                 if (this.ListViewGroup == null)
+                {
                     return this.Id;
+                }
 
                 // Use reflection to get around the access control on the ID property
                 if (OLVGroup.groupIdPropInfo == null) {
@@ -572,14 +578,20 @@ namespace BrightIdeasSoftware
         /// <returns></returns>
         public int GetImageIndex(object imageSelector) {
             if (imageSelector == null || this.ListView == null || this.ListView.GroupImageList == null)
+            {
                 return -1;
+            }
 
             if (imageSelector is Int32)
+            {
                 return (int)imageSelector;
+            }
 
             String imageSelectorAsString = imageSelector as String;
             if (imageSelectorAsString != null)
+            {
                 return this.ListView.GroupImageList.Images.IndexOfKey(imageSelectorAsString);
+            }
 
             return -1;
         }
@@ -616,7 +628,10 @@ namespace BrightIdeasSoftware
 
             // Create/update the associated ListViewGroup
             if (this.ListViewGroup == null)
+            {
                 this.ListViewGroup = new ListViewGroup();
+            }
+
             this.ListViewGroup.Header = this.Header;
             this.ListViewGroup.HeaderAlignment = this.HeaderAlignment;
             this.ListViewGroup.Name = this.Name;
@@ -720,7 +735,10 @@ namespace BrightIdeasSoftware
 
         private bool GetOneState(GroupState mask) {
             if (this.Created)
+            {
                 this.State = this.GetState();
+            }
+
             return (this.State & mask) == mask;
         }
 
@@ -747,12 +765,18 @@ namespace BrightIdeasSoftware
         {
             this.StateMask ^= mask;
             if (value)
+            {
                 this.State ^= mask;
+            }
             else
+            {
                 this.State &= ~mask;
+            }
 
             if (this.Created)
+            {
                 this.SetState(this.State, mask);
+            }
         }
 
         #endregion

@@ -45,11 +45,15 @@ namespace BrightIdeasSoftware {
 
         new public TValue this[TKey key] {
             get {
-                if (key != null) 
+                if (key != null)
+                {
                     return base[key];
+                }
 
                 if (this.hasNullKey)
+                {
                     return this.nullValue;
+                }
 
                 throw new KeyNotFoundException();
             }
@@ -58,7 +62,9 @@ namespace BrightIdeasSoftware {
                     this.hasNullKey = true;
                     this.nullValue = value;
                 } else
+                {
                     base[key] = value;
+                }
             }
         }
 
@@ -66,11 +72,24 @@ namespace BrightIdeasSoftware {
             return key == null ? this.hasNullKey : base.ContainsKey(key);
         }
 
+        new public bool TryGetValue(TKey key, out TValue value) {
+            if (key != null)
+            {
+                return base.TryGetValue(key, out value);
+            }
+
+            value = this.hasNullKey ? this.nullValue : default(TValue);
+            return this.hasNullKey;
+        }
+
         new public IList Keys {
             get {
                 ArrayList list = new ArrayList(base.Keys);
                 if (this.hasNullKey)
+                {
                     list.Add(null);
+                }
+
                 return list;
             }
         }
@@ -79,7 +98,10 @@ namespace BrightIdeasSoftware {
             get {
                 List<TValue> list = new List<TValue>(base.Values);
                 if (this.hasNullKey)
+                {
                     list.Add(this.nullValue);
+                }
+
                 return list;
             }
         }

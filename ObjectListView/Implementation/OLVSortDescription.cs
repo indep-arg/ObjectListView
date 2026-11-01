@@ -12,10 +12,12 @@ namespace BrightIdeasSoftware {
         /// Create a sort description.
         /// </summary>
         public OLVSortDescription(OLVColumn column, SortOrder sortOrder) {
-            if (column == null)
-                throw new ArgumentNullException("column");
+            ArgumentNullException.ThrowIfNull(column, nameof(column));
             if (sortOrder != SortOrder.Ascending && sortOrder != SortOrder.Descending)
-                throw new ArgumentOutOfRangeException("sortOrder");
+            {
+                throw new ArgumentOutOfRangeException(nameof(sortOrder));
+            }
+
             this.Column = column;
             this.SortOrder = sortOrder;
         }
@@ -35,7 +37,10 @@ namespace BrightIdeasSoftware {
 
         internal static OLVSortDescription CreateConfiguration(OLVColumn column, SortOrder order) {
             if (order != SortOrder.None && order != SortOrder.Ascending && order != SortOrder.Descending)
-                throw new ArgumentOutOfRangeException("order");
+            {
+                throw new ArgumentOutOfRangeException(nameof(order));
+            }
+
             return new OLVSortDescription { Column = column, SortOrder = order };
         }
     }
@@ -45,10 +50,11 @@ namespace BrightIdeasSoftware {
         }
 
         internal SortDescriptionCollection(IEnumerable<OLVSortDescription> descriptions) {
-            if (descriptions == null)
-                throw new ArgumentNullException("descriptions");
+            ArgumentNullException.ThrowIfNull(descriptions, nameof(descriptions));
             foreach (OLVSortDescription description in descriptions)
+            {
                 this.Add(description);
+            }
         }
 
         internal SortDescriptionCollection(OLVColumn column, SortOrder order, OLVColumn secondaryColumn, SortOrder secondaryOrder) {
@@ -79,7 +85,10 @@ namespace BrightIdeasSoftware {
         private void SetDescription(int index, OLVSortDescription description) {
             // Legacy callers can set a direction before its column, or configure the secondary field first.
             while (this.Count <= index)
+            {
                 this.Add(OLVSortDescription.CreateConfiguration(null, SortOrder.None));
+            }
+
             this[index] = description;
         }
 
@@ -94,17 +103,24 @@ namespace BrightIdeasSoftware {
             List<OLVSortDescription> snapshot = new List<OLVSortDescription>(descriptions);
             this.Clear();
             foreach (OLVSortDescription description in snapshot)
+            {
                 this.Add(description);
+            }
         }
 
         internal IList<OLVSortDescription> GetActiveDescriptions() {
             List<OLVSortDescription> result = new List<OLVSortDescription>();
             if (this.GetColumn(0) == null || this.GetOrder(0) == SortOrder.None)
+            {
                 return result.AsReadOnly();
+            }
 
             foreach (OLVSortDescription description in this) {
                 if (description.Column == null || result.Exists(x => x.Column == description.Column))
+                {
                     continue;
+                }
+
                 SortOrder order = description.SortOrder == SortOrder.None ? this.GetOrder(0) : description.SortOrder;
                 result.Add(new OLVSortDescription(description.Column, order));
             }
@@ -112,14 +128,12 @@ namespace BrightIdeasSoftware {
         }
 
         protected override void InsertItem(int index, OLVSortDescription item) {
-            if (item == null)
-                throw new ArgumentNullException("item");
+            ArgumentNullException.ThrowIfNull(item, nameof(item));
             base.InsertItem(index, item);
         }
 
         protected override void SetItem(int index, OLVSortDescription item) {
-            if (item == null)
-                throw new ArgumentNullException("item");
+            ArgumentNullException.ThrowIfNull(item, nameof(item));
             base.SetItem(index, item);
         }
     }

@@ -410,7 +410,9 @@ namespace BrightIdeasSoftware {
         /// <param name="e"></param>
         protected virtual void OnAboutToCreateGroups(CreateGroupsEventArgs e) {
             if (this.AboutToCreateGroups != null)
+            {
                 this.AboutToCreateGroups(this, e);
+            }
         }
 
         /// <summary>
@@ -419,7 +421,9 @@ namespace BrightIdeasSoftware {
         /// <param name="e"></param>
         protected virtual void OnBeforeCreatingGroups(CreateGroupsEventArgs e) {
             if (this.BeforeCreatingGroups != null)
+            {
                 this.BeforeCreatingGroups(this, e);
+            }
         }
 
         /// <summary>
@@ -428,7 +432,9 @@ namespace BrightIdeasSoftware {
         /// <param name="e"></param>
         protected virtual void OnAfterCreatingGroups(CreateGroupsEventArgs e) {
             if (this.AfterCreatingGroups != null)
+            {
                 this.AfterCreatingGroups(this, e);
+            }
         }
 
         /// <summary>
@@ -437,7 +443,9 @@ namespace BrightIdeasSoftware {
         /// <param name="e"></param>
         protected virtual void OnAfterSearching(AfterSearchingEventArgs e) {
             if (this.AfterSearching != null)
+            {
                 this.AfterSearching(this, e);
+            }
         }
 
         /// <summary>
@@ -447,7 +455,9 @@ namespace BrightIdeasSoftware {
         protected virtual void OnAfterSorting(AfterSortingEventArgs e) {
             this.InvalidateModelRows();
             if (this.AfterSorting != null)
+            {
                 this.AfterSorting(this, e);
+            }
         }
 
         /// <summary>
@@ -456,7 +466,9 @@ namespace BrightIdeasSoftware {
         /// <param name="e"></param>
         protected virtual void OnBeforeSearching(BeforeSearchingEventArgs e) {
             if (this.BeforeSearching != null)
+            {
                 this.BeforeSearching(this, e);
+            }
         }
 
         /// <summary>
@@ -465,7 +477,9 @@ namespace BrightIdeasSoftware {
         /// <param name="e"></param>
         protected virtual void OnBeforeSorting(BeforeSortingEventArgs e) {
             if (this.BeforeSorting != null)
+            {
                 this.BeforeSorting(this, e);
+            }
         }
 
         /// <summary>
@@ -474,7 +488,9 @@ namespace BrightIdeasSoftware {
         /// <param name="args"></param>
         protected virtual void OnButtonClick(CellClickEventArgs args) {
             if (this.ButtonClick != null)
+            {
                 this.ButtonClick(this, args);
+            }
         }
 
         /// <summary>
@@ -483,7 +499,9 @@ namespace BrightIdeasSoftware {
         /// <param name="args"></param>
         protected virtual void OnCanDrop(OlvDropEventArgs args) {
             if (this.CanDrop != null)
+            {
                 this.CanDrop(this, args);
+            }
         }
 
         /// <summary>
@@ -492,7 +510,9 @@ namespace BrightIdeasSoftware {
         /// <param name="args"></param>
         protected virtual void OnCellClick(CellClickEventArgs args) {
             if (this.CellClick != null)
+            {
                 this.CellClick(this, args);
+            }
         }
 
         /// <summary>
@@ -501,7 +521,9 @@ namespace BrightIdeasSoftware {
         /// <param name="args"></param>
         protected virtual void OnCellOver(CellOverEventArgs args) {
             if (this.CellOver != null)
+            {
                 this.CellOver(this, args);
+            }
         }
 
         /// <summary>
@@ -510,7 +532,9 @@ namespace BrightIdeasSoftware {
         /// <param name="args"></param>
         protected virtual void OnCellRightClick(CellRightClickEventArgs args) {
             if (this.CellRightClick != null)
+            {
                 this.CellRightClick(this, args);
+            }
         }
 
         /// <summary>
@@ -519,7 +543,9 @@ namespace BrightIdeasSoftware {
         /// <param name="args"></param>
         protected virtual void OnCellToolTip(ToolTipShowingEventArgs args) {
             if (this.CellToolTipShowing != null)
+            {
                 this.CellToolTipShowing(this, args);
+            }
         }
 
         /// <summary>
@@ -528,7 +554,9 @@ namespace BrightIdeasSoftware {
         /// <param name="args"></param>
         protected virtual void OnSubItemChecking(SubItemCheckingEventArgs args) {
             if (this.SubItemChecking != null)
+            {
                 this.SubItemChecking(this, args);
+            }
         }
 
         /// <summary>
@@ -537,7 +565,9 @@ namespace BrightIdeasSoftware {
         /// <param name="e"></param>
         protected virtual void OnColumnRightClick(ColumnRightClickEventArgs e) {
             if (this.ColumnRightClick != null)
+            {
                 this.ColumnRightClick(this, e);
+            }
         }
 
         /// <summary>
@@ -546,7 +576,9 @@ namespace BrightIdeasSoftware {
         /// <param name="args"></param>
         protected virtual void OnDropped(OlvDropEventArgs args) {
             if (this.Dropped != null)
+            {
                 this.Dropped(this, args);
+            }
         }
 
         /// <summary>
@@ -555,7 +587,9 @@ namespace BrightIdeasSoftware {
         /// <param name="e"></param>
         internal protected virtual void OnFilter(FilterEventArgs e) {
             if (this.Filter != null)
+            {
                 this.Filter(this, e);
+            }
         }
 
         /// <summary>
@@ -564,7 +598,9 @@ namespace BrightIdeasSoftware {
         /// <param name="args"></param>
         protected virtual void OnFormatCell(FormatCellEventArgs args) {
             if (this.FormatCell != null)
+            {
                 this.FormatCell(this, args);
+            }
         }
 
         /// <summary>
@@ -573,7 +609,9 @@ namespace BrightIdeasSoftware {
         /// <param name="args"></param>
         protected virtual void OnFormatRow(FormatRowEventArgs args) {
             if (this.FormatRow != null)
+            {
                 this.FormatRow(this, args);
+            }
         }
 
         /// <summary>
@@ -582,7 +620,9 @@ namespace BrightIdeasSoftware {
         /// <param name="args"></param>
         protected virtual void OnFreezing(FreezeEventArgs args) {
             if (this.Freezing != null)
+            {
                 this.Freezing(this, args);
+            }
         }
 
         /// <summary>
@@ -591,7 +631,9 @@ namespace BrightIdeasSoftware {
         /// <param name="args"></param>
         protected virtual void OnGroupExpandingCollapsing(GroupExpandingCollapsingEventArgs args) {
             if (this.GroupExpandingCollapsing != null)
+            {
                 this.GroupExpandingCollapsing(this, args);
+            }
         }
 
         /// <summary>
@@ -600,7 +642,9 @@ namespace BrightIdeasSoftware {
         /// <param name="args"></param>
         protected virtual void OnGroupStateChanged(GroupStateChangedEventArgs args) {
             if (this.GroupStateChanged != null)
+            {
                 this.GroupStateChanged(this, args);
+            }
         }
 
         /// <summary>
@@ -609,7 +653,9 @@ namespace BrightIdeasSoftware {
         /// <param name="args"></param>
         protected virtual void OnHeaderCheckBoxChanging(HeaderCheckBoxChangingEventArgs args) {
             if (this.HeaderCheckBoxChanging != null)
+            {
                 this.HeaderCheckBoxChanging(this, args);
+            }
         }
 
         /// <summary>
@@ -618,7 +664,9 @@ namespace BrightIdeasSoftware {
         /// <param name="args"></param>
         protected virtual void OnHeaderToolTip(ToolTipShowingEventArgs args) {
             if (this.HeaderToolTipShowing != null)
+            {
                 this.HeaderToolTipShowing(this, args);
+            }
         }
 
         /// <summary>
@@ -627,7 +675,9 @@ namespace BrightIdeasSoftware {
         /// <param name="e"></param>
         protected virtual void OnHotItemChanged(HotItemChangedEventArgs e) {
             if (this.HotItemChanged != null)
+            {
                 this.HotItemChanged(this, e);
+            }
         }
 
         /// <summary>
@@ -636,7 +686,9 @@ namespace BrightIdeasSoftware {
         /// <param name="e"></param>
         protected virtual void OnHyperlinkClicked(HyperlinkClickedEventArgs e) {
             if (this.HyperlinkClicked != null)
+            {
                 this.HyperlinkClicked(this, e);
+            }
         }
 
         /// <summary>
@@ -645,7 +697,9 @@ namespace BrightIdeasSoftware {
         /// <param name="e"></param>
         protected virtual void OnGroupTaskClicked(GroupTaskClickedEventArgs e) {
             if (this.GroupTaskClicked != null)
+            {
                 this.GroupTaskClicked(this, e);
+            }
         }
 
         /// <summary>
@@ -654,7 +708,9 @@ namespace BrightIdeasSoftware {
         /// <param name="e"></param>
         protected virtual void OnIsHyperlink(IsHyperlinkEventArgs e) {
             if (this.IsHyperlink != null)
+            {
                 this.IsHyperlink(this, e);
+            }
         }
 
         /// <summary>
@@ -663,7 +719,9 @@ namespace BrightIdeasSoftware {
         /// <param name="e"></param>
         protected virtual void OnItemsAdding(ItemsAddingEventArgs e) {
             if (this.ItemsAdding != null)
+            {
                 this.ItemsAdding(this, e);
+            }
         }
 
         /// <summary>
@@ -673,7 +731,9 @@ namespace BrightIdeasSoftware {
         protected virtual void OnItemsChanged(ItemsChangedEventArgs e) {
             this.InvalidateModelRows();
             if (this.ItemsChanged != null)
+            {
                 this.ItemsChanged(this, e);
+            }
         }
 
         /// <summary>
@@ -682,7 +742,9 @@ namespace BrightIdeasSoftware {
         /// <param name="e"></param>
         protected virtual void OnItemsChanging(ItemsChangingEventArgs e) {
             if (this.ItemsChanging != null)
+            {
                 this.ItemsChanging(this, e);
+            }
         }
 
         /// <summary>
@@ -691,7 +753,9 @@ namespace BrightIdeasSoftware {
         /// <param name="e"></param>
         protected virtual void OnItemsRemoving(ItemsRemovingEventArgs e) {
             if (this.ItemsRemoving != null)
+            {
                 this.ItemsRemoving(this, e);
+            }
         }
 
         /// <summary>
@@ -700,7 +764,9 @@ namespace BrightIdeasSoftware {
         /// <param name="args"></param>
         protected virtual void OnModelCanDrop(ModelDropEventArgs args) {
             if (this.ModelCanDrop != null)
+            {
                 this.ModelCanDrop(this, args);
+            }
         }
 
         /// <summary>
@@ -709,7 +775,9 @@ namespace BrightIdeasSoftware {
         /// <param name="args"></param>
         protected virtual void OnModelDropped(ModelDropEventArgs args) {
             if (this.ModelDropped != null)
+            {
                 this.ModelDropped(this, args);
+            }
         }
 
         /// <summary>
@@ -718,7 +786,9 @@ namespace BrightIdeasSoftware {
         /// <param name="e"></param>
         protected virtual void OnSelectionChanged(EventArgs e) {
             if (this.SelectionChanged != null)
+            {
                 this.SelectionChanged(this, e);
+            }
         }
 
         /// <summary>
@@ -727,7 +797,9 @@ namespace BrightIdeasSoftware {
         /// <param name="e"></param>
         protected virtual void OnScroll(ScrollEventArgs e) {
             if (this.Scroll != null)
+            {
                 this.Scroll(this, e);
+            }
         }
 
 
@@ -736,7 +808,9 @@ namespace BrightIdeasSoftware {
         /// </summary>
         protected virtual void OnCellEditStarting(CellEditEventArgs e) {
             if (this.CellEditStarting != null)
+            {
                 this.CellEditStarting(this, e);
+            }
         }
 
         /// <summary>
@@ -768,20 +842,24 @@ namespace BrightIdeasSoftware {
             } else {
                 lastValidatingEvent = Environment.TickCount;
                 if (this.CellEditValidating != null)
+                {
                     this.CellEditValidating(this, e);
+                }
             }
 
             lastValidatingEvent = Environment.TickCount;
         }
 
-        private int lastValidatingEvent = 0;
+        private int lastValidatingEvent;
 
         /// <summary>
         /// Tell the world when a cell is about to finish being edited.
         /// </summary>
         protected virtual void OnCellEditFinishing(CellEditEventArgs e) {
             if (this.CellEditFinishing != null)
+            {
                 this.CellEditFinishing(this, e);
+            }
         }
 
         /// <summary>
@@ -789,7 +867,9 @@ namespace BrightIdeasSoftware {
         /// </summary>
         protected virtual void OnCellEditFinished(CellEditEventArgs e) {
             if (this.CellEditFinished != null)
+            {
                 this.CellEditFinished(this, e);
+            }
         }
 
         #endregion
@@ -837,7 +917,9 @@ namespace BrightIdeasSoftware {
         /// <param name="e"></param>
         protected virtual void OnExpanding(TreeBranchExpandingEventArgs e) {
             if (this.Expanding != null)
+            {
                 this.Expanding(this, e);
+            }
         }
 
         /// <summary>
@@ -846,7 +928,9 @@ namespace BrightIdeasSoftware {
         /// <param name="e"></param>
         protected virtual void OnCollapsing(TreeBranchCollapsingEventArgs e) {
             if (this.Collapsing != null)
+            {
                 this.Collapsing(this, e);
+            }
         }
 
         /// <summary>
@@ -855,7 +939,9 @@ namespace BrightIdeasSoftware {
         /// <param name="e"></param>
         protected virtual void OnExpanded(TreeBranchExpandedEventArgs e) {
             if (this.Expanded != null)
+            {
                 this.Expanded(this, e);
+            }
         }
 
         /// <summary>
@@ -864,7 +950,9 @@ namespace BrightIdeasSoftware {
         /// <param name="e"></param>
         protected virtual void OnCollapsed(TreeBranchCollapsedEventArgs e) {
             if (this.Collapsed != null)
+            {
                 this.Collapsed(this, e);
+            }
         }
 
         #endregion
@@ -2233,7 +2321,7 @@ namespace BrightIdeasSoftware {
         /// </summary>
         /// <param name="group"> </param>
         public GroupExpandingCollapsingEventArgs(OLVGroup group) {
-            if (group == null) throw new ArgumentNullException("group");
+            ArgumentNullException.ThrowIfNull(group, nameof(group));
             this.olvGroup = group;
         }
 

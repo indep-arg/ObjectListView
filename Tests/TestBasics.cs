@@ -48,7 +48,9 @@ namespace BrightIdeasSoftware.Tests
         public void Test_GetModelObject() {
             this.olv.SetObjects(PersonDb.All);
             for (int i = 0; i < PersonDb.All.Count; i++)
+            {
                 Assert.AreEqual(PersonDb.All[i], this.olv.GetModelObject(i));
+            }
         }
 
         [TestMethod]
@@ -66,7 +68,10 @@ namespace BrightIdeasSoftware.Tests
             this.olv.SetObjects(null);
             this.olv.AddObjects(PersonDb.All);
             foreach (object x in PersonDb.All)
+            {
                 Assert.AreNotEqual(-1, this.olv.IndexOf(x));
+            }
+
             Assert.AreEqual(PersonDb.All.Count, this.olv.GetItemCount());
         }
 
@@ -185,7 +190,10 @@ namespace BrightIdeasSoftware.Tests
             toRemove.Add(PersonDb.All[5]);
             this.olv.RemoveObjects(toRemove);
             foreach (Person x in toRemove)
+            {
                 Assert.AreEqual(-1, this.olv.IndexOf(x));
+            }
+
             Assert.AreEqual(PersonDb.All.Count - toRemove.Count, this.olv.GetItemCount());
         }
 

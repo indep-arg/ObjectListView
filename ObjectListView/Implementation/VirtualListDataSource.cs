@@ -269,13 +269,17 @@ namespace BrightIdeasSoftware
                 for (int i = first; i <= last; i++) {
                     string data = column.GetStringValue(source.GetNthObject(i));
                     if (data.StartsWith(value, StringComparison.CurrentCultureIgnoreCase))
+                    {
                         return i;
+                    }
                 }
             } else {
                 for (int i = first; i >= last; i--) {
                     string data = column.GetStringValue(source.GetNthObject(i));
                     if (data.StartsWith(value, StringComparison.CurrentCultureIgnoreCase))
+                    {
                         return i;
+                    }
                 }
             }
 
@@ -330,9 +334,13 @@ namespace BrightIdeasSoftware
         /// <returns></returns>
         public override object GetNthObject(int n) {
             if (this.RowGetter == null)
+            {
                 return null;
+            }
             else
+            {
                 return this.RowGetter(n);
+            }
         }
 
         /// <summary>

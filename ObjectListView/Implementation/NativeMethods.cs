@@ -875,7 +875,9 @@ namespace BrightIdeasSoftware
         public static void SetColumnImage(ListView list, int columnIndex, SortOrder order, int imageIndex) {
             IntPtr hdrCntl = NativeMethods.GetHeaderControl(list);
             if (hdrCntl.ToInt32() == 0)
+            {
                 return;
+            }
 
             HDITEM item = new HDITEM();
             item.mask = HDI_FORMAT;
@@ -885,9 +887,14 @@ namespace BrightIdeasSoftware
 
             if (NativeMethods.HasBuiltinSortIndicators()) {
                 if (order == SortOrder.Ascending)
+                {
                     item.fmt |= HDF_SORTUP;
+                }
+
                 if (order == SortOrder.Descending)
+                {
                     item.fmt |= HDF_SORTDOWN;
+                }
             } else {
                 item.mask |= HDI_IMAGE;
                 item.fmt |= (HDF_IMAGE | HDF_BITMAP_ON_RIGHT);
@@ -998,7 +1005,9 @@ namespace BrightIdeasSoftware
             Point sides = new Point(-1, -1);
             IntPtr hdr = NativeMethods.GetHeaderControl(lv);
             if (hdr == IntPtr.Zero)
+            {
                 return new Point(-1, -1);
+            }
 
             RECT r = new RECT();
             NativeMethods.SendMessageRECT(hdr, HDM_GETITEMRECT, columnIndex, ref r);
@@ -1015,7 +1024,9 @@ namespace BrightIdeasSoftware
         public static Point GetScrolledColumnSides(ListView lv, int columnIndex) {
             IntPtr hdr = NativeMethods.GetHeaderControl(lv);
             if (hdr == IntPtr.Zero)
+            {
                 return new Point(-1, -1);
+            }
 
             RECT r = new RECT();
             IntPtr result = NativeMethods.SendMessageRECT(hdr, HDM_GETITEMRECT, columnIndex, ref r);
@@ -1042,9 +1053,13 @@ namespace BrightIdeasSoftware
             testInfo.pt_y = pt.Y;
             IntPtr result = NativeMethods.SendMessageHDHITTESTINFO(handle, HDM_HITTEST, IntPtr.Zero, testInfo);
             if ((testInfo.flags & flag) != 0)
+            {
                 return testInfo.iItem;
+            }
             else
+            {
                 return -1;
+            }
         }
 
         /// <summary>
@@ -1070,9 +1085,13 @@ namespace BrightIdeasSoftware
             SCROLLINFO scrollInfo = new SCROLLINFO();
             scrollInfo.fMask = SIF_POS;
             if (GetScrollInfo(lv.Handle, fnBar, scrollInfo))
+            {
                 return scrollInfo.nPos;
+            }
             else
+            {
                 return -1;
+            }
         }
 
         /// <summary>
@@ -1150,16 +1169,24 @@ namespace BrightIdeasSoftware
 
         public static int GetWindowLong(IntPtr hWnd, int nIndex) {
             if (IntPtr.Size == 4)
+            {
                 return (int)GetWindowLong32(hWnd, nIndex);
+            }
             else
+            {
                 return (int)(long)GetWindowLongPtr64(hWnd, nIndex);
+            }
         }
 
         public static int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong) {
             if (IntPtr.Size == 4)
+            {
                 return (int)SetWindowLongPtr32(hWnd, nIndex, dwNewLong);
+            }
             else
+            {
                 return (int)(long)SetWindowLongPtr64(hWnd, nIndex, dwNewLong);
+            }
         }
 
         [DllImport("gdi32.dll", CharSet = CharSet.Auto, SetLastError = true, ExactSpelling = true)]

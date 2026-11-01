@@ -97,9 +97,13 @@ namespace BrightIdeasSoftware
         public Rectangle RowBounds {
             get {
                 if (this.ListItem == null)
+                {
                     return Rectangle.Empty;
+                }
                 else
+                {
                     return this.ListItem.Bounds;
+                }
             }
         }
 
@@ -109,9 +113,13 @@ namespace BrightIdeasSoftware
         public Rectangle CellBounds {
             get {
                 if (this.ListItem == null || this.SubItem == null)
+                {
                     return Rectangle.Empty;
+                }
                 else
+                {
                     return this.ListItem.GetSubItemBounds(this.ListItem.SubItems.IndexOf(this.SubItem));
+                }
             }
         }
 
@@ -151,7 +159,7 @@ namespace BrightIdeasSoftware
         /// <param name="column"></param>
         public ColumnDecoration(OLVColumn column)
             : this() {
-            this.ColumnToDecorate = column ?? throw new ArgumentNullException("column");
+            this.ColumnToDecorate = column ?? throw new ArgumentNullException(nameof(column));
         }
 
         #endregion
@@ -176,7 +184,9 @@ namespace BrightIdeasSoftware
             }
             set {
                 if (this.pen == value)
+                {
                     return;
+                }
 
                 if (this.pen != null) {
                     this.pen.Dispose();
@@ -206,17 +216,25 @@ namespace BrightIdeasSoftware
         public override void Draw(ObjectListViewBase olv, Graphics g, Rectangle r) {
 
             if (olv.View != System.Windows.Forms.View.Details)
+            {
                 return;
+            }
 
             if (olv.GetItemCount() == 0)
+            {
                 return;
+            }
 
             if (this.ColumnToDecorate == null)
+            {
                 return;
+            }
 
             Point sides = NativeMethods.GetScrolledColumnSides(olv, this.ColumnToDecorate.Index);
             if (sides.X == -1)
+            {
                 return;
+            }
 
             Rectangle columnBounds = new Rectangle(sides.X, r.Top, sides.Y - sides.X, r.Bottom);
 
@@ -225,7 +243,9 @@ namespace BrightIdeasSoftware
             if (lastItem != null) {
                 Rectangle lastItemBounds = lastItem.Bounds;
                 if (!lastItemBounds.IsEmpty && lastItemBounds.Bottom < columnBounds.Bottom)
+                {
                     columnBounds.Height = lastItemBounds.Bottom - columnBounds.Top;
+                }
             }
 
             // Delegate the drawing of the actual decoration
@@ -280,28 +300,19 @@ namespace BrightIdeasSoftware
         /// </summary>
         public Color Tint {
             get { return this.tint; }
-            set {
-                if (this.tint == value)
-                    return;
-
-                if (this.tintBrush != null) {
-                    this.tintBrush.Dispose();
-                    this.tintBrush = null;
-                }
-
-                this.tint = value;
-                this.tintBrush = new SolidBrush(this.tint);
-            }
+            set { this.tint = value; }
         }
         private Color tint;
-        private SolidBrush tintBrush;
 
         #endregion
 
         #region IOverlay Members
 
         public override void DrawDecoration(ObjectListViewBase olv, Graphics g, Rectangle r, Rectangle columnBounds) {
-            g.FillRectangle(this.tintBrush, columnBounds);
+            using (Brush brush = new SolidBrush(this.Tint))
+            {
+                g.FillRectangle(brush, columnBounds);
+            }
         }
 
         #endregion
@@ -392,7 +403,7 @@ namespace BrightIdeasSoftware
     /// This decoration draws an optionally filled border around a rectangle.
     /// Subclasses must override CalculateBounds().
     /// </summary>
-    public class BorderDecoration : AbstractDecoration
+    public class BorderDecoration : AbstractDecoration, IDisposable
     {
         #region Constructors
 
@@ -401,6 +412,7 @@ namespace BrightIdeasSoftware
         /// </summary>
         public BorderDecoration()
             : this(new Pen(Color.FromArgb(64, Color.Blue), 1)) {
+            this.ownsBorderPen = true;
         }
 
         /// <summary>
@@ -421,6 +433,37 @@ namespace BrightIdeasSoftware
             this.FillBrush = fill;
         }
 
+        /// <summary>
+        /// Release generated drawing resources. Assigned pens and brushes remain caller-owned.
+        /// </summary>
+        public void Dispose() {
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Release resources owned by this decoration.
+        /// </summary>
+        /// <param name="disposing">Whether managed resources should be released.</param>
+        protected virtual void Dispose(bool disposing) {
+            if (!disposing)
+            {
+                return;
+            }
+
+            if (this.ownsBorderPen) {
+                this.borderPen.Dispose();
+                this.ownsBorderPen = false;
+            }
+            if (this.ownsFillBrush) {
+                this.fillBrush.Dispose();
+                this.ownsFillBrush = false;
+            }
+        }
+
+        private bool ownsBorderPen;
+        private bool ownsFillBrush = true;
+
         #endregion
 
         #region Properties
@@ -430,7 +473,20 @@ namespace BrightIdeasSoftware
         /// </summary>
         public Pen BorderPen {
             get { return this.borderPen; }
-            set { this.borderPen = value; }
+            set {
+                if (this.borderPen == value)
+                {
+                    return;
+                }
+
+                if (this.ownsBorderPen)
+                {
+                    this.borderPen.Dispose();
+                }
+
+                this.borderPen = value;
+                this.ownsBorderPen = false;
+            }
         }
         private Pen borderPen;
 
@@ -460,7 +516,20 @@ namespace BrightIdeasSoftware
         /// <remarks>This value is ignored when using gradient brush</remarks>
         public Brush FillBrush {
             get { return this.fillBrush; }
-            set { this.fillBrush = value; }
+            set {
+                if (this.fillBrush == value)
+                {
+                    return;
+                }
+
+                if (this.ownsFillBrush)
+                {
+                    this.fillBrush.Dispose();
+                }
+
+                this.fillBrush = value;
+                this.ownsFillBrush = false;
+            }
         }
         private Brush fillBrush = new SolidBrush(Color.FromArgb(64, Color.Blue));
 
@@ -506,7 +575,9 @@ namespace BrightIdeasSoftware
         public override void Draw(ObjectListViewBase olv, Graphics g, Rectangle r) {
             Rectangle bounds = this.CalculateBounds();
             if (!bounds.IsEmpty)
+            {
                 this.DrawFilledBorder(g, bounds);
+            }
         }
         
         #endregion
@@ -532,16 +603,20 @@ namespace BrightIdeasSoftware
         /// <param name="bounds"></param>
         protected void DrawFilledBorder(Graphics g, Rectangle bounds) {
             bounds.Inflate(this.BoundsPadding);
-            GraphicsPath path = this.GetRoundedRect(bounds, this.CornerRounding);
-            if (this.FillGradientFrom != null && this.FillGradientTo != null) {
-                if (this.FillBrush != null)
-                    this.FillBrush.Dispose();
-                this.FillBrush = new LinearGradientBrush(bounds, this.FillGradientFrom.Value, this.FillGradientTo.Value, this.FillGradientMode);
+            using (GraphicsPath path = this.GetRoundedRect(bounds, this.CornerRounding)) {
+                if (this.FillGradientFrom != null && this.FillGradientTo != null) {
+                    using (Brush gradient = new LinearGradientBrush(bounds, this.FillGradientFrom.Value, this.FillGradientTo.Value, this.FillGradientMode))
+                    {
+                        g.FillPath(gradient, path);
+                    }
+                } else if (this.FillBrush != null) {
+                    g.FillPath(this.FillBrush, path);
+                }
+                if (this.BorderPen != null)
+                {
+                    g.DrawPath(this.BorderPen, path);
+                }
             }
-            if (this.FillBrush != null)
-                g.FillPath(this.FillBrush, path);
-            if (this.BorderPen != null)
-                g.DrawPath(this.BorderPen, path);
         }
 
         /// <summary>
@@ -603,7 +678,9 @@ namespace BrightIdeasSoftware
         protected override Rectangle CalculateBounds() {
             Rectangle bounds = this.RowBounds;
             if (this.ListItem == null)
+            {
                 return bounds;
+            }
 
             if (this.LeftColumn >= 0) {
                 Rectangle leftCellBounds = this.ListItem.GetSubItemBounds(this.LeftColumn);
@@ -680,11 +757,16 @@ namespace BrightIdeasSoftware
             get { return this.useLightbox; }
             set {
                 if (this.useLightbox == value)
+                {
                     return;
+                }
+
                 this.useLightbox = value;
                 if (this.useLightbox) {
                     if (this.FillBrush == null)
+                    {
                         this.FillBrush = new SolidBrush(Color.FromArgb(64, Color.Black));
+                    }
                 }
             }
         }
@@ -701,30 +783,40 @@ namespace BrightIdeasSoftware
         /// <param name="g"></param>
         /// <param name="r"></param>
         public override void Draw(ObjectListViewBase olv, Graphics g, Rectangle r) {
-            if (!olv.IsCellEditing) 
+            if (!olv.IsCellEditing)
+            {
                 return;
+            }
 
             Rectangle bounds = olv.CellEditor.Bounds;
             if (bounds.IsEmpty)
+            {
                 return;
+            }
 
             bounds.Inflate(this.BoundsPadding);
-            GraphicsPath path = this.GetRoundedRect(bounds, this.CornerRounding);
-            if (this.FillBrush != null) {
-                if (this.UseLightbox) {
-                    using (Region newClip = new Region(r)) {
-                        newClip.Exclude(path);
-                        Region originalClip = g.Clip;
-                        g.Clip = newClip;
-                        g.FillRectangle(this.FillBrush, r);
-                        g.Clip = originalClip;
+            using (GraphicsPath path = this.GetRoundedRect(bounds, this.CornerRounding)) {
+                if (this.FillBrush != null) {
+                    if (this.UseLightbox) {
+                        using (Region newClip = new Region(r))
+                        using (Region originalClip = g.Clip) {
+                            newClip.Exclude(path);
+                            try {
+                                g.Clip = newClip;
+                                g.FillRectangle(this.FillBrush, r);
+                            } finally {
+                                g.Clip = originalClip;
+                            }
+                        }
+                    } else {
+                        g.FillPath(this.FillBrush, path);
                     }
-                } else {
-                    g.FillPath(this.FillBrush, path);
+                }
+                if (this.BorderPen != null)
+                {
+                    g.DrawPath(this.BorderPen, path);
                 }
             }
-            if (this.BorderPen != null)
-                g.DrawPath(this.BorderPen, path);
         }
 
         #endregion
@@ -756,22 +848,31 @@ namespace BrightIdeasSoftware
         /// <param name="r"></param>
         public override void Draw(ObjectListViewBase olv, Graphics g, Rectangle r) {
             if (!r.Contains(olv.PointToClient(Cursor.Position)))
+            {
                 return;
+            }
 
             Rectangle bounds = this.RowBounds;
             if (bounds.IsEmpty) {
                 if (olv.View == View.Tile)
+                {
                     g.FillRectangle(this.FillBrush, r);
+                }
+
                 return;
             }
 
-            using (Region newClip = new Region(r)) {
-                bounds.Inflate(this.BoundsPadding);
-                newClip.Exclude(this.GetRoundedRect(bounds, this.CornerRounding));
-                Region originalClip = g.Clip;
-                g.Clip = newClip;
-                g.FillRectangle(this.FillBrush, r);
-                g.Clip = originalClip;
+            bounds.Inflate(this.BoundsPadding);
+            using (GraphicsPath path = this.GetRoundedRect(bounds, this.CornerRounding))
+            using (Region newClip = new Region(r))
+            using (Region originalClip = g.Clip) {
+                newClip.Exclude(path);
+                try {
+                    g.Clip = newClip;
+                    g.FillRectangle(this.FillBrush, r);
+                } finally {
+                    g.Clip = originalClip;
+                }
             }
         }
     }

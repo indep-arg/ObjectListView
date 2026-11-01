@@ -43,7 +43,10 @@ namespace BrightIdeasSoftware
             get { return keyAspectName; }
             set {
                 if (keyAspectName == value)
+                {
                     return;
+                }
+
                 keyAspectName = value;
                 this.keyMunger = new Munger(this.KeyAspectName);
                 this.InitializeDataSource();
@@ -70,7 +73,10 @@ namespace BrightIdeasSoftware
             get { return parentKeyAspectName; }
             set {
                 if (parentKeyAspectName == value)
+                {
                     return;
+                }
+
                 parentKeyAspectName = value;
                 this.parentKeyMunger = new Munger(this.ParentKeyAspectName);
                 this.InitializeDataSource();
@@ -97,7 +103,10 @@ namespace BrightIdeasSoftware
             get { return rootKeyValue; }
             set {
                 if (Equals(rootKeyValue, value))
+                {
                     return;
+                }
+
                 rootKeyValue = value;
                 this.InitializeDataSource();
             }
@@ -156,7 +165,9 @@ namespace BrightIdeasSoftware
         protected override bool ShouldCreateColumn(PropertyDescriptor property) {
             // If the property is a key column, and we aren't supposed to show keys, don't show it
             if (!this.ShowKeyColumns && (property.Name == this.KeyAspectName || property.Name == this.ParentKeyAspectName))
+            {
                 return false;
+            }
 
             return base.ShouldCreateColumn(property);
         }
@@ -174,9 +185,13 @@ namespace BrightIdeasSoftware
             if (e.PropertyDescriptor != null && 
                 (e.PropertyDescriptor.Name == this.KeyAspectName ||
                  e.PropertyDescriptor.Name == this.ParentKeyAspectName))
+            {
                 this.InitializeDataSource();
+            }
             else
+            {
                 base.HandleListChangedItemChanged(e);
+            }
         }
 
         /// <summary>
@@ -205,19 +220,25 @@ namespace BrightIdeasSoftware
             foreach (object x in this.CurrencyManager.List) {
                 object parentKey = this.GetParentValue(x);
                 if (Object.Equals(this.RootKeyValue, parentKey))
+                {
                     yield return x;
+                }
             }
         }
 
         private bool CalculateHasChildren(object model) {
             object keyValue = this.GetKeyValue(model);
             if (keyValue == null)
+            {
                 return false;
+            }
 
             foreach (object x in this.CurrencyManager.List) {
                 object parentKey = this.GetParentValue(x);
                 if (Object.Equals(keyValue, parentKey))
+                {
                     return true;
+                }
             }
             return false;
         }
@@ -228,20 +249,26 @@ namespace BrightIdeasSoftware
                 foreach (object x in this.CurrencyManager.List) {
                     object parentKey = this.GetParentValue(x);
                     if (Object.Equals(keyValue, parentKey))
+                    {
                         yield return x;
+                    }
                 }
             }
         }
 
         private object CalculateParent(object model) {
             object parentValue = this.GetParentValue(model);
-            if (parentValue == null) 
+            if (parentValue == null)
+            {
                 return null;
+            }
 
             foreach (object x in this.CurrencyManager.List) {
                 object key = this.GetKeyValue(x);
                 if (Object.Equals(parentValue, key))
+                {
                     return x;
+                }
             }
             return null;
         }

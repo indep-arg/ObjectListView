@@ -59,10 +59,8 @@ namespace BrightIdeasSoftware {
         /// <param name="olv">The source of the data object</param>
         /// <param name="modelObjects">The model objects to be put into the data object</param>
         public OLVDataObject(ObjectListViewBase olv, IEnumerable modelObjects) {
-            if (olv == null)
-                throw new ArgumentNullException("olv");
-            if (modelObjects == null)
-                throw new ArgumentNullException("modelObjects");
+            ArgumentNullException.ThrowIfNull(olv, nameof(olv));
+            ArgumentNullException.ThrowIfNull(modelObjects, nameof(modelObjects));
 
             this.objectListView = olv;
             this.modelObjects = ObjectListViewBase.EnumerableToArray(modelObjects, true);
@@ -127,7 +125,10 @@ namespace BrightIdeasSoftware {
             this.SetData(exporter.ExportTo(OLVExporter.ExportFormat.TabSeparated));
             string exportTo = exporter.ExportTo(OLVExporter.ExportFormat.CSV);
             if (!String.IsNullOrEmpty(exportTo))
+            {
                 this.SetText(exportTo, TextDataFormat.CommaSeparatedValue);
+            }
+
             this.SetText(ConvertToHtmlFragment(exporter.ExportTo(OLVExporter.ExportFormat.HTML)), TextDataFormat.Html);
         }
 

@@ -8,6 +8,7 @@ using System.Drawing.Drawing2D;
 using System.Reflection;
 using System.Text;
 using System.Windows.Forms;
+using System.Xml;
 
 using BrightIdeasSoftware;
 
@@ -31,7 +32,12 @@ namespace ListViewPrinterDemo
         {
             DataSet ds = new DataSet();
             try {
-                ds.ReadXml("Persons.xml");
+                using (XmlReader reader = XmlReader.Create("Persons.xml", new XmlReaderSettings {
+                    DtdProcessing = DtdProcessing.Prohibit,
+                    XmlResolver = null
+                })) {
+                    ds.ReadXml(reader);
+                }
                 dataListView1.DataSource = ds.Tables["Person"];
             } catch (Exception ex) {
                 MessageBox.Show(ex.Message);
@@ -47,7 +53,9 @@ namespace ListViewPrinterDemo
         private void tabControl1_Selected(object sender, TabControlEventArgs e)
         {
             if (e.TabPageIndex == 1)
+            {
                 this.UpdatePrintPreview(null, null);
+            }
         }
 
         private void radioButton1_CheckedChanged(object sender, EventArgs e)
@@ -117,16 +125,26 @@ namespace ListViewPrinterDemo
             this.listViewPrinter1.IsPrintSelectionOnly = this.cbPrintSelection.Checked;
 
             if (this.rbStyleMinimal.Checked == true)
+            {
                 this.ApplyMinimalFormatting();
+            }
             else if (this.rbStyleModern.Checked == true)
+            {
                 this.ApplyModernFormatting();
+            }
             else if (this.rbStyleOTT.Checked == true)
+            {
                 this.ApplyOverTheTopFormatting();
+            }
             else if (this.rbStyleCustom.Checked == true)
+            {
                 this.ApplyCustomFormatting();
+            }
 
             if (this.cbUseGridLines.Checked == false)
+            {
                 this.listViewPrinter1.ListGridPen = null;
+            }
 
             //this.listViewPrinter1.FirstPage = (int)this.numericUpDown1.Value;
             //this.listViewPrinter1.LastPage = (int)this.numericUpDown2.Value;

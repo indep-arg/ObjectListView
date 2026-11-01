@@ -26,9 +26,15 @@ namespace BrightIdeasSoftware {
             get { return colorMode; }
             set {
                 if (!Enum.IsDefined(typeof(ObjectListViewColorMode), value))
+                {
                     throw new ArgumentOutOfRangeException(nameof(value));
+                }
+
                 if (value == ObjectListViewColorMode.System)
+                {
                     systemDarkMode = ReadSystemDarkMode();
+                }
+
                 colorMode = value;
             }
         }
@@ -39,14 +45,24 @@ namespace BrightIdeasSoftware {
         public static bool IsDarkMode {
             get {
                 if (SystemInformation.HighContrast)
+                {
                     return false;
+                }
+
                 if (colorMode == ObjectListViewColorMode.Dark)
+                {
                     return true;
+                }
+
                 if (colorMode == ObjectListViewColorMode.System)
+                {
                     return systemDarkMode;
+                }
 #if NET10_0_OR_GREATER
                 if (colorMode == ObjectListViewColorMode.Default)
+                {
                     return Application.IsDarkModeEnabled;
+                }
 #endif
                 return false;
             }
@@ -113,7 +129,10 @@ namespace BrightIdeasSoftware {
         internal static HotItemStyle DefaultHotItemStyle {
             get {
                 if (IsDarkMode)
+                {
                     return darkHotItemStyle ?? (darkHotItemStyle = new HotItemStyle { BackColor = HoverColor });
+                }
+
                 return lightHotItemStyle ?? (lightHotItemStyle = new HotItemStyle { BackColor = Color.FromArgb(224, 235, 253) });
             }
         }
@@ -136,23 +155,36 @@ namespace BrightIdeasSoftware {
 
         internal static void ApplyCellEditorColors(Control editor) {
             if (!UsesCustomEditorColors)
+            {
                 return;
+            }
+
             PropertyDescriptorCollection properties = TypeDescriptor.GetProperties(editor);
             PropertyDescriptor backColor = properties[nameof(Control.BackColor)];
             PropertyDescriptor foreColor = properties[nameof(Control.ForeColor)];
             if (backColor != null && !backColor.ShouldSerializeValue(editor))
+            {
                 editor.BackColor = IsDarkMode ? ControlLightColor : WindowColor;
+            }
+
             if (foreColor != null && !foreColor.ShouldSerializeValue(editor))
+            {
                 editor.ForeColor = TextColor;
+            }
         }
 
         private static Color ResolveColor(Color dark, Color light, Color system, bool useSystemInDark = true) {
             if (SystemInformation.HighContrast)
+            {
                 return system;
+            }
+
             if (IsDarkMode) {
 #if NET10_0_OR_GREATER
                 if (useSystemInDark && Application.IsDarkModeEnabled)
+                {
                     return system;
+                }
 #endif
                 return dark;
             }

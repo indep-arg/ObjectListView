@@ -97,7 +97,9 @@ namespace BrightIdeasSoftware {
         public void AddItem(object item, bool isChecked) {
             this.Items.Add(item);
             if (isChecked)
+            {
                 this.CheckedListBoxControl.SetItemChecked(this.Items.Count - 1, true);
+            }
         }
 
         /// <summary>
@@ -126,7 +128,9 @@ namespace BrightIdeasSoftware {
         /// <param name="checkState"></param>
         public void SetItemState(int i, CheckState checkState) {
             if (i >= 0 && i < this.Items.Count)
+            {
                 this.CheckedListBoxControl.SetItemCheckState(i, checkState);
+            }
         }
 
         /// <summary>
@@ -134,7 +138,9 @@ namespace BrightIdeasSoftware {
         /// </summary>
         public void CheckAll() {
             for (int i = 0; i < this.Items.Count; i++)
+            {
                 this.CheckedListBoxControl.SetItemChecked(i, true);
+            }
         }
 
         /// <summary>
@@ -142,7 +148,9 @@ namespace BrightIdeasSoftware {
         /// </summary>
         public void UncheckAll() {
             for (int i = 0; i < this.Items.Count; i++)
+            {
                 this.CheckedListBoxControl.SetItemChecked(i, false);
+            }
         }
 
         #region Events

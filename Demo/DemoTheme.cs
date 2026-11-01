@@ -21,14 +21,19 @@ namespace ObjectListViewDemo {
 
         internal static void ApplyInformationBanner(Label label) {
             if (!IsDarkMode)
+            {
                 return;
+            }
+
             label.BackColor = Color.FromArgb(53, 42, 5);
             label.ForeColor = Color.FromArgb(255, 225, 138);
         }
 
         internal static void Apply(Control control) {
             if (!IsDarkMode)
+            {
                 return;
+            }
 
 #if NETFRAMEWORK
             if (control.BackColor.IsSystemColor) {
@@ -38,7 +43,10 @@ namespace ObjectListViewDemo {
                     ObjectListViewTheme.ControlLightColor : ObjectListViewTheme.ControlColor;
             }
             if (control.ForeColor.IsSystemColor)
+            {
                 control.ForeColor = ObjectListViewTheme.TextColor;
+            }
+
             if (control is GroupBox group) {
                 group.Paint -= DrawGroupCaption;
                 group.Paint += DrawGroupCaption;
@@ -51,7 +59,10 @@ namespace ObjectListViewDemo {
                 button.FlatAppearance.BorderColor = ObjectListViewTheme.ControlLightLightColor;
             }
             if (control is Form form)
+            {
                 form.HandleCreated += ApplyDarkTitleBar;
+            }
+
             if (control is Button actionButton) {
                 actionButton.FlatStyle = FlatStyle.Flat;
                 actionButton.UseVisualStyleBackColor = false;
@@ -62,7 +73,9 @@ namespace ObjectListViewDemo {
                 actionButton.FlatAppearance.MouseDownBackColor = ObjectListViewTheme.ButtonPressedColor;
             }
             if (control is ToolStrip strip)
+            {
                 strip.Renderer = new ToolStripProfessionalRenderer(new DarkColorTable());
+            }
 #endif
             if (control is ComboBox combo && combo.DropDownStyle == ComboBoxStyle.DropDownList) {
                 combo.BackColor = ObjectListViewTheme.ControlLightColor;
@@ -96,17 +109,24 @@ namespace ObjectListViewDemo {
             }
 #if NETFRAMEWORK
             if (control is ObjectListViewBase list)
+            {
                 list.BorderStyle = BorderStyle.FixedSingle;
+            }
 #endif
             foreach (Control child in control.Controls)
+            {
                 Apply(child);
+            }
         }
 
 #if NETFRAMEWORK
         private static void DrawGroupCaption(object sender, PaintEventArgs e) {
             GroupBox group = (GroupBox)sender;
             if (String.IsNullOrEmpty(group.Text))
+            {
                 return;
+            }
+
             TextFormatFlags flags = TextFormatFlags.SingleLine | TextFormatFlags.NoPadding;
             Size size = TextRenderer.MeasureText(e.Graphics, group.Text, group.Font, Size.Empty, flags);
             int inset = (int)Math.Ceiling(8 * e.Graphics.DpiX / 96f);
@@ -118,7 +138,10 @@ namespace ObjectListViewDemo {
             ComboBox combo = (ComboBox)sender;
             Color backColor = (e.State & DrawItemState.Selected) != 0 ? ObjectListViewTheme.HighlightColor : combo.BackColor;
             using (Brush brush = new SolidBrush(backColor))
+            {
                 e.Graphics.FillRectangle(brush, e.Bounds);
+            }
+
             string text = e.Index >= 0 ? combo.GetItemText(combo.Items[e.Index]) : combo.Text;
             TextRenderer.DrawText(e.Graphics, text, e.Font, e.Bounds,
                 combo.Enabled ? combo.ForeColor : ObjectListViewTheme.GrayTextColor,
@@ -128,11 +151,16 @@ namespace ObjectListViewDemo {
 
         private static void ApplyDarkTitleBar(object sender, EventArgs e) {
             if (Environment.OSVersion.Version.Major < 6)
+            {
                 return;
+            }
+
             int enabled = ObjectListViewTheme.IsDarkMode ? 1 : 0;
             int result = DwmSetWindowAttribute(((Form)sender).Handle, 20, ref enabled, sizeof(int));
             if (result != 0)
+            {
                 Trace.TraceInformation("This Windows version did not accept dark title-bar styling (HRESULT {0:X8}).", result);
+            }
         }
 
         [DllImport("dwmapi.dll")]

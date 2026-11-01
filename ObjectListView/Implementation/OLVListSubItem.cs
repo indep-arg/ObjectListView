@@ -110,7 +110,9 @@ namespace BrightIdeasSoftware {
             set {
                 this.Decorations.Clear();
                 if (value != null)
+                {
                     this.Decorations.Add(value);
+                }
             }
         }
 
@@ -120,7 +122,10 @@ namespace BrightIdeasSoftware {
         public IList<IDecoration> Decorations {
             get {
                 if (this.decorations == null)
+                {
                     this.decorations = new List<IDecoration>();
+                }
+
                 return this.decorations;
             }
         }

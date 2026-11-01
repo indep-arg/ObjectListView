@@ -64,7 +64,9 @@ namespace BrightIdeasSoftware.Tests
             // but fetches it as required from the underlying models. So, we can never test for
             // a difference between the list's value and the model's value.
             if (this.olv.VirtualMode)
+            {
                 return;
+            }
 
             this.olv.UseNotifyPropertyChanged = false;
             this.olv.SetObjects(PersonDb.All);
@@ -83,7 +85,9 @@ namespace BrightIdeasSoftware.Tests
         public void Test_SetObjects_SubscriptionCountMaintained() {
             this.olv.SetObjects(PersonDb.All);
             foreach (Person x in PersonDb.All)
+            {
                 Assert.AreEqual(1, x.CountNotifyPropertyChangedSubscriptions);
+            }
         }
 
         [TestMethod]
@@ -115,7 +119,9 @@ namespace BrightIdeasSoftware.Tests
             this.olv.SetObjects(PersonDb.All);
 
             foreach (Person x in PersonDb.All)
+            {
                 Assert.AreEqual(1, x.CountNotifyPropertyChangedSubscriptions);
+            }
         }
 
         [TestMethod]
@@ -124,7 +130,9 @@ namespace BrightIdeasSoftware.Tests
             this.olv.SetObjects(PersonDb.All);
             this.olv.SetObjects(PersonDb.All);
             foreach (Person x in PersonDb.All)
+            {
                 Assert.AreEqual(1, x.CountNotifyPropertyChangedSubscriptions);
+            }
         }
 
         [TestMethod]
@@ -134,7 +142,10 @@ namespace BrightIdeasSoftware.Tests
             this.olv.SetObjects(PersonDb.All);
             Assert.AreEqual(0, this.olv.GetItemCount());
             foreach (Person x in PersonDb.All)
+            {
                 Assert.AreEqual(1, x.CountNotifyPropertyChangedSubscriptions);
+            }
+
             this.olv.UseFiltering = false;
         }
 
@@ -143,7 +154,9 @@ namespace BrightIdeasSoftware.Tests
             this.olv.SetObjects(PersonDb.All);
             this.olv.SetObjects(null);
             foreach (Person x in PersonDb.All)
+            {
                 Assert.AreEqual(0, x.CountNotifyPropertyChangedSubscriptions);
+            }
         }
 
         [TestMethod]
@@ -165,7 +178,9 @@ namespace BrightIdeasSoftware.Tests
             Assert.AreEqual(0, extra.CountNotifyPropertyChangedSubscriptions);
             this.olv.AddObjects(new SingleUseEnumerable<Person>(PersonDb.All.Take(3)));
             foreach (Person person in PersonDb.All.Take(3))
+            {
                 Assert.AreEqual(1, person.CountNotifyPropertyChangedSubscriptions);
+            }
 
             Assert.ThrowsExactly<InvalidOperationException>(() =>
                 this.olv.RemoveObjects(EnumerableTestData.FailAfter(PersonDb.All[0])));
@@ -173,7 +188,9 @@ namespace BrightIdeasSoftware.Tests
 
             this.olv.RemoveObjects(new SingleUseEnumerable<Person>(this.olv.Objects.Cast<Person>()));
             foreach (Person person in PersonDb.All)
+            {
                 Assert.AreEqual(0, person.CountNotifyPropertyChangedSubscriptions);
+            }
         }
 
         [TestMethod]
@@ -193,7 +210,10 @@ namespace BrightIdeasSoftware.Tests
             toRemove.Add(PersonDb.All[5]);
             this.olv.RemoveObjects(toRemove);
             foreach (Person x in toRemove)
+            {
                 Assert.AreEqual(-1, this.olv.IndexOf(x));
+            }
+
             Assert.AreEqual(PersonDb.All.Count - toRemove.Count, this.olv.GetItemCount());
         }
 

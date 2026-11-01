@@ -7,6 +7,7 @@ using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Windows.Forms;
+using System.Xml;
 using BrightIdeasSoftware;
 using ObjectListViewDemo.Models;
 
@@ -61,7 +62,9 @@ namespace ObjectListViewDemo
             // Add copies of each person to the list
             List<Person> list2 = new List<Person>();
             foreach (Person p in list)
+            {
                 list2.Add(new Person(p));
+            }
 
             // Change this value to see the performance on bigger lists.
             // Each list builds about 1000 rows per second.
@@ -119,7 +122,9 @@ namespace ObjectListViewDemo
         {
             olv.ShowItemCountOnGroups = cb.Checked;
             if (olv.ShowGroups)
+            {
                 olv.BuildGroups();
+            }
         }
 
         public void HandleSelectionChanged(ObjectListView listView)
@@ -178,13 +183,21 @@ namespace ObjectListViewDemo
         public void ChangeEditable(ObjectListView objectListView, ComboBox comboBox)
         {
             if (comboBox.Text == "No")
+            {
                 objectListView.CellEditActivation = ObjectListView.CellEditActivateMode.None;
+            }
             else if (comboBox.Text == "Single Click")
+            {
                 objectListView.CellEditActivation = ObjectListView.CellEditActivateMode.SingleClick;
+            }
             else if (comboBox.Text == "Double Click")
+            {
                 objectListView.CellEditActivation = ObjectListView.CellEditActivateMode.DoubleClick;
+            }
             else
+            {
                 objectListView.CellEditActivation = ObjectListView.CellEditActivateMode.F2Only;
+            }
         }
 
         public void TimedFilter(ObjectListView olv, string txt) {
@@ -213,7 +226,9 @@ namespace ObjectListViewDemo
 
             // Text highlighting requires at least a default renderer
             if (olv.DefaultRenderer == null)
+            {
                 olv.DefaultRenderer = new HighlightTextRenderer(filter);
+            }
 
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
@@ -223,14 +238,18 @@ namespace ObjectListViewDemo
 
             IList objects = olv.Objects as IList;
             if (objects == null)
+            {
                 this.ToolStripStatus1 = prefixForNextSelectionMessage =
                     String.Format("Filtered in {0}ms", stopWatch.ElapsedMilliseconds);
+            }
             else
+            {
                 this.ToolStripStatus1 = prefixForNextSelectionMessage =
                     String.Format("Filtered {0} items down to {1} items in {2}ms",
                                   objects.Count,
                                   olv.Items.Count,
                                   stopWatch.ElapsedMilliseconds);
+            }
         }
 
         public void ChangeHotItemStyle(ObjectListView olv, ComboBox cb)
@@ -320,7 +339,9 @@ namespace ObjectListViewDemo
             for (int i = 0; i < limits.Length; i++)
             {
                 if (size >= limits[i])
+                {
                     return String.Format("{0:#,##0.##} " + units[i], ((double)size / limits[i]));
+                }
             }
 
             return String.Format("{0} bytes", size);
@@ -339,7 +360,10 @@ namespace ObjectListViewDemo
             try
             {
                 fs = new FileStream(fileName, FileMode.Open, FileAccess.Read);
-                using (StreamReader reader = new StreamReader(fs))
+                using (XmlReader reader = XmlReader.Create(fs, new XmlReaderSettings {
+                    DtdProcessing = DtdProcessing.Prohibit,
+                    XmlResolver = null
+                }))
                 {
                     ds.ReadXml(reader);
                 }
@@ -351,7 +375,9 @@ namespace ObjectListViewDemo
             finally
             {
                 if (fs != null)
+                {
                     fs.Close();
+                }
             }
 
             return ds;

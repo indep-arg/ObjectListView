@@ -15,7 +15,10 @@ namespace ObjectListViewDemo
             InitializeComponent();
             DemoTheme.ApplyInformationBanner(this.label2);
             if (DemoTheme.IsDarkMode)
+            {
                 this.olvComplex.AlternateRowBackColor = ObjectListViewTheme.ControlColor;
+            }
+
             this.ListView = this.olvComplex;
         }
 
@@ -72,7 +75,7 @@ namespace ObjectListViewDemo
             // when the link is clicked. Just to show how it works, any occupation that starts with "s" 
             // will not be a hyperlink
             this.olvComplex.IsHyperlink += delegate(object sender, IsHyperlinkEventArgs e) {
-                e.Url = e.Text.ToLowerInvariant().StartsWith("s") ? null : "http://objectlistview.sourceforge.net";
+                e.Url = e.Text.StartsWith("s", StringComparison.OrdinalIgnoreCase) ? null : "http://objectlistview.sourceforge.net";
             };
 
             // Setup a right click handler that will show a menu that allows the user to jump to any group
@@ -104,7 +107,10 @@ namespace ObjectListViewDemo
         private void SetupControls() {
             // Setup initial state of controls on tab
             if (ObjectListView.IsVistaOrLater)
+            {
                 this.comboBoxHotItemStyle.Items.Add("Vista");
+            }
+
             this.comboBoxHotItemStyle.SelectedIndex = 3; // Translucent
             this.comboBoxView.SelectedIndex = 4; // Details
             this.comboBoxEditable.SelectedIndex = 0; // Not editable
@@ -125,7 +131,9 @@ namespace ObjectListViewDemo
             using (Graphics graphics = this.olvComplex.CreateGraphics()) {
                 Size size = BusinessCardRenderer.MeasureCardSize(graphics, this.olvComplex, 250);
                 if (this.olvComplex.TileSize != size)
+                {
                     this.olvComplex.TileSize = size;
+                }
             }
         }
 
@@ -143,10 +151,14 @@ namespace ObjectListViewDemo
                 // the last few letters get music and everyone else gets a person
                 string name = ((Person) row).Name.ToUpperInvariant();
                 if (name.Length > 0 && "AEIOU".Contains(name.Substring(0, 1)))
+                {
                     return "star";
+                }
 
                 if (name.CompareTo("T") < 0)
+                {
                     return 2; // person
+                }
 
                 return "music";
             };
@@ -179,9 +191,15 @@ namespace ObjectListViewDemo
             // - that key value is then used by a MappedImageRenderer to decide which image to display
             this.moneyImageColumn.AspectGetter = delegate(object row) {
                 if (((Person) row).GetRate() < 100)
+                {
                     return "Little";
+                }
+
                 if (((Person) row).GetRate() > 1000)
+                {
                     return "Lots";
+                }
+
                 return "Medium";
             };
             this.moneyImageColumn.Renderer = new MappedImageRenderer(new Object[] {
@@ -205,7 +223,9 @@ namespace ObjectListViewDemo
                 Person p = (Person) row;
                 // People born in leap years get an asterisk (yes, the leap year calculation is wrong).
                 if ((p.BirthDate.Year % 4) == 0)
+                {
                     return "hidden";
+                }
 
                 return -1; // no image
             };
@@ -221,8 +241,10 @@ namespace ObjectListViewDemo
             this.olvJokeColumn.GroupKeyToTitleConverter = delegate(object groupKey) {
                 bool? canTellJokes = (bool?)groupKey;
                 if (!canTellJokes.HasValue)
+                {
                     return "Undecided";
-                
+                }
+
                 return canTellJokes.Value ? "Tells excellent jokes" : "Tells terrible Dad jokes";
             };
         }
@@ -248,30 +270,39 @@ namespace ObjectListViewDemo
             //dropSink.CanDropOnSubItem = true;
             dropSink.FeedbackColor = Color.IndianRed; // just to be different
             this.olvComplex.DropSink = dropSink;
+            this.olvComplex.Disposed += delegate { dropSink.Dispose(); };
 
             // For our purpose here, we will make it that if you drop one or more person
             // onto someone, they all become married. 
             dropSink.ModelCanDrop += delegate(object sender, ModelDropEventArgs e) {
                 Person person = e.TargetModel as Person;
                 if (person == null)
+                {
                     e.Effect = DragDropEffects.None;
+                }
                 else {
                     if (person.MaritalStatus == MaritalStatus.Married) {
                         e.Effect = DragDropEffects.None;
                         e.InfoMessage = "Can't drop on someone who is already married";
                     } else
+                    {
                         e.Effect = DragDropEffects.Move;
+                    }
                 }
             };
 
             dropSink.ModelDropped += delegate(object sender, ModelDropEventArgs e) {
                 if (e.TargetModel == null)
+                {
                     return;
+                }
 
                 // Change the dropped people plus the target person to be married
                 ((Person) e.TargetModel).MaritalStatus = MaritalStatus.Married;
                 foreach (Person p in e.SourceModels)
+                {
                     p.MaritalStatus = MaritalStatus.Married;
+                }
 
                 // Force them to refresh
                 e.RefreshObjects();
@@ -347,7 +378,9 @@ namespace ObjectListViewDemo
             this.olvComplex.HeaderToolTipShowing += delegate(object sender, ToolTipShowingEventArgs e)
             {
                 if (Control.ModifierKeys != Keys.Control)
+                {
                     return;
+                }
 
                 e.Title = "Information";
                 e.StandardIcon = ToolTipControl.StandardIcons.Info;
@@ -359,7 +392,9 @@ namespace ObjectListViewDemo
             this.olvComplex.CellToolTipShowing += delegate(object sender, ToolTipShowingEventArgs e) {
                 // Show a long tooltip over cells when the control key is down
                 if (Control.ModifierKeys != Keys.Control)
+                {
                     return;
+                }
 
                 OLVColumn col = e.Column ?? e.ListView.GetColumn(0);
                 string stringValue = col.GetStringValue(e.Model);
@@ -392,12 +427,16 @@ namespace ObjectListViewDemo
             // We only want to do this when we AREN'T in Detail view.
             // The heart decoration is added in the FormatCell event when in Details view
             if (olvComplex.View == View.Details)
+            {
                 return;
+            }
 
-            if (e.Item.Text.ToLowerInvariant().StartsWith("nicola")) {
+            if (e.Item.Text.StartsWith("nicola", StringComparison.OrdinalIgnoreCase)) {
                 e.Item.Decoration = new ImageDecoration(Resource1.loveheart, 64);
             } else
+            {
                 e.Item.Decoration = null;
+            }
         }
 
         private void olvComplex_FormatCell(object sender, FormatCellEventArgs e) {
@@ -406,10 +445,12 @@ namespace ObjectListViewDemo
 
             // Put a love heart next to Nicola's name :)
             if (e.ColumnIndex == 0) {
-                if (e.SubItem.Text.ToLowerInvariant().StartsWith("nicola")) {
+                if (e.SubItem.Text.StartsWith("nicola", StringComparison.OrdinalIgnoreCase)) {
                     e.SubItem.Decoration = new ImageDecoration(Resource1.loveheart, 64);
                 } else
+                {
                     e.SubItem.Decoration = null;
+                }
             }
 
             // If the occupation is missing a value, put a composite decoration over it
@@ -433,7 +474,9 @@ namespace ObjectListViewDemo
         {
             // We only want to mess with the Cooking Skill column
             if (e.Column.Text != "Cooking skill")
+            {
                 return;
+            }
 
             Person personBeingEdited = (Person)e.RowObject;
             ComboBox cb = new ComboBox();
@@ -475,7 +518,9 @@ namespace ObjectListViewDemo
         private void listViewComplex_CellEditFinishing(object sender, CellEditEventArgs e) {
             // We only want to mess with the Cooking Skill column
             if (e.Column.Text != "Cooking skill")
+            {
                 return;
+            }
 
             // ObjectListView will automatically dispose of the control we created.
             // If we didn't want that (e.g. if the control was expensive to create and we
@@ -522,7 +567,8 @@ namespace ObjectListViewDemo
             // Make the hot item show an overlay when it changes
             if (this.olvComplex.UseTranslucentHotItem)
             {
-                this.olvComplex.HotItemStyle.Overlay = new BusinessCardOverlay();
+                (this.olvComplex.HotItemStyle.Overlay as BusinessCardOverlay)?.Dispose();
+                this.olvComplex.HotItemStyle.Overlay = new BusinessCardOverlay(this.olvComplex);
                 this.olvComplex.HotItemStyle = this.olvComplex.HotItemStyle;
             }
 
@@ -551,9 +597,13 @@ namespace ObjectListViewDemo
             // If the user Ctrl-Clicks on the button, enable all rows
             bool isControlKeyDown = ((Control.ModifierKeys & Keys.Control) == Keys.Control);
             if (isControlKeyDown)
+            {
                 this.ListView.EnableObjects(this.ListView.DisabledObjects);
+            }
             else
+            {
                 this.ListView.DisableObjects(this.ListView.SelectedObjects);
+            }
         }
 
         #endregion
@@ -577,14 +627,21 @@ namespace ObjectListViewDemo
             string yValue = y.Header;
 
             if (xValue.Length >= 2)
+            {
                 xValue = xValue.Substring(1);
+            }
+
             if (yValue.Length >= 2)
+            {
                 yValue = yValue.Substring(1);
+            }
 
             int result = String.Compare(xValue, yValue, StringComparison.CurrentCultureIgnoreCase);
 
             if (this.sortOrder == SortOrder.Descending)
+            {
                 result = 0 - result;
+            }
 
             return result;
         }
@@ -613,14 +670,21 @@ namespace ObjectListViewDemo
             string yValue = this.column.GetStringValue(y.RowObject);
 
             if (xValue.Length >= 2)
+            {
                 xValue = xValue.Substring(1);
+            }
+
             if (yValue.Length >= 2)
+            {
                 yValue = yValue.Substring(1);
+            }
 
             int result = String.Compare(xValue, yValue, StringComparison.CurrentCultureIgnoreCase);
 
             if (this.sortOrder == SortOrder.Descending)
+            {
                 result = 0 - result;
+            }
 
             return result;
         }

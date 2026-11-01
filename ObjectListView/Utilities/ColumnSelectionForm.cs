@@ -56,11 +56,15 @@ namespace BrightIdeasSoftware
         public void OpenOn(ObjectListViewBase olv, View view)
         {
             if (view != View.Details && view != View.Tile)
+            {
                 return;
+            }
 
             this.InitializeForm(olv, view);
-            if (this.ShowDialog() == DialogResult.OK) 
+            if (this.ShowDialog() == DialogResult.OK)
+            {
                 this.Apply(olv, view);
+            }
         }
 
         /// <summary>
@@ -74,9 +78,13 @@ namespace BrightIdeasSoftware
             this.RearrangableColumns = new List<OLVColumn>(this.AllColumns);
             foreach (OLVColumn col in this.RearrangableColumns) {
                 if (view == View.Details)
+                {
                     this.MapColumnToVisible[col] = col.IsVisible;
+                }
                 else
+                {
                     this.MapColumnToVisible[col] = col.IsTileViewColumn;
+                }
             }
             this.RearrangableColumns.Sort(new SortByDisplayOrder(this));
 
@@ -87,8 +95,10 @@ namespace BrightIdeasSoftware
             this.objectListView1.BooleanCheckStatePutter = delegate(Object rowObject, bool newValue) {
                 // Some columns should always be shown, so ignore attempts to hide them
                 OLVColumn column = (OLVColumn)rowObject;
-                if (!column.CanBeHidden) 
+                if (!column.CanBeHidden)
+                {
                     return true;
+                }
 
                 this.MapColumnToVisible[column] = newValue;
                 EnableControls();
@@ -98,7 +108,7 @@ namespace BrightIdeasSoftware
             this.objectListView1.SetObjects(this.RearrangableColumns);
             this.EnableControls();
         }
-        private List<OLVColumn> AllColumns = null;
+        private List<OLVColumn> AllColumns;
         private List<OLVColumn> RearrangableColumns = new List<OLVColumn>();
         private Dictionary<OLVColumn, bool> MapColumnToVisible = new Dictionary<OLVColumn, bool>();
 
@@ -114,10 +124,14 @@ namespace BrightIdeasSoftware
             // Update the column definitions to reflect whether they have been hidden
             if (view == View.Details) {
                 foreach (OLVColumn col in olv.AllColumns)
+                {
                     col.IsVisible = this.MapColumnToVisible[col];
+                }
             } else {
                 foreach (OLVColumn col in olv.AllColumns)
+                {
                     col.IsTileViewColumn = this.MapColumnToVisible[col];
+                }
             }
 
             // Collect the columns are still visible
@@ -246,15 +260,23 @@ namespace BrightIdeasSoftware
             int IComparer<OLVColumn>.Compare(OLVColumn x, OLVColumn y)
             {
                 if (this.Form.MapColumnToVisible[x] && !this.Form.MapColumnToVisible[y])
+                {
                     return -1;
+                }
 
                 if (!this.Form.MapColumnToVisible[x] && this.Form.MapColumnToVisible[y])
+                {
                     return 1;
+                }
 
                 if (x.DisplayIndex == y.DisplayIndex)
+                {
                     return x.Text.CompareTo(y.Text);
+                }
                 else
+                {
                     return x.DisplayIndex - y.DisplayIndex;
+                }
             }
 
             #endregion

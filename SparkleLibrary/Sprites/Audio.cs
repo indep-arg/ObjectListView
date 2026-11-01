@@ -47,6 +47,7 @@ namespace BrightIdeasSoftware
     /// </para>
     /// <para>A sound that is already playing cannot be paused.</para>
     /// </remarks>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1001", Justification = "SoundPlayer lifetime is managed by the IAnimateable Start/Stop contract.")]
     public class Audio : Animateable
     {
         #region Life and death
@@ -111,8 +112,10 @@ namespace BrightIdeasSoftware
                 Assembly executingAssembly = Assembly.GetExecutingAssembly();
                 string assemblyName = executingAssembly.GetName().Name;
                 Stream stream = executingAssembly.GetManifestResourceStream(assemblyName + "." + this.ResourceName);
-                if (stream != null) 
+                if (stream != null)
+                {
                     this.Player = new SoundPlayer(stream);
+                }
             }
 
             if (!String.IsNullOrEmpty(this.FileName)) {
@@ -126,10 +129,14 @@ namespace BrightIdeasSoftware
             this.done = false;
             Thread newThread = new Thread((ThreadStart)delegate {
                 if (this.SystemSound != null)
+                {
                     this.SystemSound.Play();
+                }
                 else {
                     if (this.Player != null)
+                    {
                         this.Player.PlaySync();
+                    }
                 }
                 this.done = true;
             });
@@ -150,8 +157,10 @@ namespace BrightIdeasSoftware
         /// Stop the sound
         /// </summary>
         public override void Stop() {
-            if (this.SystemSound != null) 
+            if (this.SystemSound != null)
+            {
                 return;
+            }
 
             if (this.Player != null) {
                 this.Player.Stop();

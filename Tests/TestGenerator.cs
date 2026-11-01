@@ -375,7 +375,9 @@ namespace BrightIdeasSoftware.Tests
         public void TestPropertiesWithoutAttributes_DisplayIndexSetCorrectly() {
             Generator.GenerateColumns(this.olv, typeof(GeneratorTestPropertiesWithoutOlvColumnAttribute), true);
             for (int i = 0; i < this.olv.AllColumns.Count; i++)
+            {
                 Assert.AreEqual(i, this.olv.GetColumn(i).DisplayIndex);
+            }
         }
 
         [TestMethod]

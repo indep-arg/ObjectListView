@@ -27,7 +27,9 @@ namespace BrightIdeasSoftware.Tests
             this.olv = GetObjectListView();
 
             if (!this.olv.CheckBoxes)
+            {
                 this.olv.CheckBoxes = true;
+            }
 
             this.olv.SetObjects(PersonDb.All);
             this.olv.CheckedObjects = null;
@@ -132,9 +134,14 @@ namespace BrightIdeasSoftware.Tests
             this.olv.CheckStateGetter = model => checkedModels.Contains(model) ? CheckState.Checked : CheckState.Unchecked;
             this.olv.CheckStatePutter = delegate(object model, CheckState state) {
                 if (state == CheckState.Checked)
+                {
                     checkedModels.Add(model);
+                }
                 else
+                {
                     checkedModels.Remove(model);
+                }
+
                 return state;
             };
             this.olv.SetObjects(PersonDb.All);
@@ -186,9 +193,13 @@ namespace BrightIdeasSoftware.Tests
             this.olv.SetObjects(PersonDb.All);
             foreach (Person x in PersonDb.All) {
                 if (x == PersonDb.All[0])
+                {
                     Assert.IsFalse(this.olv.IsChecked(x));
+                }
                 else
+                {
                     Assert.IsTrue(this.olv.IsChecked(x));
+                }
             }
         }
 
@@ -196,8 +207,11 @@ namespace BrightIdeasSoftware.Tests
         public void TestCheckStatePutter() {
             this.olv.CheckStateGetter = delegate(object x) {
                 Person p = (Person) x;
-                if (!p.IsActive.HasValue) 
+                if (!p.IsActive.HasValue)
+                {
                     return CheckState.Indeterminate;
+                }
+
                 return p.IsActive.Value ? CheckState.Checked : CheckState.Unchecked;
             };
             this.olv.CheckStatePutter = delegate(object x, CheckState state) {
@@ -305,14 +319,19 @@ namespace BrightIdeasSoftware.Tests
         [TestMethod]
         public void TestCheckedAspectName() {
             foreach (Person p in PersonDb.All)
+            {
                 p.IsActive = false;
+            }
 
             this.olv.CheckedAspectName = "IsActive";
             this.olv.SetObjects(PersonDb.All);
             Assert.IsEmpty(this.olv.CheckedObjects);
 
             foreach (Person p in PersonDb.All)
+            {
                 p.IsActive = true;
+            }
+
             this.olv.SetObjects(PersonDb.All);
             Assert.AreEqual(PersonDb.All.Count, this.olv.CheckedObjects.Count);
 

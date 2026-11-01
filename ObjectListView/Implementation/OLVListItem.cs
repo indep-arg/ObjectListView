@@ -121,9 +121,13 @@ namespace BrightIdeasSoftware {
             set {
                 if (this.Checked != value) {
                     if (value)
+                    {
                         ((ObjectListViewBase)this.ListView).CheckObject(this.RowObject);
+                    }
                     else
+                    {
                         ((ObjectListViewBase)this.ListView).UncheckObject(this.RowObject);
+                    }
                 }
             }
         }
@@ -177,14 +181,20 @@ namespace BrightIdeasSoftware {
         public IDecoration Decoration {
             get {
                 if (this.HasDecoration)
+                {
                     return this.Decorations[0];
+                }
                 else
+                {
                     return null;
+                }
             }
             set {
                 this.Decorations.Clear();
                 if (value != null)
+                {
                     this.Decorations.Add(value);
+                }
             }
         }
 
@@ -194,7 +204,10 @@ namespace BrightIdeasSoftware {
         public IList<IDecoration> Decorations {
             get {
                 if (this.decorations == null)
+                {
                     this.decorations = new List<IDecoration>();
+                }
+
                 return this.decorations;
             }
         }
@@ -217,7 +230,9 @@ namespace BrightIdeasSoftware {
             get {
                 foreach (OLVListSubItem subItem in this.SubItems) {
                     if (!String.IsNullOrEmpty(subItem.Url))
+                    {
                         return true;
+                    }
                 }
                 return false;
             }
@@ -233,11 +248,17 @@ namespace BrightIdeasSoftware {
             set {
                 imageSelector = value;
                 if (value is Int32)
+                {
                     this.ImageIndex = (Int32)value;
+                }
                 else if (value is String)
+                {
                     this.ImageKey = (String)value;
+                }
                 else
+                {
                     this.ImageIndex = -1;
+                }
             }
         }
         private Object imageSelector;
@@ -295,10 +316,12 @@ namespace BrightIdeasSoftware {
         /// <returns>An OLVListSubItem</returns>
         public virtual OLVListSubItem GetSubItem(int index) {
             if (index >= 0 && index < this.SubItems.Count)
+            {
                 // If the control has 0 columns, ListViewItem.SubItems will auto create a
                 // SubItem of the wrong type. Casting using 'as' handles this rare case. 
                 return this.SubItems[index] as OLVListSubItem;
-            
+            }
+
             return null;
         }
 

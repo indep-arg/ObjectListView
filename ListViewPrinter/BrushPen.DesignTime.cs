@@ -34,7 +34,9 @@ namespace BrightIdeasSoftware
             // We need editor service otherwise we can't do anything
             IWindowsFormsEditorService wfes = provider.GetService(typeof(IWindowsFormsEditorService)) as IWindowsFormsEditorService;
             if (wfes == null)
+            {
                 return value;
+            }
 
             BrushForm form = new BrushForm();
             form.SetBrush(value as IBrushData);
@@ -57,9 +59,13 @@ namespace BrightIdeasSoftware
         {
             IBrushData bd = e.Value as IBrushData;
             if (bd == null)
+            {
                 base.PaintValue(e);
+            }
             else
+            {
                 e.Graphics.FillRectangle(BlockFormat.PrepareBrushForDrawing(bd.GetBrush(), e.Bounds), e.Bounds);
+            }
         }
     }
 
@@ -84,7 +90,9 @@ namespace BrightIdeasSoftware
             // We need editor service otherwise we can't do anything
             IWindowsFormsEditorService wfes = provider.GetService(typeof(IWindowsFormsEditorService)) as IWindowsFormsEditorService;
             if (wfes == null)
+            {
                 return value;
+            }
 
             PenForm form = new PenForm();
             form.SetPenData(value as PenData);
@@ -107,7 +115,9 @@ namespace BrightIdeasSoftware
         {
             PenData p = e.Value as PenData;
             if (p == null)
+            {
                 base.PaintValue(e);
+            }
             else {
                 e.Graphics.SetClip(e.Bounds);
                 e.Graphics.DrawLine(p.GetPen(), e.Bounds.Left, e.Bounds.Top, e.Bounds.Right, e.Bounds.Bottom);
@@ -132,7 +142,9 @@ namespace BrightIdeasSoftware
         public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
         {
             if (destinationType == typeof(string))
+            {
                 return true;
+            }
 
             return base.CanConvertTo(context, destinationType);
         }
@@ -142,7 +154,9 @@ namespace BrightIdeasSoftware
             IBrushData b = value as IBrushData;
             if (destinationType == typeof(string)) {
                 if (b == null)
+                {
                     return "(none)";
+                }
                 else {
                     return b.GetType().Name;
                 }
@@ -154,7 +168,9 @@ namespace BrightIdeasSoftware
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
         {
             if (sourceType == typeof(string))
+            {
                 return true;
+            }
 
             return base.CanConvertFrom(context, sourceType);
         }
@@ -164,7 +180,10 @@ namespace BrightIdeasSoftware
             if (value != null && value.GetType() == typeof(string)) {
                 String s = value as String;
                 if (s.Length == 0)
+                {
                     return null;
+                }
+
                 switch (s[0]) {
                     case 'S':
                         return new SolidBrushData();
@@ -194,7 +213,9 @@ namespace BrightIdeasSoftware
         public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
         {
             if (destinationType == typeof(string))
+            {
                 return true;
+            }
 
             return base.CanConvertTo(context, destinationType);
         }
@@ -204,7 +225,9 @@ namespace BrightIdeasSoftware
             if (destinationType == typeof(string)) {
                 PenData p = value as PenData;
                 if (p == null || p.Brush == null)
+                {
                     return "(none)";
+                }
                 else {
                     string name = p.Brush.GetType().Name;
                     return name.Substring(0, name.Length - "BrushData".Length) + "Pen";
@@ -217,7 +240,9 @@ namespace BrightIdeasSoftware
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
         {
             if (sourceType == typeof(string))
+            {
                 return true;
+            }
 
             return base.CanConvertFrom(context, sourceType);
         }
@@ -227,7 +252,10 @@ namespace BrightIdeasSoftware
             if (value != null && value.GetType() == typeof(string)) {
                 String s = value as String;
                 if (s.Length == 0)
+                {
                     return null;
+                }
+
                 switch (s[0]) {
                     case 'S':
                         return new PenData(new SolidBrushData());

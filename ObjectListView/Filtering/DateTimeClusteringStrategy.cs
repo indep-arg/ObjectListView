@@ -139,7 +139,9 @@ namespace BrightIdeasSoftware {
             // Make sure the returned value is a DateTime
             DateTime? dateTime = this.Column.GetValue(model) as DateTime?;
             if (!dateTime.HasValue)
+            {
                 return null;
+            }
 
             // Extract the parts of the datetime that we are interested in.
             // Even if we aren't interested in a particular portion, we still have to give it a reasonable default
@@ -172,7 +174,9 @@ namespace BrightIdeasSoftware {
         /// <returns></returns>
         protected virtual string DateToString(DateTime dateTime) {
             if (String.IsNullOrEmpty(this.Format))
+            {
                 return dateTime.ToString(CultureInfo.CurrentUICulture);
+            }
 
             try {
                 return dateTime.ToString(this.Format);

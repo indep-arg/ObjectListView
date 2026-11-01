@@ -88,7 +88,7 @@ namespace BrightIdeasSoftware
             get { return this.offset; }
             set { this.offset = value; }
         }
-        private Size offset = new Size();
+        private Size offset;
 
         /// <summary>
         /// Gets or sets the point of the reference rectangle to which the adornment will be aligned.
@@ -247,11 +247,15 @@ namespace BrightIdeasSoftware
         /// <returns></returns>
         public virtual Rectangle CalculateItemBounds(OLVListItem item, OLVListSubItem subItem) {
             if (item == null)
+            {
                 return Rectangle.Empty;
+            }
 
             if (subItem == null)
+            {
                 return item.Bounds;
-            
+            }
+
             return item.GetSubItemBounds(item.SubItems.IndexOf(subItem));
         }
 
@@ -266,7 +270,9 @@ namespace BrightIdeasSoftware
         /// <param name="r">The rotation will be around the centre of this rect</param>
         protected virtual void ApplyRotation(Graphics g, Rectangle r) {
             if (this.Rotation == 0)
+            {
                 return;
+            }
 
             // THINK: Do we want to reset the transform? I think we want to push a new transform
             g.ResetTransform();
@@ -281,7 +287,9 @@ namespace BrightIdeasSoftware
         /// <param name="g"></param>
         protected virtual void UnapplyRotation(Graphics g) {
             if (this.Rotation != 0)
+            {
                 g.ResetTransform();
+            }
         }
 
         #endregion
@@ -330,9 +338,13 @@ namespace BrightIdeasSoftware
         /// <param name="r">The bounds of the rendering</param>
         public virtual void DrawImage(Graphics g, Rectangle r) {
             if (this.ShrinkToWidth)
+            {
                 this.DrawScaledImage(g, r, this.Image, this.Transparency);
+            }
             else
-                this.DrawImage(g, r, this.Image, this.Transparency); 
+            {
+                this.DrawImage(g, r, this.Image, this.Transparency);
+            }
         }
 
         /// <summary>
@@ -344,7 +356,9 @@ namespace BrightIdeasSoftware
         /// <param name="transparency">How transparent should the image be (0 is completely transparent, 255 is opaque)</param>
         public virtual void DrawImage(Graphics g, Rectangle r, Image image, int transparency) {
             if (image != null)
+            {
                 this.DrawImage(g, r, image, image.Size, transparency);
+            }
         }
 
         /// <summary>
@@ -357,7 +371,9 @@ namespace BrightIdeasSoftware
         /// <param name="transparency">How transparent should the image be (0 is completely transparent, 255 is opaque)</param>
         public virtual void DrawImage(Graphics g, Rectangle r, Image image, Size sz, int transparency) {
             if (image == null)
+            {
                 return;
+            }
 
             Rectangle adornmentBounds = this.CreateAlignedRectangle(r, sz);
             try {
@@ -379,7 +395,9 @@ namespace BrightIdeasSoftware
         /// <param name="transparency">How transparent should the image be (0 is completely transparent, 255 is opaque)</param>
         public virtual void DrawScaledImage(Graphics g, Rectangle r, Image image, int transparency) {
             if (image == null)
+            {
                 return;
+            }
 
             // If the image is too wide to be drawn in the space provided, proportionally scale it down.
             // Too tall images are not scaled.
@@ -428,8 +446,42 @@ namespace BrightIdeasSoftware
     /// <summary>
     /// An adornment that will draw text
     /// </summary>
-    public class TextAdornment : GraphicAdornment
+    public class TextAdornment : GraphicAdornment, IDisposable
     {
+        /// <summary>
+        /// Release generated drawing resources. Assigned fonts and formats remain caller-owned.
+        /// </summary>
+        public void Dispose() {
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Release resources owned by this adornment.
+        /// </summary>
+        /// <param name="disposing">Whether managed resources should be released.</param>
+        protected virtual void Dispose(bool disposing) {
+            if (!disposing || this.disposed)
+            {
+                return;
+            }
+
+            this.disposed = true;
+            if (this.ownsStringFormat)
+            {
+                this.stringFormat.Dispose();
+            }
+
+            if (this.defaultFont != null)
+            {
+                this.defaultFont.Dispose();
+            }
+        }
+
+        private bool disposed;
+        private bool ownsStringFormat;
+        private Font defaultFont;
+
         #region Public properties
 
         /// <summary>
@@ -523,7 +575,12 @@ namespace BrightIdeasSoftware
         [Browsable(false)]
         public Font FontOrDefault {
             get {
-                return this.Font ?? new Font("Tahoma", 16);
+                if (this.disposed)
+                {
+                    throw new ObjectDisposedException(nameof(TextAdornment));
+                }
+
+                return this.Font ?? (this.defaultFont ?? (this.defaultFont = new Font("Tahoma", 16)));
             }
         }
 
@@ -567,17 +624,43 @@ namespace BrightIdeasSoftware
          DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public virtual StringFormat StringFormat {
             get {
+                if (this.disposed)
+                {
+                    throw new ObjectDisposedException(nameof(TextAdornment));
+                }
+
                 if (this.stringFormat == null) {
                     this.stringFormat = new StringFormat();
+                    this.ownsStringFormat = true;
                     this.stringFormat.Alignment = StringAlignment.Center;
                     this.stringFormat.LineAlignment = StringAlignment.Center;
                     this.stringFormat.Trimming = StringTrimming.EllipsisCharacter;
                     if (!this.Wrap)
+                    {
                         this.stringFormat.FormatFlags = StringFormatFlags.NoWrap;
+                    }
                 }
                 return this.stringFormat; 
             }
-            set { this.stringFormat = value; }
+            set {
+                if (this.disposed)
+                {
+                    throw new ObjectDisposedException(nameof(TextAdornment));
+                }
+
+                if (this.stringFormat == value)
+                {
+                    return;
+                }
+
+                if (this.ownsStringFormat)
+                {
+                    this.stringFormat.Dispose();
+                }
+
+                this.stringFormat = value;
+                this.ownsStringFormat = false;
+            }
         }
         private StringFormat stringFormat;
 
@@ -653,7 +736,9 @@ namespace BrightIdeasSoftware
         /// <param name="transparency">How opaque should be text be</param>
         public virtual void DrawText(Graphics g, Rectangle r, string s, int transparency) {
             if (String.IsNullOrEmpty(s))
+            {
                 return;
+            }
 
             Rectangle textRect = this.CalculateTextBounds(g, r, s);
             this.DrawBorderedText(g, textRect, s, transparency);
@@ -677,15 +762,21 @@ namespace BrightIdeasSoftware
                     this.workingTransparency = transparency;
                     if (this.HasBackground) {
                         using (Brush b = this.BackgroundBrush)
+                        {
                             g.FillPath(b, path);
+                        }
                     }
 
                     using (Brush b = this.TextBrush)
+                    {
                         g.DrawString(text, this.FontOrDefault, b, textRect, this.StringFormat);
+                    }
 
                     if (this.HasBorder) {
                         using (Pen p = this.BorderPen)
+                        {
                             g.DrawPath(p, path);
+                        }
                     }
                 }
             }

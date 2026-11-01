@@ -20,6 +20,22 @@ namespace BrightIdeasSoftware.Tests
         }
 
         [TestMethod]
+        public void Test_FilterMenu_CountsRepeatedNullClusterKeys() {
+            Person first = new Person("First");
+            Person second = new Person("Second");
+            Person third = new Person("Third");
+            this.olv.SetObjects(new[] { first, second, third });
+            using (OLVColumn column = new OLVColumn("Key", "Key")) {
+                column.AspectGetter = model => ReferenceEquals(model, third) ? "present" : null;
+                FilterMenuProbe builder = new FilterMenuProbe { TreatNullAsDataValue = true };
+                List<ICluster> clusters = builder.GetClusters(this.olv, column);
+                Assert.AreEqual(2, clusters.Count);
+                Assert.AreEqual(2, clusters.Find(cluster => cluster.ClusterKey == null).Count);
+                Assert.AreEqual(1, clusters.Find(cluster => Equals(cluster.ClusterKey, "present")).Count);
+            }
+        }
+
+        [TestMethod]
         public void Test_Filter_UseFiltering() {
             this.olv.SetObjects(PersonDb.All);
             this.olv.ModelFilter = new ModelFilter(delegate(object x) { return false; });
@@ -295,6 +311,12 @@ namespace BrightIdeasSoftware.Tests
             TextMatchFilter filter = TextMatchFilter.Regex(this.olv, "[yz]+");
             List<CharacterRange> ranges = new List<CharacterRange>(filter.FindAllMatchedRanges("x-abcd-ABCD"));
             Assert.AreEqual(0, ranges.Count);
+        }
+
+        private sealed class FilterMenuProbe : FilterMenuBuilder {
+            public List<ICluster> GetClusters(ObjectListViewBase list, OLVColumn column) {
+                return this.Cluster(column.ClusteringStrategy, list, column);
+            }
         }
 
         protected ObjectListView olv;

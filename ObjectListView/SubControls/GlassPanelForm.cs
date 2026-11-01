@@ -80,7 +80,9 @@ namespace BrightIdeasSoftware
 
         protected override void Dispose(bool disposing) {
             if (disposing)
+            {
                 this.Unbind();
+            }
 
             base.Dispose(disposing);
         }
@@ -108,7 +110,9 @@ namespace BrightIdeasSoftware
         /// </summary>        
         public void Bind(ObjectListViewBase olv, IOverlay overlay) {
             if (this.objectListView != null)
+            {
                 this.Unbind();
+            }
 
             this.objectListView = olv;
             this.Overlay = overlay;
@@ -116,7 +120,9 @@ namespace BrightIdeasSoftware
             this.mdiOwner = null;
 
             if (this.objectListView == null)
+            {
                 return;
+            }
 
             // NOTE: If you listen to any events here, you *must* stop listening in Unbind()
 
@@ -128,7 +134,10 @@ namespace BrightIdeasSoftware
 
             // Collect our ancestors in the widget hierarchy
             if (this.ancestors == null)
+            {
                 this.ancestors = new List<Control>();
+            }
+
             Control parent = this.objectListView.Parent;
             while (parent != null) {
                 this.ancestors.Add(parent);
@@ -192,7 +201,10 @@ namespace BrightIdeasSoftware
         /// </summary>
         public void HideGlass() {
             if (!this.isGlassShown)
+            {
                 return;
+            }
+
             this.isGlassShown = false;
             this.Bounds = new Rectangle(-10000, -10000, 1, 1);
         }
@@ -206,7 +218,9 @@ namespace BrightIdeasSoftware
         /// </remarks>
         public void ShowGlass() {
             if (this.isGlassShown || this.isDuringResizeSequence)
+            {
                 return;
+            }
 
             this.isGlassShown = true;
             this.RecalculateBounds();
@@ -291,7 +305,9 @@ namespace BrightIdeasSoftware
         void Owner_ResizeEnd(object sender, EventArgs e) {
             this.isDuringResizeSequence = false;
             if (this.wasGlassShownBeforeResize)
+            {
                 this.ShowGlass();
+            }
         }
 
         /// <summary>
@@ -301,9 +317,13 @@ namespace BrightIdeasSoftware
         /// <param name="e"></param>
         void Owner_LocationChanged(object sender, EventArgs e) {
             if (this.mdiOwner != null)
+            {
                 this.HideGlass();
+            }
             else
+            {
                 this.RecalculateBounds();
+            }
         }
 
         /// <summary>
@@ -374,9 +394,13 @@ namespace BrightIdeasSoftware
         /// <param name="e"></param>
         void objectListView_VisibleChanged(object sender, EventArgs e) {
             if (this.objectListView.Visible)
+            {
                 this.ShowGlass();
+            }
             else
+            {
                 this.HideGlass();
+            }
         }
 
         #endregion
@@ -385,7 +409,9 @@ namespace BrightIdeasSoftware
 
         protected override void OnPaint(PaintEventArgs e) {
             if (this.objectListView == null || this.Overlay == null)
+            {
                 return;
+            }
 
             Graphics g = e.Graphics;
             g.TextRenderingHint = ObjectListViewBase.TextRenderingHint;
@@ -404,7 +430,9 @@ namespace BrightIdeasSoftware
 
         protected void RecalculateBounds() {
             if (!this.isGlassShown)
+            {
                 return;
+            }
 
             Rectangle rect = this.objectListView.ClientRectangle;
             rect.X = 0;
@@ -415,9 +443,13 @@ namespace BrightIdeasSoftware
         internal void UpdateTransparency() {
             ITransparentOverlay transparentOverlay = this.Overlay as ITransparentOverlay;
             if (transparentOverlay == null)
+            {
                 this.Opacity = this.objectListView.OverlayTransparency / 255.0f;
+            }
             else
+            {
                 this.Opacity = transparentOverlay.Transparency / 255.0f;
+            }
         }
 
         protected override void WndProc(ref Message m) {

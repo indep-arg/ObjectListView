@@ -174,14 +174,18 @@ namespace BrightIdeasSoftware
         /// <returns>The value read from the target</returns>
         public Object GetValue(Object target) {
             if (this.Parts.Count == 0)
+            {
                 return null;
+            }
 
             try {
                 return this.EvaluateParts(target, this.Parts);
             } catch (MungerException ex) {
-                if (Munger.IgnoreMissingAspects) 
+                if (Munger.IgnoreMissingAspects)
+                {
                     return null;
-                
+                }
+
                 return String.Format("'{0}' is not a parameter-less method, property or field of type '{1}'",
                                          ex.Munger.AspectName, ex.Target.GetType());
             }
@@ -196,7 +200,9 @@ namespace BrightIdeasSoftware
         /// <returns>The value read from the target</returns>
         public Object GetValueEx(Object target) {
             if (this.Parts.Count == 0)
+            {
                 return null;
+            }
 
             return this.EvaluateParts(target, this.Parts);
         }
@@ -222,7 +228,9 @@ namespace BrightIdeasSoftware
         public bool PutValue(Object target, Object value)
         {
             if (this.Parts.Count == 0)
+            {
                 return false;
+            }
 
             SimpleMunger lastPart = this.Parts[this.Parts.Count - 1];
 
@@ -258,7 +266,10 @@ namespace BrightIdeasSoftware
         private IList<SimpleMunger> Parts {
             get {
                 if (aspectParts == null)
+                {
                     aspectParts = BuildParts(this.AspectName);
+                }
+
                 return aspectParts;
             }
         }
@@ -288,7 +299,10 @@ namespace BrightIdeasSoftware
         private object EvaluateParts(object target, IList<SimpleMunger> parts) {
             foreach (SimpleMunger part in parts) {
                 if (target == null)
+                {
                     break;
+                }
+
                 target = part.GetValue(target);
             }
             return target;
@@ -357,24 +371,34 @@ namespace BrightIdeasSoftware
         /// <returns></returns>
         public Object GetValue(Object target) {
             if (target == null)
+            {
                 return null;
+            }
 
             this.ResolveName(target, this.AspectName, 0);
 
             try {
                 if (this.resolvedPropertyInfo != null)
+                {
                     return this.resolvedPropertyInfo.GetValue(target, null);
+                }
 
                 if (this.resolvedMethodInfo != null)
+                {
                     return this.resolvedMethodInfo.Invoke(target, null);
+                }
 
                 if (this.resolvedFieldInfo != null)
+                {
                     return this.resolvedFieldInfo.GetValue(target);
+                }
 
                 // If that didn't work, try to use the indexer property. 
                 // This covers things like dictionaries and DataRows.
                 if (this.indexerPropertyInfo != null)
+                {
                     return this.indexerPropertyInfo.GetValue(target, new object[] { this.AspectName });
+                }
             } catch (Exception ex) {
                 // Lots of things can do wrong in these invocations
                 throw new MungerException(this, target, ex);
@@ -392,7 +416,9 @@ namespace BrightIdeasSoftware
         /// <returns>bool indicating if the put worked</returns>
         public bool PutValue(object target, object value) {
             if (target == null)
+            {
                 return false;
+            }
 
             this.ResolveName(target, this.AspectName, 1);
 
@@ -433,7 +459,9 @@ namespace BrightIdeasSoftware
         private void ResolveName(object target, string name, int numberMethodParameters) {
 
             if (cachedTargetType == target.GetType() && cachedName == name && cachedNumberParameters == numberMethodParameters)
+            {
                 return;
+            }
 
             cachedTargetType = target.GetType();
             cachedName = name;
@@ -459,7 +487,9 @@ namespace BrightIdeasSoftware
                     if (par.Length > 0) {
                          Type parameterType = par[0].ParameterType;
                          if (parameterType == typeof(string) || parameterType == typeof(object))
-                              indexerPropertyInfo = pinfo;
+                        {
+                            indexerPropertyInfo = pinfo;
+                        }
                     }
                 }
             }
@@ -554,8 +584,7 @@ namespace BrightIdeasSoftware
         }
 
         public override PropertyInfo SelectProperty(BindingFlags bindingAttr, PropertyInfo[] match, Type returnType, Type[] indexes, ParameterModifier[] modifiers) {
-            if (match == null)
-                throw new ArgumentNullException("match");
+            ArgumentNullException.ThrowIfNull(match, nameof(match));
 
             if (match.Length == 0)
                 return null;

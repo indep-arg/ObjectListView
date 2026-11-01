@@ -41,6 +41,7 @@ namespace BrightIdeasSoftware {
         /// <summary>
         /// What format will be used for exporting
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1069", Justification = "TSV is an intentional public alias for TabSeparated.")]
         public enum ExportFormat {
 
             /// <summary>
@@ -83,8 +84,8 @@ namespace BrightIdeasSoftware {
         /// <param name="olv"></param>
         /// <param name="objectsToExport"></param>
         public OLVExporter(ObjectListViewBase olv, IEnumerable objectsToExport) {
-            if (olv == null) throw new ArgumentNullException("olv");
-            if (objectsToExport == null) throw new ArgumentNullException("objectsToExport");
+            ArgumentNullException.ThrowIfNull(olv, nameof(olv));
+            ArgumentNullException.ThrowIfNull(objectsToExport, nameof(objectsToExport));
 
             this.ListView = olv;
             this.ModelObjects = ObjectListViewBase.EnumerableToArray(objectsToExport, true);
@@ -147,7 +148,9 @@ namespace BrightIdeasSoftware {
         /// <remarks>This will perform only one conversion, even if called multiple times with different formats.</remarks>
         public string ExportTo(ExportFormat format) {
             if (results == null)
+            {
                 this.Convert();
+            }
 
             return results[format];
         }
@@ -166,8 +169,10 @@ namespace BrightIdeasSoftware {
             // Include column headers
             if (this.IncludeColumnHeaders) {
                 List<string> strings = new List<string>();
-                foreach (OLVColumn col in columns) 
+                foreach (OLVColumn col in columns)
+                {
                     strings.Add(col.Text);
+                }
 
                 WriteOneRow(sbText, strings, "", "\t", "", null);
                 WriteOneRow(sbHtml, strings, "<tr><td>", "</td><td>", "</td></tr>", HtmlEncode);
@@ -177,7 +182,9 @@ namespace BrightIdeasSoftware {
             foreach (object modelObject in this.ModelObjects) {
                 List<string> strings = new List<string>();
                 foreach (OLVColumn col in columns)
+                {
                     strings.Add(col.GetStringValue(modelObject));
+                }
 
                 WriteOneRow(sbText, strings, "", "\t", "", null);
                 WriteOneRow(sbHtml, strings, "<tr><td>", "</td><td>", "</td></tr>", HtmlEncode);
@@ -198,7 +205,10 @@ namespace BrightIdeasSoftware {
             bool first = true;
             foreach (string s in strings) {
                 if (!first)
+                {
                     sb.Append(betweenCells);
+                }
+
                 sb.Append(encoder == null ? s : encoder(s));
                 first = false;
             }
@@ -220,7 +230,9 @@ namespace BrightIdeasSoftware {
         /// <returns></returns>
         private static string CsvEncode(string text) {
             if (text == null)
+            {
                 return null;
+            }
 
             const string DOUBLEQUOTE = @""""; // one double quote
             const string TWODOUBEQUOTES = @""""""; // two double quotes
@@ -240,7 +252,9 @@ namespace BrightIdeasSoftware {
         /// <remarks>Taken from http://www.west-wind.com/weblog/posts/2009/Feb/05/Html-and-Uri-String-Encoding-without-SystemWeb</remarks>
         private static string HtmlEncode(string text) {
             if (text == null)
+            {
                 return null;
+            }
 
             StringBuilder sb = new StringBuilder(text.Length);
 
@@ -266,7 +280,10 @@ namespace BrightIdeasSoftware {
                             sb.Append(((int)text[i]).ToString(CultureInfo.InvariantCulture));
                             sb.Append(";");
                         } else
+                        {
                             sb.Append(text[i]);
+                        }
+
                         break;
                 }
             }

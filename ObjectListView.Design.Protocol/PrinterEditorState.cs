@@ -27,12 +27,18 @@ namespace BrightIdeasSoftware.Design
         public static string Encode(object value, bool pen) {
             var state = new PrinterEditorState { HasValue = value != null };
             if (pen && value != null && value.GetType() != typeof(PenData))
+            {
                 throw new NotSupportedException("Custom pen data requires a custom editor.");
+            }
+
             PenData penData = pen ? (PenData)value : null;
             IBrushData brush = pen ? penData?.Brush : (IBrushData)value;
             if (brush != null && brush.GetType() != typeof(SolidBrushData) &&
                 brush.GetType() != typeof(LinearGradientBrushData) && brush.GetType() != typeof(HatchBrushData))
+            {
                 throw new NotSupportedException("Custom and texture brush data require a custom editor.");
+            }
+
             var converter = new ColorConverter();
             if (brush is SolidBrushData solid) {
                 state.BrushKind = 1;
@@ -74,7 +80,10 @@ namespace BrightIdeasSoftware.Design
                 state = (PrinterEditorState)new DataContractSerializer(typeof(PrinterEditorState)).ReadObject(reader);
             }
             if (!state.HasValue)
+            {
                 return null;
+            }
+
             var converter = new ColorConverter();
             IBrushData brush;
             switch (state.BrushKind) {

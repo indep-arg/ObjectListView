@@ -61,9 +61,13 @@ namespace ObjectListViewDemo
 
                 // Just to show off disabled rows, make tasks that are frozen be disabled.
                 if (task.Status == ServiceTask.TaskStatus.Frozen)
+                {
                     this.olvTasks.DisableObject(e.Model);
+                }
                 else
+                {
                     this.olvTasks.EnableObject(e.Model);
+                }
 
                 this.olvTasks.RefreshObject(e.Model);
             };
@@ -89,7 +93,9 @@ namespace ObjectListViewDemo
             // TextBounds sizes the button, but its column must also fit the label.
             this.olvColumnAction.MinimumWidth = minimumWidth;
             if (this.olvTasks.RowHeight != rowHeight)
+            {
                 this.olvTasks.RowHeight = rowHeight;
+            }
         }
 
         private void SetupDescibedTaskColumn() {
@@ -206,13 +212,19 @@ namespace ObjectListViewDemo
             List<IModelFilter> filters = new List<IModelFilter>();
 
             if (this.checkBoxHighPriority.Checked)
+            {
                 filters.Add(new ModelFilter(delegate(object model) { return ((ServiceTask)model).Priority > 3; }));
+            }
 
             if (this.checkBoxIncomplete.Checked)
+            {
                 filters.Add(new ModelFilter(delegate(object model) { return ((ServiceTask)model).Status != ServiceTask.TaskStatus.Complete; }));
+            }
 
             if (!String.IsNullOrEmpty(this.textBoxFilter.Text))
+            {
                 filters.Add(new TextMatchFilter(this.olvTasks, this.textBoxFilter.Text));
+            }
 
             // Use AdditionalFilter (instead of ModelFilter) since AdditionalFilter plays well with any
             // extra filtering the user might specify via the column header

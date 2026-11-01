@@ -286,7 +286,7 @@ namespace BrightIdeasSoftware
     /// <remarks>
     /// Actually, it should be called CleverDropSink -- it's far from simple and can do quite a lot in its own right.
     /// </remarks>
-    public class SimpleDropSink : AbstractDropSink
+    public class SimpleDropSink : AbstractDropSink, IDisposable
     {
         #region Life and death
 
@@ -305,11 +305,71 @@ namespace BrightIdeasSoftware
 
             this.FeedbackColor = Color.FromArgb(180, Color.MediumBlue);
             this.billboard = new BillboardOverlay();
+            this.defaultBillboard = this.billboard;
         }
+
+        /// <summary>
+        /// Release the scrolling timer and generated feedback overlay.
+        /// </summary>
+        public void Dispose() {
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Release resources owned by this sink.
+        /// </summary>
+        /// <param name="disposing">Whether managed resources should be released.</param>
+        protected virtual void Dispose(bool disposing) {
+            if (!disposing || this.disposed)
+            {
+                return;
+            }
+
+            this.Cleanup();
+            this.disposed = true;
+            this.timer.Dispose();
+            this.defaultBillboard.Dispose();
+            base.ListView = null;
+        }
+
+        private bool disposed;
+        private readonly BillboardOverlay defaultBillboard;
 
         #endregion
 
         #region Public properties
+
+        /// <summary>
+        /// Gets or sets the list receiving drops. Detaching stops auto-scrolling.
+        /// </summary>
+        public override ObjectListViewBase ListView {
+            get { return base.ListView; }
+            set {
+                if (this.disposed) {
+                    if (value != null)
+                    {
+                        throw new ObjectDisposedException(nameof(SimpleDropSink));
+                    }
+
+                    base.ListView = null;
+                    return;
+                }
+                if (base.ListView != value)
+                {
+                    if (base.ListView != null)
+                    {
+                        this.Cleanup();
+                    }
+                    else
+                    {
+                        this.timer.Stop();
+                    }
+                }
+
+                base.ListView = value;
+            }
+        }
 
         /// <summary>
         /// Get or set the locations where a drop is allowed to occur (OR-ed together)
@@ -358,9 +418,13 @@ namespace BrightIdeasSoftware
             get { return (this.AcceptableLocations & DropTargetLocation.BetweenItems) == DropTargetLocation.BetweenItems; }
             set {
                 if (value)
+                {
                     this.AcceptableLocations |= DropTargetLocation.BetweenItems;
-                else 
+                }
+                else
+                {
                     this.AcceptableLocations &= ~DropTargetLocation.BetweenItems;
+                }
             }
         }
 
@@ -371,9 +435,13 @@ namespace BrightIdeasSoftware
             get { return (this.AcceptableLocations & DropTargetLocation.Background) == DropTargetLocation.Background; }
             set {
                 if (value)
+                {
                     this.AcceptableLocations |= DropTargetLocation.Background;
+                }
                 else
+                {
                     this.AcceptableLocations &= ~DropTargetLocation.Background;
+                }
             }
         }
 
@@ -384,9 +452,13 @@ namespace BrightIdeasSoftware
             get { return (this.AcceptableLocations & DropTargetLocation.Item) == DropTargetLocation.Item; }
             set {
                 if (value)
+                {
                     this.AcceptableLocations |= DropTargetLocation.Item;
+                }
                 else
+                {
                     this.AcceptableLocations &= ~DropTargetLocation.Item;
+                }
             }
         }
 
@@ -397,9 +469,13 @@ namespace BrightIdeasSoftware
             get { return (this.AcceptableLocations & DropTargetLocation.SubItem) == DropTargetLocation.SubItem; }
             set {
                 if (value)
+                {
                     this.AcceptableLocations |= DropTargetLocation.SubItem;
+                }
                 else
+                {
                     this.AcceptableLocations &= ~DropTargetLocation.SubItem;
+                }
             }
         }
 
@@ -446,7 +522,7 @@ namespace BrightIdeasSoftware
             set {
                 if (this.dropTargetLocation != value) {
                     this.dropTargetLocation = value;
-                    this.ListView.Invalidate();
+                    this.ListView?.Invalidate();
                 }
             }
         }
@@ -589,9 +665,25 @@ namespace BrightIdeasSoftware
         /// the drag has finished.
         /// </summary>
         protected override void Cleanup() {
+            if (this.disposed)
+            {
+                return;
+            }
+
+            this.timer.Stop();
             this.DropTargetLocation = DropTargetLocation.None;
-            this.ListView.FullRowSelect = this.originalFullRowSelect;
-            this.Billboard.Text = null;
+            if (this.isDragActive)
+            {
+                this.isDragActive = false;
+                if (this.ListView != null && !this.ListView.IsDisposed)
+                {
+                    this.ListView.FullRowSelect = this.originalFullRowSelect;
+                }
+            }
+            if (this.Billboard != null)
+            {
+                this.Billboard.Text = null;
+            }
         }
 
         /// <summary>
@@ -641,9 +733,14 @@ namespace BrightIdeasSoftware
         /// <param name="args"></param>
         public override void Drop(DragEventArgs args) {
             this.dropEventArgs.DragEventArgs = args;
-            this.TriggerDroppedEvent(args);
-            this.timer.Stop();
-            this.Cleanup();
+            try
+            {
+                this.TriggerDroppedEvent(args);
+            }
+            finally
+            {
+                this.Cleanup();
+            }
         }
 
         /// <summary>
@@ -665,6 +762,7 @@ namespace BrightIdeasSoftware
              * We avoid both problems by turning off FullRowSelect during the drop operation.
              */    
             this.originalFullRowSelect = this.ListView.FullRowSelect;
+            this.isDragActive = true;
             this.ListView.FullRowSelect = false;
 
             // Setup our drop event args block
@@ -715,11 +813,15 @@ namespace BrightIdeasSoftware
             this.dropEventArgs.Handled = false;
 
             // If the source is an ObjectListView, trigger the ModelDropped event
-            if (this.dropEventArgs.SourceListView != null) 
+            if (this.dropEventArgs.SourceListView != null)
+            {
                 this.OnModelDropped(this.dropEventArgs);
+            }
 
             if (!this.dropEventArgs.Handled)
+            {
                 this.OnDropped(this.dropEventArgs);
+            }
         }
 
         /// <summary>
@@ -728,7 +830,9 @@ namespace BrightIdeasSoftware
         /// <param name="args"></param>
         protected virtual void OnCanDrop(OlvDropEventArgs args) {
             if (this.CanDrop != null)
+            {
                 this.CanDrop(this, args);
+            }
         }
 
         /// <summary>
@@ -737,7 +841,9 @@ namespace BrightIdeasSoftware
         /// <param name="args"></param>
         protected virtual void OnDropped(OlvDropEventArgs args) {
             if (this.Dropped != null)
+            {
                 this.Dropped(this, args);
+            }
         }
 
         /// <summary>
@@ -755,7 +861,9 @@ namespace BrightIdeasSoftware
             }
 
             if (this.ModelCanDrop != null)
+            {
                 this.ModelCanDrop(this, args);
+            }
         }
 
         /// <summary>
@@ -764,7 +872,9 @@ namespace BrightIdeasSoftware
         /// <param name="args"></param>
         protected virtual void OnModelDropped(ModelDropEventArgs args) {
             if (this.ModelDropped != null)
+            {
                 this.ModelDropped(this, args);
+            }
         }
 
         #endregion
@@ -816,7 +926,9 @@ namespace BrightIdeasSoftware
             int targetSubIndex = 0;
 
             if (this.CanDropOnBackground)
+            {
                 location = DropTargetLocation.Background;
+            }
 
             // Which item is the mouse over?
             // If it is not over any item, it's over the background.
@@ -825,7 +937,9 @@ namespace BrightIdeasSoftware
                 location = DropTargetLocation.Item;
                 targetIndex = info.Item.Index;
                 if (info.SubItem != null && this.CanDropOnSubItem)
+                {
                     targetSubIndex = info.Item.SubItems.IndexOf(info.SubItem);
+                }
             }
 
             // Check to see if the mouse is "between" rows.
@@ -898,7 +1012,7 @@ namespace BrightIdeasSoftware
 
                         break;
                     default:
-                        throw new ArgumentOutOfRangeException();
+                        throw new ArgumentOutOfRangeException(null, this.ListView.View, "Unsupported drop-target view.");
                 }
             }
 
@@ -929,7 +1043,9 @@ namespace BrightIdeasSoftware
             }
 
             if (!this.dropEventArgs.Handled)
+            {
                 this.OnCanDrop(this.dropEventArgs);
+            }
 
             this.UpdateAfterCanDropEvent(this.dropEventArgs);
 
@@ -944,9 +1060,13 @@ namespace BrightIdeasSoftware
         public DragDropEffects CalculateStandardDropActionFromKeys() {
             if (this.IsControlDown) {
                 if (this.IsShiftDown)
+                {
                     return DragDropEffects.Link;
+                }
                 else
+                {
                     return DragDropEffects.Copy;
+                }
             } else {
                 return DragDropEffects.Move;
             }
@@ -958,7 +1078,9 @@ namespace BrightIdeasSoftware
         /// <param name="pt"></param>
         protected virtual void CheckScrolling(Point pt) {
             if (!this.AutoScroll)
+            {
                 return;
+            }
 
             Rectangle r = this.ListView.ContentRectangle;
             int rowHeight = this.ListView.RowHeightEffective;
@@ -966,7 +1088,9 @@ namespace BrightIdeasSoftware
 
             // In Tile view, using the whole row height is too much
             if (this.ListView.View == View.Tile)
+            {
                 close /= 2;
+            }
 
             if (pt.Y <= (r.Top + close)) {
                 // Scroll faster if the mouse is closer to the top
@@ -1035,7 +1159,10 @@ namespace BrightIdeasSoftware
         /// </remarks>
         protected virtual void DrawFeedbackItemTarget(Graphics g, Rectangle bounds) {
             if (this.DropTargetItem == null)
+            {
                 return;
+            }
+
             Rectangle r = this.CalculateDropTargetRectangle(this.DropTargetItem, this.DropTargetSubItemIndex);
             r.Inflate(1, 1);
             float diameter = r.Height / 3;
@@ -1056,7 +1183,9 @@ namespace BrightIdeasSoftware
         /// <param name="bounds"></param>
         protected virtual void DrawFeedbackAboveItemTarget(Graphics g, Rectangle bounds) {
             if (this.DropTargetItem == null)
+            {
                 return;
+            }
 
             Rectangle r = this.CalculateDropTargetRectangle(this.DropTargetItem, this.DropTargetSubItemIndex);
             this.DrawBetweenLine(g, r.Left, r.Top, r.Right, r.Top);
@@ -1070,7 +1199,9 @@ namespace BrightIdeasSoftware
         protected virtual void DrawFeedbackBelowItemTarget(Graphics g, Rectangle bounds)
         {
             if (this.DropTargetItem == null)
+            {
                 return;
+            }
 
             Rectangle r = this.CalculateDropTargetRectangle(this.DropTargetItem, this.DropTargetSubItemIndex);
             this.DrawBetweenLine(g, r.Left, r.Bottom, r.Right, r.Bottom);
@@ -1084,7 +1215,9 @@ namespace BrightIdeasSoftware
         protected virtual void DrawFeedbackLeftOfItemTarget(Graphics g, Rectangle bounds)
         {
             if (this.DropTargetItem == null)
+            {
                 return;
+            }
 
             Rectangle r = this.CalculateDropTargetRectangle(this.DropTargetItem, this.DropTargetSubItemIndex);
             this.DrawBetweenLine(g, r.Left, r.Top, r.Left, r.Bottom);
@@ -1098,7 +1231,9 @@ namespace BrightIdeasSoftware
         protected virtual void DrawFeedbackRightOfItemTarget(Graphics g, Rectangle bounds)
         {
             if (this.DropTargetItem == null)
+            {
                 return;
+            }
 
             Rectangle r = this.CalculateDropTargetRectangle(this.DropTargetItem, this.DropTargetSubItemIndex);
             this.DrawBetweenLine(g, r.Right, r.Top, r.Right, r.Bottom);
@@ -1135,8 +1270,10 @@ namespace BrightIdeasSoftware
         /// <returns></returns>
         protected virtual Rectangle CalculateDropTargetRectangle(OLVListItem item, int subItem) {
             if (subItem > 0)
+            {
                 return item.SubItems[subItem].Bounds;
-            
+            }
+
             Rectangle r = this.ListView.CalculateCellTextBounds(item, subItem);
 
             // Allow for indent
@@ -1223,6 +1360,7 @@ namespace BrightIdeasSoftware
         private Timer timer;
         private int scrollAmount;
         private bool originalFullRowSelect;
+        private bool isDragActive;
         private ModelDropEventArgs dropEventArgs;
     }
 
@@ -1278,7 +1416,9 @@ namespace BrightIdeasSoftware
             base.OnModelCanDrop(args);
 
             if (args.Handled)
+            {
                 return;
+            }
 
             args.Effect = DragDropEffects.Move;
 
@@ -1304,7 +1444,9 @@ namespace BrightIdeasSoftware
             base.OnModelDropped(args);
 
             if (!args.Handled)
+            {
                 this.RearrangeModels(args);
+            }
         }
 
         /// <summary>
@@ -1422,9 +1564,13 @@ namespace BrightIdeasSoftware
             }
             set {
                 if (value == null)
+                {
                     this.DropTargetIndex = -1;
+                }
                 else
+                {
                     this.DropTargetIndex = value.Index;
+                }
             }
         }
 
@@ -1513,7 +1659,9 @@ namespace BrightIdeasSoftware
                     foreach (object model in this.SourceModels) {
                         object parent = tlv.GetParent(model);
                         if (!toBeRefreshed.Contains(parent))
+                        {
                             toBeRefreshed.Add(parent);
+                        }
                     }
                 }
             }
@@ -1548,15 +1696,23 @@ namespace BrightIdeasSoftware
             toBeRefreshed.AddRange(this.SourceModels);
             TreeListView tlv = this.SourceListView as TreeListView;
             if (tlv == null)
+            {
                 this.SourceListView.RefreshObjects(toBeRefreshed);
+            }
             else
+            {
                 tlv.RebuildAll(true);
+            }
 
             TreeListView tlv2 = this.ListView as TreeListView;
             if (tlv2 == null)
+            {
                 this.ListView.RefreshObject(this.TargetModel);
+            }
             else
+            {
                 tlv2.RebuildAll(true);
+            }
         }
     }
 }

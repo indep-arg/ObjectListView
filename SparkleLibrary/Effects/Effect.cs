@@ -98,10 +98,14 @@ namespace BrightIdeasSoftware
 
         protected Rectangle CalculateIntermediary(Rectangle from, Rectangle to, float fractionDone) {
             if (fractionDone >= 1.0f)
+            {
                 return to;
+            }
 
             if (fractionDone <= 0.0f)
+            {
                 return from;
+            }
 
             return new Rectangle(
                 this.CalculateIntermediary(from.X, to.X, fractionDone),
@@ -112,10 +116,14 @@ namespace BrightIdeasSoftware
 
         protected RectangleF CalculateIntermediary(RectangleF from, RectangleF to, float fractionDone) {
             if (fractionDone >= 1.0f)
+            {
                 return to;
+            }
 
             if (fractionDone <= 0.0f)
+            {
                 return from;
+            }
 
             return new RectangleF(
                 this.CalculateIntermediary(from.X, to.X, fractionDone),
@@ -155,50 +163,70 @@ namespace BrightIdeasSoftware
 
         protected int CalculateIntermediary(int from, int to, float fractionDone) {
             if (fractionDone >= 1.0f)
+            {
                 return to;
+            }
 
             if (fractionDone <= 0.0f)
+            {
                 return from;
+            }
 
             return from + (int)((to - from) * fractionDone);
         }
 
         protected long CalculateIntermediary(long from, long to, float fractionDone) {
             if (fractionDone >= 1.0f)
+            {
                 return to;
+            }
 
             if (fractionDone <= 0.0f)
+            {
                 return from;
+            }
 
             return from + (int)((to - from) * fractionDone);
         }
 
         protected float CalculateIntermediary(float from, float to, float fractionDone) {
             if (fractionDone >= 1.0f)
+            {
                 return to;
+            }
 
             if (fractionDone <= 0.0f)
+            {
                 return from;
+            }
 
             return from + ((to - from) * fractionDone);
         }
 
         protected double CalculateIntermediary(double from, double to, float fractionDone) {
             if (fractionDone >= 1.0f)
+            {
                 return to;
+            }
 
             if (fractionDone <= 0.0f)
+            {
                 return from;
+            }
 
             return from + ((to - from) * fractionDone);
         }
 
         protected Color CalculateIntermediary(Color from, Color to, float fractionDone) {
             if (fractionDone >= 1.0f)
+            {
                 return to;
+            }
 
             if (fractionDone <= 0.0f)
+            {
                 return from;
+            }
 
             // There are a couple of different strategies we could use here:
             // - Calc intermediary individual RGB components - fastest
@@ -231,11 +259,19 @@ namespace BrightIdeasSoftware
         protected static Color FromHSB(float hue, float saturation, float brightness) {
 
             if (hue < 0 || hue > 360)
-                throw new ArgumentException("Value must be between 0 and 360", "hue");
+            {
+                throw new ArgumentException("Value must be between 0 and 360", nameof(hue));
+            }
+
             if (saturation < 0 || saturation > 100)
-                throw new ArgumentException("Value must be between 0 and 100", "saturation");
+            {
+                throw new ArgumentException("Value must be between 0 and 100", nameof(saturation));
+            }
+
             if (brightness < 0 || brightness > 100)
-                throw new ArgumentException("Value must be between 0 and 100", "brightness");
+            {
+                throw new ArgumentException("Value must be between 0 and 100", nameof(brightness));
+            }
 
             float h = hue;
             float s = saturation;
@@ -302,28 +338,42 @@ namespace BrightIdeasSoftware
             for (int i = 0; i < length; ++i) {
                 if (i < complete) {
                     if (i < length2)
+                    {
                         result[i] = to[i];
+                    }
                     else
+                    {
                         result[i] = ' ';
+                    }
                 } else {
                     char fromChar = (i < length1) ? from[i] : 'a';
                     char toChar = (i < length2) ? to[i] : 'a';
 
                     if (toChar == ' ')
+                    {
                         result[i] = ' ';
+                    }
                     else {
                         int mid = this.CalculateIntermediary(
                             Convert.ToInt32(fromChar), Convert.ToInt32(toChar), fractionDone);
                         // Unless we're finished, make sure that the same chars don't always map
                         // to the same intermediate value.
                         if (fractionDone < 1.0f)
+                        {
                             mid -= i;
+                        }
+
                         char c = Convert.ToChar(mid);
                         if (Char.IsUpper(toChar) && Char.IsLower(c))
+                        {
                             c = Char.ToUpper(c);
+                        }
                         else
                             if (Char.IsLower(toChar) && Char.IsUpper(c))
+                            {
                                 c = Char.ToLower(c);
+                            }
+
                         result[i] = c;
                     }
                 }
@@ -342,17 +392,23 @@ namespace BrightIdeasSoftware
 
         protected void InitializeLocator(IPointLocator locator) {
             if (locator != null && locator.Sprite == null)
+            {
                 locator.Sprite = this.Sprite;
+            }
         }
 
         protected void InitializeLocator(IRectangleLocator locator) {
             if (locator != null && locator.Sprite == null)
+            {
                 locator.Sprite = this.Sprite;
+            }
         }
 
         protected void InitializeEffect(IEffect effect) {
             if (effect != null && effect.Sprite == null)
+            {
                 effect.Sprite = this.Sprite;
+            }
         }
 
         #endregion
@@ -405,7 +461,9 @@ namespace BrightIdeasSoftware
             base.Start();
 
             if (this.From == null)
+            {
                 this.From = new FixedPointLocator(this.Sprite.Location);
+            }
 
             this.InitializeLocator(this.From);
             this.InitializeLocator(this.To);
@@ -583,7 +641,9 @@ namespace BrightIdeasSoftware
 
             // We must be in the FadeIn phase?
             if (this.FadeIn > 0)
+            {
                 this.Sprite.Opacity = fractionDone / (this.FadeIn / total);
+            }
         }
 
         public override void Reset() {
@@ -666,9 +726,14 @@ namespace BrightIdeasSoftware
             this.originalBounds = this.Sprite.Bounds;
 
             if (this.From == null)
+            {
                 this.From = new FixedRectangleLocator(this.Sprite.Bounds);
+            }
+
             if (this.To == null)
+            {
                 this.To = new FixedRectangleLocator(this.Sprite.Bounds);
+            }
 
             this.InitializeLocator(this.From);
             this.InitializeLocator(this.To);
@@ -757,7 +822,9 @@ namespace BrightIdeasSoftware
             base.Start();
 
             if (this.AlignmentPointLocator == null)
+            {
                 this.AlignmentPointLocator = Locators.SpriteBoundsPoint(Corner.MiddleCenter);
+            }
 
             this.InitializeLocator(this.RectangleLocator);
             this.InitializeLocator(this.AlignmentPointLocator);
@@ -822,7 +889,9 @@ namespace BrightIdeasSoftware
             base.Start();
 
             if (this.AlignmentPointLocator == null)
+            {
                 this.AlignmentPointLocator = Locators.SpriteBoundsPoint(Corner.MiddleCenter);
+            }
 
             this.InitializeLocator(this.PointWalker);
             this.InitializeLocator(this.AlignmentPointLocator);
@@ -867,7 +936,9 @@ namespace BrightIdeasSoftware
         public override void Start() {
             System.Diagnostics.Debug.Assert(this.Sprite is TextSprite);
             if (String.IsNullOrEmpty(this.StartString))
+            {
                 this.StartString = this.TextSprite.Text;
+            }
         }
 
         public override void Apply(float fractionDone) {
@@ -908,7 +979,9 @@ namespace BrightIdeasSoftware
 
         public override void Apply(float fractionDone) {
             if (fractionDone >= 1.0f)
+            {
                 this.Effect.Apply(1.0f);
+            }
             else {
                 // Calculate how far we are through this repetition
                 double x = fractionDone * this.Repetitions;
@@ -982,31 +1055,57 @@ namespace BrightIdeasSoftware
             // keyed by Type and hold the function, but that's just more complication for no real payback).
 
             if (typeof(T) == typeof(int))
+            {
                 intermediateValue = this.CalculateIntermediary((int)this.From, (int)this.To, fractionDone);
+            }
             else if (typeof(T) == typeof(float))
+            {
                 intermediateValue = this.CalculateIntermediary((float)this.From, (float)this.To, fractionDone);
+            }
             else if (typeof(T) == typeof(long))
+            {
                 intermediateValue = this.CalculateIntermediary((long)this.From, (long)this.To, fractionDone);
+            }
             else if (typeof(T) == typeof(Point))
+            {
                 intermediateValue = this.CalculateIntermediary((Point)this.From, (Point)this.To, fractionDone);
+            }
             else if (typeof(T) == typeof(Rectangle))
+            {
                 intermediateValue = this.CalculateIntermediary((Rectangle)this.From, (Rectangle)this.To, fractionDone);
+            }
             else if (typeof(T) == typeof(Size))
+            {
                 intermediateValue = this.CalculateIntermediary((Size)this.From, (Size)this.To, fractionDone);
+            }
             else if (typeof(T) == typeof(PointF))
+            {
                 intermediateValue = this.CalculateIntermediary((PointF)this.From, (PointF)this.To, fractionDone);
+            }
             else if (typeof(T) == typeof(RectangleF))
+            {
                 intermediateValue = this.CalculateIntermediary((RectangleF)this.From, (RectangleF)this.To, fractionDone);
+            }
             else if (typeof(T) == typeof(SizeF))
+            {
                 intermediateValue = this.CalculateIntermediary((SizeF)this.From, (SizeF)this.To, fractionDone);
+            }
             else if (typeof(T) == typeof(char))
+            {
                 intermediateValue = this.CalculateIntermediary((char)this.From, (char)this.To, fractionDone);
+            }
             else if (typeof(T) == typeof(string))
+            {
                 intermediateValue = this.CalculateIntermediary((string)this.From, (string)this.To, fractionDone);
+            }
             else if (typeof(T) == typeof(Color))
+            {
                 intermediateValue = this.CalculateIntermediary((Color)this.From, (Color)this.To, fractionDone);
+            }
             else
+            {
                 System.Diagnostics.Debug.Assert(false, "Unknown data type");
+            }
 
             this.SetValue(intermediateValue);
         }
@@ -1077,7 +1176,9 @@ namespace BrightIdeasSoftware
             /// <returns>The value read from the target</returns>
             public U GetValue(Object target) {
                 if (String.IsNullOrEmpty(this.MemberName))
+                {
                     return default(U);
+                }
 
                 const BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance |
                     BindingFlags.InvokeMethod | BindingFlags.GetProperty | BindingFlags.GetField;
@@ -1094,10 +1195,14 @@ namespace BrightIdeasSoftware
             /// <param name="value">The value that will be poked into the target</param>
             public void PutValue(Object target, object value) {
                 if (String.IsNullOrEmpty(this.MemberName))
+                {
                     return;
+                }
 
                 if (target == null)
+                {
                     return;
+                }
 
                 try {
                     // Try to set a property or field first, since that's the most common case

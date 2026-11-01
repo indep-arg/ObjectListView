@@ -46,17 +46,28 @@ namespace BrightIdeasSoftware {
         /// </summary>
         /// <param name="enumType"></param>
         public FlagClusteringStrategy(Type enumType) {
-            if (enumType == null) throw new ArgumentNullException("enumType");
-            if (!enumType.IsEnum) throw new ArgumentException("Type must be enum", "enumType");
-            if (enumType.GetCustomAttributes(typeof(FlagsAttribute), false) == null) throw new ArgumentException("Type must have [Flags] attribute", "enumType");
+            ArgumentNullException.ThrowIfNull(enumType, nameof(enumType));
+            if (!enumType.IsEnum)
+            {
+                throw new ArgumentException("Type must be enum", nameof(enumType));
+            }
+
+            if (enumType.GetCustomAttributes(typeof(FlagsAttribute), false) == null)
+            {
+                throw new ArgumentException("Type must have [Flags] attribute", nameof(enumType));
+            }
 
             List<long> flags = new List<long>();
             foreach (object x in Enum.GetValues(enumType))
+            {
                 flags.Add(Convert.ToInt64(x));
+            }
 
             List<string> flagLabels = new List<string>();
             foreach (string x in Enum.GetNames(enumType))
+            {
                 flagLabels.Add(x);
+            }
 
             this.SetValues(flags.ToArray(), flagLabels.ToArray());
         }
@@ -94,9 +105,20 @@ namespace BrightIdeasSoftware {
         private string[] labels;
 
         private void SetValues(long[] flags, string[] flagLabels) {
-            if (flags == null || flags.Length == 0) throw new ArgumentNullException("flags");
-            if (flagLabels == null || flagLabels.Length == 0) throw new ArgumentNullException("flagLabels");
-            if (flags.Length != flagLabels.Length) throw new ArgumentException("values and labels must have the same number of entries", "flags");
+            if (flags == null || flags.Length == 0)
+            {
+                throw new ArgumentNullException(nameof(flags));
+            }
+
+            if (flagLabels == null || flagLabels.Length == 0)
+            {
+                throw new ArgumentNullException(nameof(flagLabels));
+            }
+
+            if (flags.Length != flagLabels.Length)
+            {
+                throw new ArgumentException("values and labels must have the same number of entries", nameof(flags));
+            }
 
             this.Values = flags;
             this.Labels = flagLabels;
@@ -117,7 +139,9 @@ namespace BrightIdeasSoftware {
                 long modelValue = Convert.ToInt64(this.Column.GetValue(model));
                 foreach (long x in this.Values) {
                     if ((x & modelValue) == x)
+                    {
                         flags.Add(x);
+                    }
                 }
                 return flags;
             }
@@ -140,7 +164,9 @@ namespace BrightIdeasSoftware {
             long clusterKeyAsUlong = Convert.ToInt64(cluster.ClusterKey);
             for (int i = 0; i < this.Values.Length; i++ ) {
                 if (clusterKeyAsUlong == this.Values[i])
+                {
                     return this.ApplyDisplayFormat(cluster, this.Labels[i]);
+                }
             }
             return this.ApplyDisplayFormat(cluster, clusterKeyAsUlong.ToString(CultureInfo.CurrentUICulture));
         }

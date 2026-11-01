@@ -96,7 +96,10 @@ namespace BrightIdeasSoftware
         protected override void InsertStoredModelObjects(int index, IEnumerable collection, bool includeNulls) {
             List<T> models = collection as List<T> ?? CreateModelList(collection);
             if (!includeNulls)
+            {
                 models.RemoveAll(model => model == null);
+            }
+
             index = Math.Max(0, Math.Min(index, this.objects.Count));
             this.InvalidateModelRows();
             this.objects.InsertRange(index, models);
@@ -116,7 +119,10 @@ namespace BrightIdeasSoftware
             T replacement = (T)newModel;
             int index = this.IndexOfStoredModel((T)oldModel);
             if (index < 0)
+            {
                 return false;
+            }
+
             this.InvalidateModelRows();
             this.objects[index] = replacement;
             return true;
@@ -124,10 +130,15 @@ namespace BrightIdeasSoftware
 
         private int IndexOfStoredModel(T model) {
             if (this.objects == null)
+            {
                 return -1;
+            }
+
             for (int i = 0; i < this.objects.Count; i++) {
                 if (Object.Equals(this.objects[i], model))
+                {
                     return i;
+                }
             }
             return -1;
         }
@@ -143,7 +154,9 @@ namespace BrightIdeasSoftware
         /// <inheritdoc/>
         protected override void TakeOwnershipOfObjects() {
             if (this.objects == null)
+            {
                 this.objects = new List<T>();
+            }
         }
 
         /// <summary>
@@ -167,12 +180,16 @@ namespace BrightIdeasSoftware
         protected internal static List<T> CreateModelList(IEnumerable collection) {
             IEnumerable<T> typed = collection as IEnumerable<T>;
             if (typed != null)
+            {
                 return new List<T>(typed);
+            }
 
             List<T> snapshot = new List<T>();
             if (collection != null) {
                 foreach (object model in collection)
+                {
                     snapshot.Add((T)model);
+                }
             }
             return snapshot;
         }
@@ -207,7 +224,9 @@ namespace BrightIdeasSoftware
             if (this.CheckBoxes) {
                 for (int i = 0; i < this.GetItemCount(); i++) {
                     if (this.GetItem(i).CheckState == CheckState.Checked)
+                    {
                         checkedObjects.Add(this.GetModelObject(i));
+                    }
                 }
             }
             return checkedObjects;
@@ -282,7 +301,10 @@ namespace BrightIdeasSoftware
         protected virtual IList<T> GetSelectedObjectsCore() {
             List<T> selected = new List<T>(this.SelectedIndices.Count);
             foreach (int index in this.SelectedIndices)
+            {
                 selected.Add(this.GetModelObject(index));
+            }
+
             return selected;
         }
 
@@ -442,7 +464,9 @@ namespace BrightIdeasSoftware
         /// </summary>
         public virtual void GenerateAspectGetters() {
             for (int i = 0; i < this.Columns.Count; i++)
+            {
                 this.GetTypedColumn(i).GenerateAspectGetter();
+            }
         }
     }
 
@@ -464,8 +488,7 @@ namespace BrightIdeasSoftware
         /// </summary>
         /// <param name="column"></param>
         public TypedColumn(OLVColumn column) {
-            if (column == null)
-                throw new ArgumentNullException("column");
+            ArgumentNullException.ThrowIfNull(column, nameof(column));
             this.column = column;
         }
         private OLVColumn column;
@@ -508,11 +531,15 @@ namespace BrightIdeasSoftware
             }
             set {
                 if (value == null)
+                {
                     this.column.AspectGetter = null;
+                }
                 else
+                {
                     this.column.AspectGetter = delegate(object x) {
                         return x == null ? null : value((T)x);
                     };
+                }
             }
         }
 
@@ -526,11 +553,15 @@ namespace BrightIdeasSoftware
             }
             set {
                 if (value == null)
+                {
                     this.column.AspectPutter = null;
+                }
                 else
+                {
                     this.column.AspectPutter = delegate(object x, object newValue) {
                         value((T)x, newValue);
                     };
+                }
             }
         }
 
@@ -544,11 +575,15 @@ namespace BrightIdeasSoftware
             }
             set {
                 if (value == null)
+                {
                     this.column.ImageGetter = null;
+                }
                 else
+                {
                     this.column.ImageGetter = delegate(object x) {
                         return value((T)x);
                     };
+                }
             }
         }
 
@@ -562,11 +597,15 @@ namespace BrightIdeasSoftware
             }
             set {
                 if (value == null)
+                {
                     this.column.GroupKeyGetter = null;
+                }
                 else
+                {
                     this.column.GroupKeyGetter = delegate(object x) {
                         return value((T)x);
                     };
+                }
             }
         }
 
@@ -591,7 +630,9 @@ namespace BrightIdeasSoftware
         /// </remarks>
         public void GenerateAspectGetter() {
             if (!String.IsNullOrEmpty(this.column.AspectName))
+            {
                 this.AspectGetter = this.GenerateAspectGetter(typeof(T), this.column.AspectName);
+            }
         }
 
         /// <summary>
@@ -624,13 +665,17 @@ namespace BrightIdeasSoftware
             for (int i = 0; i < parts.Length; i++) {
                 type = this.GeneratePart(il, type, parts[i], (i == parts.Length - 1));
                 if (type == null)
+                {
                     break;
+                }
             }
 
             // If the object to be returned is a value type (e.g. int, bool), it
             // must be boxed, since the delegate returns an Object
             if (type != null && type.IsValueType && !typeof(T).IsValueType)
+            {
                 il.Emit(OpCodes.Box, type);
+            }
 
             il.Emit(OpCodes.Ret);
         }
@@ -642,20 +687,32 @@ namespace BrightIdeasSoftware
             List<MemberInfo> infos = new List<MemberInfo>(type.GetMember(pathPart));
             MemberInfo info = infos.Find(delegate(MemberInfo x) {
                 if (x.MemberType == MemberTypes.Field || x.MemberType == MemberTypes.Property)
+                {
                     return true;
+                }
+
                 if (x.MemberType == MemberTypes.Method)
+                {
                     return ((MethodInfo)x).GetParameters().Length == 0;
+                }
                 else
+                {
                     return false;
+                }
             });
 
             // If we couldn't find anything with that name, pop the current result and return an error
             if (info == null) {
                 il.Emit(OpCodes.Pop);
                 if (Munger.IgnoreMissingAspects)
+                {
                     il.Emit(OpCodes.Ldnull);
+                }
                 else
+                {
                     il.Emit(OpCodes.Ldstr, String.Format("'{0}' is not a parameter-less method, property or field of type '{1}'", pathPart, type.FullName));
+                }
+
                 return null;
             }
 
@@ -666,9 +723,14 @@ namespace BrightIdeasSoftware
                 case MemberTypes.Method:
                     MethodInfo mi = (MethodInfo)info;
                     if (mi.IsVirtual)
+                    {
                         il.Emit(OpCodes.Callvirt, mi);
+                    }
                     else
+                    {
                         il.Emit(OpCodes.Call, mi);
+                    }
+
                     resultType = mi.ReturnType;
                     break;
                 case MemberTypes.Property:

@@ -94,7 +94,9 @@ namespace BrightIdeasSoftware.Tests
                 previous = new DataObject();
                 // Materialize before replacing the OLE clipboard; its IDataObject is not a snapshot.
                 foreach (string format in clipboard.GetFormats(false))
+                {
                     previous.SetData(format, false, clipboard.GetData(format, false));
+                }
             }
             try {
                 this.olv.SetObjects(PersonDb.All);
@@ -108,9 +110,13 @@ namespace BrightIdeasSoftware.Tests
             }
             finally {
                 if (previous == null)
+                {
                     Clipboard.Clear();
+                }
                 else
+                {
                     Clipboard.SetDataObject(previous, true);
+                }
             }
         }
 

@@ -197,13 +197,23 @@ namespace BrightIdeasSoftware.Tests
                 renderer.Draw(graphics, new Rectangle(0, 0, 40, 40));
                 Assert.IsLessThan(0.5f, bitmap.GetPixel(2, 15).GetBrightness());
                 if (state == CheckBoxState.UncheckedNormal)
+                {
                     Assert.IsGreaterThan(0.5f, bitmap.GetPixel(0, 15).GetBrightness());
+                }
+
                 if (state < CheckBoxState.CheckedNormal)
+                {
                     Assert.IsFalse(ContainsColor(bitmap, Color.White));
+                }
                 else if (state != CheckBoxState.CheckedDisabled)
+                {
                     Assert.IsTrue(ContainsColor(bitmap, Color.White));
+                }
+
                 if (state == CheckBoxState.CheckedNormal || state == CheckBoxState.MixedNormal)
+                {
                     Assert.IsTrue(ContainsColor(bitmap, ObjectListViewTheme.AccentColor));
+                }
             }
         }
 
@@ -227,7 +237,10 @@ namespace BrightIdeasSoftware.Tests
                 }
                 imageGraphics.Clear(Color.Magenta);
                 if (withImage)
+                {
                     item.ImageSelector = image;
+                }
+
                 var renderer = new DarkButtonProbe {
                     ListView = list, Column = list.GetColumn(0), ListItem = item, SubItem = item.GetSubItem(0)
                 };
@@ -236,9 +249,14 @@ namespace BrightIdeasSoftware.Tests
                 Assert.IsLessThan(0.5f, bitmap.GetPixel(7, 7).GetBrightness());
                 Assert.IsTrue(ContainsColor(bitmap, disabled ? ObjectListViewTheme.ButtonDisabledTextColor : ObjectListViewTheme.ButtonTextColor));
                 if (withImage)
+                {
                     Assert.IsTrue(ContainsColor(bitmap, Color.Magenta));
+                }
+
                 if (!disabled)
+                {
                     Assert.IsTrue(ContainsColor(bitmap, ObjectListViewTheme.ButtonColor));
+                }
             }
         }
 
@@ -279,7 +297,10 @@ namespace BrightIdeasSoftware.Tests
                 Color customBackColor = systemColors ? SystemColors.Info : Color.Purple;
                 Color customForeColor = systemColors ? SystemColors.InfoText : Color.Yellow;
                 if (customEditor)
+                {
                     column.EditorCreator = delegate { return new TextBox { BackColor = customBackColor, ForeColor = customForeColor }; };
+                }
+
                 list.Columns.Add(column);
                 list.SetObjects(new[] { new { Name = "Row" } });
                 list.CreateControl();
@@ -295,7 +316,9 @@ namespace BrightIdeasSoftware.Tests
                     Assert.AreEqual(customEditor ? customForeColor : ObjectListViewTheme.TextColor, editor.ForeColor);
                 } finally {
                     if (editor != null)
+                    {
                         editor.Dispose();
+                    }
                 }
             }
         }
@@ -401,7 +424,10 @@ namespace BrightIdeasSoftware.Tests
                     if (this.RejectReplacement) {
                         value.Disposed += delegate { this.CopyDisposed = true; };
                         if (this.AttachBeforeThrow)
+                        {
                             base.BaseSmallImageList = value;
+                        }
+
                         throw new InvalidOperationException("The replacement was rejected.");
                     }
                     base.BaseSmallImageList = value;

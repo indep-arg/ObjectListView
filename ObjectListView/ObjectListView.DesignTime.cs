@@ -72,7 +72,7 @@ namespace BrightIdeasSoftware.Design
         /// <summary>
         /// Initialises the designer with the specified component.
         /// </summary>
-        /// <param name="component">The <see cref="T:System.ComponentModel.IComponent"/> to associate the designer with. This component must always be an instance of, or derive from, <see cref="T:System.Windows.Forms.Control"/>. </param>
+        /// <param name="component">The <see cref="System.ComponentModel.IComponent"/> to associate the designer with. This component must always be an instance of, or derive from, <see cref="System.Windows.Forms.Control"/>. </param>
         public override void Initialize(IComponent component) {
             // Debug.WriteLine("ObjectListViewDesigner.Initialize");
 
@@ -81,7 +81,10 @@ namespace BrightIdeasSoftware.Design
             Type tListViewDesigner = Type.GetType("System.Windows.Forms.Design.ListViewDesigner, System.Design") ??
                                      Type.GetType("System.Windows.Forms.Design.ListViewDesigner, System.Design, " +
                                                   "Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a");
-            if (tListViewDesigner == null) throw new ArgumentException("Could not load ListViewDesigner");
+            if (tListViewDesigner == null)
+            {
+                throw new ArgumentException("Could not load ListViewDesigner");
+            }
 
             this.listViewDesigner = (ControlDesigner)Activator.CreateInstance(tListViewDesigner, BindingFlags.Instance | BindingFlags.Public, null, null, null);
             this.designerFilter = this.listViewDesigner;
@@ -120,7 +123,7 @@ namespace BrightIdeasSoftware.Design
         }
 
         /// <summary>
-        /// Releases the unmanaged resources used by the <see cref="T:System.Windows.Forms.Design.ControlDesigner"/> and optionally releases the managed resources.
+        /// Releases the unmanaged resources used by the <see cref="System.Windows.Forms.Design.ControlDesigner"/> and optionally releases the managed resources.
         /// </summary>
         /// <param name="disposing">true to release both managed and unmanaged resources; false to release only unmanaged resources. </param>
         protected override void Dispose(bool disposing) {
@@ -166,9 +169,9 @@ namespace BrightIdeasSoftware.Design
         #region IDesignerFilter overrides
 
         /// <summary>
-        /// Adjusts the set of properties the component exposes through a <see cref="T:System.ComponentModel.TypeDescriptor"/>.
+        /// Adjusts the set of properties the component exposes through a <see cref="System.ComponentModel.TypeDescriptor"/>.
         /// </summary>
-        /// <param name="properties">An <see cref="T:System.Collections.IDictionary"/> containing the properties for the class of the component. </param>
+        /// <param name="properties">An <see cref="System.Collections.IDictionary"/> containing the properties for the class of the component. </param>
         protected override void PreFilterProperties(IDictionary properties) {
             // Debug.WriteLine("ObjectListViewDesigner.PreFilterProperties");
 
@@ -220,7 +223,7 @@ namespace BrightIdeasSoftware.Design
         }
 
         /// <summary>
-        /// Allows a designer to add to the set of events that it exposes through a <see cref="T:System.ComponentModel.TypeDescriptor"/>.
+        /// Allows a designer to add to the set of events that it exposes through a <see cref="System.ComponentModel.TypeDescriptor"/>.
         /// </summary>
         /// <param name="events">The events for the class of the component. </param>
         protected override void PreFilterEvents(IDictionary events) {
@@ -264,7 +267,7 @@ namespace BrightIdeasSoftware.Design
         }
 
         /// <summary>
-        /// Allows a designer to change or remove items from the set of attributes that it exposes through a <see cref="T:System.ComponentModel.TypeDescriptor"/>.
+        /// Allows a designer to change or remove items from the set of attributes that it exposes through a <see cref="System.ComponentModel.TypeDescriptor"/>.
         /// </summary>
         /// <param name="attributes">The attributes for the class of the component. </param>
         protected override void PostFilterAttributes(IDictionary attributes) {
@@ -274,7 +277,7 @@ namespace BrightIdeasSoftware.Design
         }
 
         /// <summary>
-        /// Allows a designer to change or remove items from the set of events that it exposes through a <see cref="T:System.ComponentModel.TypeDescriptor"/>.
+        /// Allows a designer to change or remove items from the set of events that it exposes through a <see cref="System.ComponentModel.TypeDescriptor"/>.
         /// </summary>
         /// <param name="events">The events for the class of the component. </param>
         protected override void PostFilterEvents(IDictionary events) {
@@ -324,7 +327,7 @@ namespace BrightIdeasSoftware.Design
         /// <returns>
         /// true if a click at the specified point is to be handled by the control; otherwise, false.
         /// </returns>
-        /// <param name="point">A <see cref="T:System.Drawing.Point"/> indicating the position at which the mouse was clicked, in screen coordinates. </param>
+        /// <param name="point">A <see cref="System.Drawing.Point"/> indicating the position at which the mouse was clicked, in screen coordinates. </param>
         protected override bool GetHitTest(Point point) {
             // The ListViewDesigner wants to allow column dividers to be resized
             return (bool)this.listViewDesignGetHitTest.Invoke(listViewDesigner, new object[] { point });
@@ -333,7 +336,7 @@ namespace BrightIdeasSoftware.Design
         /// <summary>
         /// Processes Windows messages and optionally routes them to the control.
         /// </summary>
-        /// <param name="m">The <see cref="T:System.Windows.Forms.Message"/> to process. </param>
+        /// <param name="m">The <see cref="System.Windows.Forms.Message"/> to process. </param>
         protected override void WndProc(ref Message m) {
             switch (m.Msg) {
                 case 0x4e:
@@ -415,17 +418,17 @@ namespace BrightIdeasSoftware.Design
 
             public ImageList LargeImageList {
                 get { return ((ListView)base.Component).LargeImageList; }
-                set { SetValue(base.Component, "LargeImageList", value); }
+                set { SetValue(base.Component, nameof(LargeImageList), value); }
             }
 
             public ImageList SmallImageList {
                 get { return ((ListView)base.Component).SmallImageList; }
-                set { SetValue(base.Component, "SmallImageList", value); }
+                set { SetValue(base.Component, nameof(SmallImageList), value); }
             }
 
             public View View {
                 get { return ((ListView)base.Component).View; }
-                set { SetValue(base.Component, "View", value); }
+                set { SetValue(base.Component, nameof(View), value); }
             }
 
             ObjectListViewDesigner designer;
@@ -492,10 +495,8 @@ namespace BrightIdeasSoftware.Design
         /// <param name="value"></param>
         /// <returns></returns>
         public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value) {
-            if (context == null)
-                throw new ArgumentNullException("context");
-            if (provider == null)
-                throw new ArgumentNullException("provider");
+            ArgumentNullException.ThrowIfNull(context, nameof(context));
+            ArgumentNullException.ThrowIfNull(provider, nameof(provider));
 
             // Figure out which ObjectListView we are working on. This should be the Instance of the context.
             ObjectListViewBase olv = context.Instance as ObjectListViewBase;
@@ -520,7 +521,9 @@ namespace BrightIdeasSoftware.Design
         protected override string GetDisplayText(object value) {
             OLVColumn col = value as OLVColumn;
             if (col == null || String.IsNullOrEmpty(col.AspectName))
+            {
                 return base.GetDisplayText(value);
+            }
 
             return String.Format("{0} ({1})", base.GetDisplayText(value), col.AspectName);
         }

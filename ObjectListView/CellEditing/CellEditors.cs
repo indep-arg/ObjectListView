@@ -59,8 +59,7 @@ namespace BrightIdeasSoftware
         /// </summary>
         /// <param name="dropDown"></param>
         public static void AutoResizeDropDown(ComboBox dropDown) {
-            if (dropDown == null)
-                throw new ArgumentNullException("dropDown");
+            ArgumentNullException.ThrowIfNull(dropDown, nameof(dropDown));
 
             dropDown.DropDown += delegate(object sender, EventArgs args) {
 
@@ -168,7 +167,9 @@ namespace BrightIdeasSoftware
 
             ArrayList values = new ArrayList();
             foreach (object value in Enum.GetValues(type))
+            {
                 values.Add(new ComboBoxItem(value, Enum.GetName(type, value)));
+            }
 
             this.DataSource = values;
 
@@ -264,10 +265,14 @@ namespace BrightIdeasSoftware
                 }
             }
             set {
-                if (value.HasValue) 
+                if (value.HasValue)
+                {
                     this.CheckState = value.Value ? CheckState.Checked : CheckState.Unchecked;
+                }
                 else
+                {
                     this.CheckState = CheckState.Indeterminate;
+                }
             }
         }
 

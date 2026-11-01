@@ -122,7 +122,9 @@ namespace BrightIdeasSoftware
         /// <returns></returns>
         protected Point OffsetBy(Point pt) {
             if (this.Offset == Point.Empty)
+            {
                 return pt;
+            }
 
             Point pt2 = pt;
             pt2.Offset(this.Offset);
@@ -136,7 +138,9 @@ namespace BrightIdeasSoftware
         /// <param name="locator">The locator to be initialized</param>
         protected void InitializeLocator(IPointLocator locator) {
             if (locator != null && locator.Sprite == null)
+            {
                 locator.Sprite = this.Sprite;
+            }
         }
 
         /// <summary>
@@ -146,7 +150,9 @@ namespace BrightIdeasSoftware
         /// <param name="locator">The locator to be initialized</param>
         protected void InitializeLocator(IRectangleLocator locator) {
             if (locator != null && locator.Sprite == null)
+            {
                 locator.Sprite = this.Sprite;
+            }
         }
 
         #endregion
@@ -402,7 +408,9 @@ namespace BrightIdeasSoftware
             while (true) {
                 double distanceToPoint = this.CalculateDistance(pt, targetPoints[i]);
                 if (remaining <= distanceToPoint)
+                {
                     return this.CalculateEndPoint(pt, targetPoints[i], (int)remaining);
+                }
 
                 pt = targetPoints[i];
                 remaining -= distanceToPoint;
@@ -423,10 +431,14 @@ namespace BrightIdeasSoftware
             int dy = pt2.Y - pt1.Y;
 
             if (dx == 0)
+            {
                 return new Point(pt1.X, pt1.Y + (distance * Math.Sign(dy)));
+            }
 
             if (dy == 0)
+            {
                 return new Point(pt1.X + (distance * Math.Sign(dx)), pt1.Y);
+            }
 
             double inverseMagnitude = 1.0 / Math.Sqrt((dx * dx) + (dy * dy));
 
@@ -446,10 +458,14 @@ namespace BrightIdeasSoftware
             int dy = pt1.Y - pt2.Y;
 
             if (dx == 0)
+            {
                 return Math.Abs(dy);
+            }
 
             if (dy == 0)
+            {
                 return Math.Abs(dx);
+            }
 
             return Math.Sqrt((dx * dx) + (dy * dy));
         }
@@ -470,7 +486,10 @@ namespace BrightIdeasSoftware
         public PointWalker(IEnumerable<Point> points) {
             List<IPointLocator> locators = new List<IPointLocator>();
             foreach (Point pt in points)
+            {
                 locators.Add(new FixedPointLocator(pt));
+            }
+
             this.Locators = locators;
         }
 
@@ -510,7 +529,9 @@ namespace BrightIdeasSoftware
 
         protected override void InitializeSublocators() {
             foreach (IPointLocator locator in this.Locators)
+            {
                 this.InitializeLocator(locator);
+            }
         }
 
         #endregion
@@ -520,14 +541,20 @@ namespace BrightIdeasSoftware
         private Point[] GetPoints() {
             List<Point> points = new List<Point>();
             foreach (IPointLocator locator in this.Locators)
+            {
                 points.Add(locator.GetPoint());
+            }
+
             return points.ToArray();
         }
 
         private int CalculateTotalDistance(Point[] points) {
             double distance = 0;
             for (int i = 1; i < points.Length; i++)
+            {
                 distance += this.CalculateDistance(points[i - 1], points[i]);
+            }
+
             return (int)Math.Ceiling(distance + 1);
         }
 
@@ -619,7 +646,9 @@ namespace BrightIdeasSoftware
 
         protected Point RationalizeStartPoint(Rectangle r, Point point) {
             if (point == Point.Empty)
+            {
                 return r.Location;
+            }
 
             return new Point(
                 Math.Min(r.Right, Math.Max(r.Left, point.X)),
@@ -638,13 +667,24 @@ namespace BrightIdeasSoftware
             }
 
             if (point.X == rectangleToWalk.Left)
+            {
                 return 0;
+            }
+
             if (point.Y == rectangleToWalk.Top)
+            {
                 return 1;
+            }
+
             if (point.X == rectangleToWalk.Right)
+            {
                 return 2;
+            }
+
             if (point.X == rectangleToWalk.Bottom)
+            {
                 return 3;
+            }
 
             // Point not on perimeter
             //TODO: Do something clever here

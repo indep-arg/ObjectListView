@@ -43,12 +43,13 @@ namespace BrightIdeasSoftware
     /// A TextSprite is animated text. Like all Sprites, animation is achieved
     /// by adding animations to it.
     /// </summary>
-    public class TextSprite : Sprite
+    public class TextSprite : Sprite, IDisposable
     {
         #region Life and death
 
         public TextSprite() {
-            this.Font = new Font("Tahoma", 12);
+            this.font = new Font("Tahoma", 12);
+            this.ownsFont = true;
             this.ForeColor = Color.Blue;
             this.BackColor = Color.Empty;
         }
@@ -72,6 +73,49 @@ namespace BrightIdeasSoftware
             this.BorderWidth = borderWidth;
         }
 
+        /// <summary>
+        /// Release generated drawing resources. Assigned fonts and formats remain caller-owned.
+        /// </summary>
+        public void Dispose() {
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Release resources owned by this sprite.
+        /// </summary>
+        /// <param name="disposing">Whether managed resources should be released.</param>
+        protected virtual void Dispose(bool disposing) {
+            if (!disposing || this.disposed)
+            {
+                return;
+            }
+
+            this.disposed = true;
+            this.Stop();
+            lock (this.dummyImageLock)
+            {
+                this.dummyImage.Dispose();
+            }
+
+            if (this.ownsStringFormat)
+            {
+                this.stringFormat.Dispose();
+            }
+
+            if (this.ownsFont)
+            {
+                this.font.Dispose();
+            }
+
+            this.defaultFont?.Dispose();
+        }
+
+        private bool disposed;
+        private bool ownsFont;
+        private bool ownsStringFormat;
+        private Font defaultFont;
+
         #endregion
 
         #region Configuration properties
@@ -91,7 +135,25 @@ namespace BrightIdeasSoftware
         /// </summary>
         public Font Font {
             get { return this.font; }
-            set { this.font = value; }
+            set {
+                if (this.disposed)
+                {
+                    throw new ObjectDisposedException(nameof(TextSprite));
+                }
+
+                if (this.font == value)
+                {
+                    return;
+                }
+
+                if (this.ownsFont)
+                {
+                    this.font.Dispose();
+                }
+
+                this.font = value;
+                this.ownsFont = false;
+            }
         }
         private Font font;
 
@@ -148,7 +210,12 @@ namespace BrightIdeasSoftware
         /// </summary>
         public Font FontOrDefault {
             get {
-                return this.Font ?? new Font("Tahoma", 16);
+                if (this.disposed)
+                {
+                    throw new ObjectDisposedException(nameof(TextSprite));
+                }
+
+                return this.Font ?? (this.defaultFont ?? (this.defaultFont = new Font("Tahoma", 16)));
             }
         }
 
@@ -178,24 +245,50 @@ namespace BrightIdeasSoftware
             get { return this.maximumTextWidth; }
             set { this.maximumTextWidth = value; }
         }
-        private int maximumTextWidth = 0;
+        private int maximumTextWidth;
 
         /// <summary>
         /// Gets or sets the formatting that should be used on the text
         /// </summary>
         public StringFormat StringFormat {
             get {
+                if (this.disposed)
+                {
+                    throw new ObjectDisposedException(nameof(TextSprite));
+                }
+
                 if (this.stringFormat == null) {
                     this.stringFormat = new StringFormat();
+                    this.ownsStringFormat = true;
                     this.stringFormat.Alignment = StringAlignment.Center;
                     this.stringFormat.LineAlignment = StringAlignment.Center;
                     this.stringFormat.Trimming = StringTrimming.EllipsisCharacter;
                     if (!this.Wrap)
+                    {
                         this.stringFormat.FormatFlags = StringFormatFlags.NoWrap;
+                    }
                 }
                 return this.stringFormat;
             }
-            set { this.stringFormat = value; }
+            set {
+                if (this.disposed)
+                {
+                    throw new ObjectDisposedException(nameof(TextSprite));
+                }
+
+                if (this.stringFormat == value)
+                {
+                    return;
+                }
+
+                if (this.ownsStringFormat)
+                {
+                    this.stringFormat.Dispose();
+                }
+
+                this.stringFormat = value;
+                this.ownsStringFormat = false;
+            }
         }
         private StringFormat stringFormat;
 
@@ -220,12 +313,22 @@ namespace BrightIdeasSoftware
         public override Size Size {
             get {
                 if (String.IsNullOrEmpty(this.Text))
+                {
                     return Size.Empty;
+                }
 
                 // This is a stupid hack to get a Graphics object. How should this be done?
                 lock (dummyImageLock) {
                     using (Graphics g = Graphics.FromImage(this.dummyImage)) {
-                        return g.MeasureString(this.Text, this.ActualFont, this.CalcMaxLineWidth(), this.StringFormat).ToSize();
+                        Font actualFont = this.ActualFont;
+                        try {
+                            return g.MeasureString(this.Text, actualFont, this.CalcMaxLineWidth(), this.StringFormat).ToSize();
+                        } finally {
+                            if (!ReferenceEquals(actualFont, this.FontOrDefault))
+                            {
+                                actualFont.Dispose();
+                            }
+                        }
                     }
                 }
             }
@@ -245,10 +348,13 @@ namespace BrightIdeasSoftware
         protected Font ActualFont {
             get {
                 if (this.Scale == 1.0f)
-                    return this.Font;
+                {
+                    return this.FontOrDefault;
+                }
                 else
-                    // TODO: Cache this font and discard it when either Font or Scale changed.
-                    return new Font(this.Font.FontFamily, this.Font.SizeInPoints * this.Scale, this.Font.Style);
+                {
+                    return new Font(this.FontOrDefault.FontFamily, this.FontOrDefault.SizeInPoints * this.Scale, this.FontOrDefault.Style);
+                }
             }
         }
 
@@ -258,11 +364,16 @@ namespace BrightIdeasSoftware
 
         public override void Draw(Graphics g) {
             if (String.IsNullOrEmpty(this.Text) || this.Opacity <= 0.0f)
+            {
                 return;
+            }
 
             this.ApplyState(g);
-            this.DrawText(g, this.Text, this.Opacity);
-            this.UnapplyState(g);
+            try {
+                this.DrawText(g, this.Text, this.Opacity);
+            } finally {
+                this.UnapplyState(g);
+            }
         }
 
         #endregion
@@ -271,8 +382,15 @@ namespace BrightIdeasSoftware
 
         protected void DrawText(Graphics g, string s, float opacity) {
             Font f = this.ActualFont;
-            SizeF textSize = g.MeasureString(s, f, this.CalcMaxLineWidth(), this.StringFormat);
-            this.DrawBorderedText(g, new Rectangle(0, 0, 1+(int)textSize.Width, 1+(int)textSize.Height), s, f, opacity);
+            try {
+                SizeF textSize = g.MeasureString(s, f, this.CalcMaxLineWidth(), this.StringFormat);
+                this.DrawBorderedText(g, new Rectangle(0, 0, 1+(int)textSize.Width, 1+(int)textSize.Height), s, f, opacity);
+            } finally {
+                if (!ReferenceEquals(f, this.FontOrDefault))
+                {
+                    f.Dispose();
+                }
+            }
         }
 
         protected int CalcMaxLineWidth() {
@@ -281,23 +399,35 @@ namespace BrightIdeasSoftware
 
         protected Brush GetTextBrush(float opacity) {
             if (opacity < 1.0f)
+            {
                 return new SolidBrush(Color.FromArgb((int)(opacity * 255), this.ForeColor));
+            }
             else
+            {
                 return new SolidBrush(this.ForeColor);
+            }
         }
 
         protected Brush GetBackgroundBrush(float opacity) {
             if (opacity < 1.0f)
+            {
                 return new SolidBrush(Color.FromArgb((int)(opacity * 255), this.BackColor));
+            }
             else
+            {
                 return new SolidBrush(this.BackColor);
+            }
         }
 
         protected Pen GetBorderPen(float opacity) {
             if (opacity < 1.0f)
+            {
                 return new Pen(Color.FromArgb((int)(opacity * 255), this.BorderColor), this.BorderWidth);
+            }
             else
+            {
                 return new Pen(this.BorderColor, this.BorderWidth);
+            }
         }
 
         /// <summary>
@@ -309,7 +439,9 @@ namespace BrightIdeasSoftware
         protected void DrawBorderedText(Graphics g, Rectangle textRect, string text, Font font, float opacity) {
             Rectangle borderRect = textRect;
             if (this.BorderWidth > 0.0f)
+            {
                 borderRect.Inflate((int)this.BorderWidth / 2, (int)this.BorderWidth / 2);
+            }
 
             borderRect.Y -= 1; // Looks better a little higher
 

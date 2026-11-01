@@ -95,7 +95,7 @@ namespace BrightIdeasSoftware
             }
         }
         private bool checkBoxes;
-        internal bool IsCheckBoxesSet = false;
+        internal bool IsCheckBoxesSet;
 
         /// <summary>
         /// 
@@ -126,7 +126,7 @@ namespace BrightIdeasSoftware
             }
         }
         private int freeSpaceProportion;
-        internal bool IsFreeSpaceProportionSet = false;
+        internal bool IsFreeSpaceProportionSet;
 
         /// <summary>
         /// An array of IComparables that mark the cutoff points for values when
@@ -194,7 +194,7 @@ namespace BrightIdeasSoftware
             }
         }
         private bool isEditable = true;
-        internal bool IsEditableSet = false;
+        internal bool IsEditableSet;
 
         /// <summary>
         /// 
@@ -252,7 +252,7 @@ namespace BrightIdeasSoftware
             }
         }
         private HorizontalAlignment textAlign = HorizontalAlignment.Left;
-        internal bool IsTextAlignSet = false;
+        internal bool IsTextAlignSet;
 
         /// <summary>
         /// 
@@ -292,7 +292,7 @@ namespace BrightIdeasSoftware
             }
         }
         private bool triStateCheckBoxes;
-        internal bool IsTriStateCheckBoxesSet = false;
+        internal bool IsTriStateCheckBoxesSet;
 
         /// <summary>
         /// 

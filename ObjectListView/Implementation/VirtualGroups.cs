@@ -159,9 +159,13 @@ namespace BrightIdeasSoftware
             NullableDictionary<object, List<object>> map = new NullableDictionary<object, List<object>>();
             foreach (object model in folv.FilteredObjects) {
                 object key = parameters.GroupByColumn.GetGroupKey(model);
-                if (!map.ContainsKey(key))
-                    map[key] = new List<object>();
-                map[key].Add(model);
+                if (!map.TryGetValue(key, out List<object> groupItems))
+                {
+                    groupItems = new List<object>();
+                    map[key] = groupItems;
+                }
+
+                groupItems.Add(model);
                 objectCount++;
             }
 
@@ -178,13 +182,18 @@ namespace BrightIdeasSoftware
                 lvg.Contents = map[key].ConvertAll<int>(delegate(object x) { return folv.IndexOf(x); });
                 lvg.VirtualItemCount = map[key].Count;
                 if (parameters.GroupByColumn.GroupFormatter != null)
+                {
                     parameters.GroupByColumn.GroupFormatter(lvg, parameters);
+                }
+
                 groups.Add(lvg);
             }
 
             // Sort the groups
             if (parameters.GroupByOrder != SortOrder.None)
+            {
                 groups.Sort(parameters.GroupComparer ?? new OLVGroupComparer(parameters.GroupByOrder));
+            }
 
             // Build an array that remembers which group each item belongs to.
             this.indexToGroupMap = new List<int>(objectCount);
@@ -194,7 +203,9 @@ namespace BrightIdeasSoftware
                 OLVGroup group = groups[i];
                 List<int> members = (List<int>)group.Contents;
                 foreach (int j in members)
+                {
                     this.indexToGroupMap[j] = i;
+                }
             }
 
             return groups;

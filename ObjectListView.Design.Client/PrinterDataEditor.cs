@@ -18,7 +18,10 @@ namespace BrightIdeasSoftware.Design.Client
 
         public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value) {
             if (provider == null)
+            {
                 throw new ArgumentNullException(nameof(provider));
+            }
+
             var client = provider.GetRequiredService<IDesignToolsClient>();
             var session = provider.GetRequiredService<DesignerSession>();
             var service = provider.GetRequiredService<IWindowsFormsEditorService>();
@@ -40,9 +43,14 @@ namespace BrightIdeasSoftware.Design.Client
             using (var cancel = new Button { Text = "Cancel", DialogResult = DialogResult.Cancel })
             using (var ok = new Button { Text = "OK", DialogResult = DialogResult.OK }) {
                 if (this.IsPen)
+                {
                     ((PenForm)form).SetPenData((PenData)localValue);
+                }
                 else
+                {
                     form.SetBrush((IBrushData)localValue);
+                }
+
                 form.Dock = DockStyle.Fill;
                 buttons.Controls.Add(cancel);
                 buttons.Controls.Add(ok);
@@ -52,7 +60,10 @@ namespace BrightIdeasSoftware.Design.Client
                 dialog.CancelButton = cancel;
                 form.Show();
                 if (service.ShowDialog(dialog) != DialogResult.OK)
+                {
                     return value;
+                }
+
                 model.SetPropertyValue("State", PrinterEditorState.Encode(
                     this.IsPen ? (object)((PenForm)form).GetPenData() : form.GetBrushData(), this.IsPen));
             }

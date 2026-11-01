@@ -21,7 +21,7 @@ namespace BrightIdeasSoftware.Tests
 
     public class Person : INotifyPropertyChanged, ITreeModel
     {
-        public bool? IsActive = null;
+        public bool? IsActive;
 
         public Person(string name)
         {
@@ -57,9 +57,13 @@ namespace BrightIdeasSoftware.Tests
         {
             get { return parent; }
             set {
-                if (parent == value) return;
+                if (parent == value)
+                {
+                    return;
+                }
+
                 parent = value;
-                this.OnPropertyChanged("Parent");
+                this.OnPropertyChanged(nameof(Parent));
             }
         }
         private Person parent;
@@ -69,9 +73,13 @@ namespace BrightIdeasSoftware.Tests
         {
             get { return name; }
             set {
-                if (name == value) return;
+                if (name == value)
+                {
+                    return;
+                }
+
                 name = value;
-                this.OnPropertyChanged("Name");
+                this.OnPropertyChanged(nameof(Name));
             }
         }
         private string name;
@@ -80,9 +88,13 @@ namespace BrightIdeasSoftware.Tests
         {
             get { return occupation; }
             set {
-                if (occupation == value) return;
+                if (occupation == value)
+                {
+                    return;
+                }
+
                 occupation = value;
-                this.OnPropertyChanged("Occupation");
+                this.OnPropertyChanged(nameof(Occupation));
             }
         }
         private string occupation;
@@ -90,9 +102,13 @@ namespace BrightIdeasSoftware.Tests
         public int CulinaryRating {
             get { return culinaryRating; }
             set {
-                if (culinaryRating == value) return;
+                if (culinaryRating == value)
+                {
+                    return;
+                }
+
                 culinaryRating = value;
-                this.OnPropertyChanged("CulinaryRating");
+                this.OnPropertyChanged(nameof(CulinaryRating));
             }
         }
         private int culinaryRating;
@@ -100,9 +116,13 @@ namespace BrightIdeasSoftware.Tests
         public DateTime BirthDate {
             get { return birthDate; }
             set {
-                if (birthDate == value) return;
+                if (birthDate == value)
+                {
+                    return;
+                }
+
                 birthDate = value;
-                this.OnPropertyChanged("BirthDate");
+                this.OnPropertyChanged(nameof(BirthDate));
             }
         }
         private DateTime birthDate;
@@ -149,7 +169,9 @@ namespace BrightIdeasSoftware.Tests
 
         private void OnPropertyChanged(string propertyName) {
             if (this.PropertyChanged != null)
+            {
                 this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }
         }
 
         public int CountNotifyPropertyChangedSubscriptions {
@@ -165,8 +187,16 @@ namespace BrightIdeasSoftware.Tests
         }
 
         public override bool Equals(object obj) {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
             Person other = obj as Person;
             return other != null && Equals(other);
         }
@@ -241,7 +271,10 @@ namespace BrightIdeasSoftware.Tests
         {
             get {
                 if (sAllPersons == null)
+                {
                     InitializeAllPersons();
+                }
+
                 return sAllPersons;
             }
         }

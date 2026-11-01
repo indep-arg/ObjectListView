@@ -39,7 +39,9 @@ namespace BrightIdeasSoftware.Tests
                 using (var resize = new ColumnResizeTransaction(column, changes, () => transaction)) {
                     resize.Preview(240);
                     if (explicitCancel)
+                    {
                         resize.Complete(false);
+                    }
                 }
                 Assert.AreEqual(160, column.Width);
                 Assert.AreEqual(0, changes.Changed);
@@ -78,7 +80,10 @@ namespace BrightIdeasSoftware.Tests
             public void OnComponentChanging(object component, MemberDescriptor member) { this.Changing++; }
             public void OnComponentChanged(object component, MemberDescriptor member, object oldValue, object newValue) {
                 if (this.RejectChange)
+                {
                     throw new InvalidOperationException("Change rejected.");
+                }
+
                 this.Changed++;
                 this.OldValue = oldValue;
                 this.NewValue = newValue;

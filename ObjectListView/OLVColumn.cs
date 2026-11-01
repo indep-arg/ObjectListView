@@ -231,9 +231,13 @@ namespace BrightIdeasSoftware {
             set {
                 if (value) {
                     if (this.AutoCompleteEditorMode == AutoCompleteMode.None)
+                    {
                         this.AutoCompleteEditorMode = AutoCompleteMode.Append;
+                    }
                 } else
+                {
                     this.AutoCompleteEditorMode = AutoCompleteMode.None;
+                }
             }
         }
 
@@ -349,15 +353,21 @@ namespace BrightIdeasSoftware {
             get { return checkBoxes; }
             set {
                 if (this.checkBoxes == value)
+                {
                     return;
+                }
 
                 this.checkBoxes = value;
                 if (this.checkBoxes) {
                     if (this.Renderer == null)
+                    {
                         this.Renderer = new CheckStateRenderer();
+                    }
                 } else {
                     if (this.Renderer is CheckStateRenderer)
+                    {
                         this.Renderer = null;
+                    }
                 }
             }
         }
@@ -384,13 +394,18 @@ namespace BrightIdeasSoftware {
         public IClusteringStrategy ClusteringStrategy {
             get {
                 if (this.clusteringStrategy == null)
+                {
                     this.ClusteringStrategy = this.DecideDefaultClusteringStrategy();
+                }
+
                 return clusteringStrategy;
             }
             set {
                 this.clusteringStrategy = value;
                 if (this.clusteringStrategy != null)
+                {
                     this.clusteringStrategy.Column = this;
+                }
             }
         }
         private IClusteringStrategy clusteringStrategy;
@@ -574,7 +589,9 @@ namespace BrightIdeasSoftware {
         public string GroupWithItemCountFormatOrDefault {
             get {
                 if (!String.IsNullOrEmpty(this.GroupWithItemCountFormat))
+                {
                     return this.GroupWithItemCountFormat;
+                }
 
                 if (this.ListView != null) {
                     cachedGroupWithItemCountFormat = ((ObjectListViewBase)this.ListView).GroupWithItemCountFormatOrDefault;
@@ -621,7 +638,9 @@ namespace BrightIdeasSoftware {
         public string GroupWithItemCountSingularFormatOrDefault {
             get {
                 if (!String.IsNullOrEmpty(this.GroupWithItemCountSingularFormat))
+                {
                     return this.GroupWithItemCountSingularFormat;
+                }
 
                 if (this.ListView != null) {
                     cachedGroupWithItemCountSingularFormat = ((ObjectListViewBase)this.ListView).GroupWithItemCountSingularFormatOrDefault;
@@ -682,10 +701,14 @@ namespace BrightIdeasSoftware {
             get { return this.HeaderFormatStyle == null ? null : this.HeaderFormatStyle.Normal.Font; }
             set {
                 if (value == null && this.HeaderFormatStyle == null)
+                {
                     return;
+                }
 
                 if (this.HeaderFormatStyle == null)
+                {
                     this.HeaderFormatStyle = new HeaderFormatStyle();
+                }
 
                 this.HeaderFormatStyle.SetFont(value);
             }
@@ -703,10 +726,14 @@ namespace BrightIdeasSoftware {
             get { return this.HeaderFormatStyle == null ? Color.Empty : this.HeaderFormatStyle.Normal.ForeColor; }
             set {
                 if (value.IsEmpty && this.HeaderFormatStyle == null)
+                {
                     return;
+                }
 
                 if (this.HeaderFormatStyle == null)
+                {
                     this.HeaderFormatStyle = new HeaderFormatStyle();
+                }
 
                 this.HeaderFormatStyle.SetForeColor(value);
             }
@@ -958,7 +985,9 @@ namespace BrightIdeasSoftware {
                     }
                 } else {
                     if (this.Renderer is ColumnButtonRenderer)
+                    {
                         this.Renderer = null;
+                    }
                 }
             }
         }
@@ -978,7 +1007,9 @@ namespace BrightIdeasSoftware {
         protected virtual void FillInColumnButtonRenderer() {
             ColumnButtonRenderer buttonRenderer = this.Renderer as ColumnButtonRenderer;
             if (buttonRenderer == null)
+            {
                 return;
+            }
 
             buttonRenderer.SizingMode = this.ButtonSizing;
             buttonRenderer.ButtonSize = this.ButtonSize;
@@ -1118,7 +1149,9 @@ namespace BrightIdeasSoftware {
             set
             {
                 if (isVisible == value)
+                {
                     return;
+                }
 
                 isVisible = value;
                 OnVisibilityChanged(EventArgs.Empty);
@@ -1152,7 +1185,9 @@ namespace BrightIdeasSoftware {
             set {
                 maxWidth = value;
                 if (maxWidth != -1 && this.Width > maxWidth)
+                {
                     this.Width = maxWidth;
+                }
             }
         }
         private int maxWidth = -1;
@@ -1169,7 +1204,9 @@ namespace BrightIdeasSoftware {
             set {
                 minWidth = value;
                 if (this.Width < minWidth)
+                {
                     this.Width = minWidth;
+                }
             }
         }
         private int minWidth = -1;
@@ -1338,7 +1375,9 @@ namespace BrightIdeasSoftware {
             set {
                 triStateCheckBoxes = value;
                 if (value && !this.CheckBoxes)
+                {
                     this.CheckBoxes = true;
+                }
             }
         }
         private bool triStateCheckBoxes;
@@ -1380,16 +1419,24 @@ namespace BrightIdeasSoftware {
         public IModelFilter ValueBasedFilter {
             get {
                 if (!this.UseFiltering)
+                {
                     return null;
+                }
 
                 if (valueBasedFilter != null)
+                {
                     return valueBasedFilter;
+                }
 
                 if (this.ClusteringStrategy == null)
+                {
                     return null;
+                }
 
                 if (this.ValuesChosenForFiltering == null || this.ValuesChosenForFiltering.Count == 0)
+                {
                     return null;
+                }
 
                 return this.ClusteringStrategy.CreateFilter(this.ValuesChosenForFiltering);
             }
@@ -1421,9 +1468,13 @@ namespace BrightIdeasSoftware {
             get { return base.Width; }
             set {
                 if (this.MaximumWidth != -1 && value > this.MaximumWidth)
+                {
                     base.Width = this.MaximumWidth;
+                }
                 else
+                {
                     base.Width = Math.Max(this.MinimumWidth, value);
+                }
             }
         }
 
@@ -1453,7 +1504,9 @@ namespace BrightIdeasSoftware {
         /// <returns>string</returns>
         public string ConvertGroupKeyToTitle(object value) {
             if (this.groupKeyToTitleConverter != null)
+            {
                 return this.groupKeyToTitleConverter(value);
+            }
 
             return value == null ? ObjectListViewBase.GroupTitleDefault : this.ValueToString(value);
         }
@@ -1465,16 +1518,24 @@ namespace BrightIdeasSoftware {
         /// <returns>The checkedness of the object</returns>
         public CheckState GetCheckState(object rowObject) {
             if (!this.CheckBoxes)
+            {
                 return CheckState.Unchecked;
+            }
 
             bool? aspectAsBool = this.GetValue(rowObject) as bool?;
             if (aspectAsBool.HasValue) {
                 if (aspectAsBool.Value)
+                {
                     return CheckState.Checked;
+                }
                 else
+                {
                     return CheckState.Unchecked;
+                }
             } else
+            {
                 return CheckState.Indeterminate;
+            }
         }
 
         /// <summary>
@@ -1485,12 +1546,18 @@ namespace BrightIdeasSoftware {
         /// <returns>The checkedness of the object</returns>
         public void PutCheckState(object rowObject, CheckState newState) {
             if (newState == CheckState.Checked)
+            {
                 this.PutValue(rowObject, true);
+            }
             else
                 if (newState == CheckState.Unchecked)
+                {
                     this.PutValue(rowObject, false);
+                }
                 else
+                {
                     this.PutValue(rowObject, null);
+                }
         }
 
         /// <summary>
@@ -1500,7 +1567,9 @@ namespace BrightIdeasSoftware {
         /// <returns>An object, which is the aspect named by AspectName</returns>
         public object GetAspectByName(object rowObject) {
             if (this.aspectMunger == null)
+            {
                 this.aspectMunger = new Munger(this.AspectName);
+            }
 
             return this.aspectMunger.GetValue(rowObject);
         }
@@ -1513,15 +1582,19 @@ namespace BrightIdeasSoftware {
         /// <returns>Group key object</returns>
         public object GetGroupKey(object rowObject) {
             if (this.groupKeyGetter != null)
+            {
                 return this.groupKeyGetter(rowObject);
+            }
 
             object key = this.GetValue(rowObject);
 
             if (this.UseInitialLetterForGroup) {
                 String keyAsString = key as String;
                 if (!String.IsNullOrEmpty(keyAsString))
+                {
                     return keyAsString.Substring(0, 1).ToUpper();
                 }
+            }
 
             return key;
         }
@@ -1533,21 +1606,29 @@ namespace BrightIdeasSoftware {
         /// <returns>int or string or Image. int or string will be used as index into image list. null or -1 means no image</returns>
         public Object GetImage(object rowObject) {
             if (this.CheckBoxes)
+            {
                 return this.GetCheckStateImage(rowObject);
+            }
 
             if (this.ImageGetter != null)
+            {
                 return this.ImageGetter(rowObject);
+            }
 
             if (!String.IsNullOrEmpty(this.ImageAspectName)) {
                 if (this.imageAspectMunger == null)
+                {
                     this.imageAspectMunger = new Munger(this.ImageAspectName);
+                }
 
                 return this.imageAspectMunger.GetValue(rowObject);
             }
 
             // I think this is wrong. ImageKey is meant for the image in the header, not in the rows
             if (!String.IsNullOrEmpty(this.ImageKey))
+            {
                 return this.ImageKey;
+            }
 
             return this.ImageIndex;
         }
@@ -1562,10 +1643,14 @@ namespace BrightIdeasSoftware {
             CheckState checkState = this.GetCheckState(rowObject);
 
             if (checkState == CheckState.Checked)
+            {
                 return ObjectListViewBase.CHECKED_KEY;
+            }
 
             if (checkState == CheckState.Unchecked)
+            {
                 return ObjectListViewBase.UNCHECKED_KEY;
+            }
 
             return ObjectListViewBase.INDETERMINATE_KEY;
         }
@@ -1582,7 +1667,9 @@ namespace BrightIdeasSoftware {
         /// <returns>The array of texts to be searched. If this returns null, search will not match that object.</returns>
         public string[] GetSearchValues(object rowObject) {
             if (this.SearchValueGetter != null)
+            {
                 return this.SearchValueGetter(rowObject);
+            }
 
             var stringValue = this.GetStringValue(rowObject);
 
@@ -1615,9 +1702,13 @@ namespace BrightIdeasSoftware {
         /// <returns>An object, which is the aspect to be displayed</returns>
         public object GetValue(object rowObject) {
             if (this.AspectGetter == null)
+            {
                 return this.GetAspectByName(rowObject);
+            }
             else
+            {
                 return this.AspectGetter(rowObject);
+            }
         }
 
         /// <summary>
@@ -1628,7 +1719,9 @@ namespace BrightIdeasSoftware {
         /// <param name="newValue">The value to be put into the model</param>
         public void PutAspectByName(Object rowObject, Object newValue) {
             if (this.aspectMunger == null)
+            {
                 this.aspectMunger = new Munger(this.AspectName);
+            }
 
             this.aspectMunger.PutValue(rowObject, newValue);
         }
@@ -1640,9 +1733,13 @@ namespace BrightIdeasSoftware {
         /// <param name="newValue">The value to be put into the model</param>
         public void PutValue(Object rowObject, Object newValue) {
             if (this.aspectPutter == null)
+            {
                 this.PutAspectByName(rowObject, newValue);
+            }
             else
+            {
                 this.aspectPutter(rowObject, newValue);
+            }
         }
 
         /// <summary>
@@ -1659,17 +1756,25 @@ namespace BrightIdeasSoftware {
         public string ValueToString(object value) {
             // Give the installed converter a chance to work (even if the value is null)
             if (this.AspectToStringConverter != null)
+            {
                 return this.AspectToStringConverter(value) ?? String.Empty;
+            }
 
             // Without a converter, nulls become simple empty strings
             if (value == null)
+            {
                 return String.Empty;
+            }
 
             string fmt = this.AspectToStringFormat;
             if (String.IsNullOrEmpty(fmt))
+            {
                 return value.ToString();
+            }
             else
+            {
                 return String.Format(fmt, value);
+            }
         }
 
         #endregion
@@ -1682,10 +1787,14 @@ namespace BrightIdeasSoftware {
         /// <returns></returns>
         private IClusteringStrategy DecideDefaultClusteringStrategy() {
             if (!this.UseFiltering)
+            {
                 return null;
+            }
 
             if (this.DataType == typeof(DateTime))
+            {
                 return new DateTimeClusteringStrategy();
+            }
 
             return new ClustersFromGroupsStrategy();
         }
@@ -1704,7 +1813,9 @@ namespace BrightIdeasSoftware {
                     if (olv != null) {
                         object value = olv.GetFirstNonNullValue(this);
                         if (value != null)
+                        {
                             return value.GetType(); // THINK: Should we cache this?
+                        }
                     }
                 }
                 return this.dataType;
@@ -1730,8 +1841,10 @@ namespace BrightIdeasSoftware {
 		public virtual void OnVisibilityChanged(EventArgs e)
 		{
 			if (this.VisibilityChanged != null)
-				this.VisibilityChanged(this, e);
-		}
+            {
+                this.VisibilityChanged(this, e);
+            }
+        }
 
 		#endregion
 
@@ -1800,22 +1913,27 @@ namespace BrightIdeasSoftware {
         /// <param name="tasks"></param>
         public void MakeGroupies<T>(T[] values, string[] descriptions, object[] images, string[] subtitles, string[] tasks) {
             // Sanity checks
-            if (values == null)
-                throw new ArgumentNullException("values");
-            if (descriptions == null)
-                throw new ArgumentNullException("descriptions");
+            ArgumentNullException.ThrowIfNull(values, nameof(values));
+            ArgumentNullException.ThrowIfNull(descriptions, nameof(descriptions));
             if (values.Length + 1 != descriptions.Length)
+            {
                 throw new ArgumentException("descriptions must have one more element than values.");
+            }
 
             // Install a delegate that returns the index of the description to be shown
             this.GroupKeyGetter = delegate(object row) {
                 Object aspect = this.GetValue(row);
                 if (aspect == null || aspect == DBNull.Value)
+                {
                     return -1;
+                }
+
                 IComparable comparable = (IComparable)aspect;
                 for (int i = 0; i < values.Length; i++) {
                     if (comparable.CompareTo(values[i]) < 0)
+                    {
                         return i;
+                    }
                 }
 
                 // Display the last element in the array
@@ -1825,7 +1943,9 @@ namespace BrightIdeasSoftware {
             // Install a delegate that simply looks up the given index in the descriptions.
             this.GroupKeyToTitleConverter = delegate(object key) {
                 if ((int)key < 0)
+                {
                     return "";
+                }
 
                 return descriptions[(int)key];
             };
@@ -1836,13 +1956,19 @@ namespace BrightIdeasSoftware {
 
                 if (key >= 0) {
                     if (images != null && key < images.Length)
+                    {
                         group.TitleImage = images[key];
+                    }
 
                     if (subtitles != null && key < subtitles.Length)
+                    {
                         group.Subtitle = subtitles[key];
+                    }
 
                     if (tasks != null && key < tasks.Length)
+                    {
                         group.Task = tasks[key];
+                    }
                 }
             };
         }
@@ -1868,12 +1994,12 @@ namespace BrightIdeasSoftware {
         /// <param name="tasks"></param>
         public void MakeEqualGroupies<T>(T[] values, string[] descriptions, object[] images, string[] subtitles, string[] tasks) {
             // Sanity checks
-            if (values == null)
-                throw new ArgumentNullException("values");
-            if (descriptions == null)
-                throw new ArgumentNullException("descriptions");
+            ArgumentNullException.ThrowIfNull(values, nameof(values));
+            ArgumentNullException.ThrowIfNull(descriptions, nameof(descriptions));
             if (values.Length != descriptions.Length)
+            {
                 throw new ArgumentException("descriptions must have the same number of elements as values.");
+            }
 
             ArrayList valuesArray = new ArrayList(values);
 
@@ -1894,13 +2020,19 @@ namespace BrightIdeasSoftware {
 
                 if (key >= 0) {
                     if (images != null && key < images.Length)
+                    {
                         group.TitleImage = images[key];
+                    }
 
                     if (subtitles != null && key < subtitles.Length)
+                    {
                         group.Subtitle = subtitles[key];
+                    }
 
                     if (tasks != null && key < tasks.Length)
+                    {
                         group.Task = tasks[key];
+                    }
                 }
             };
         }

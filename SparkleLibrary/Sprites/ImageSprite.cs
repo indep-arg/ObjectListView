@@ -66,16 +66,22 @@ namespace BrightIdeasSoftware
         public override Size Size {
             get {
                 if (this.Image == null)
+                {
                     return Size.Empty;
+                }
 
                 // Internal the Image class cannot handle being accessed by multiple threads
                 // at the same time. So make sure the access is serialized.
                 lock (this.locker) {
                     if (this.Scale == 1.0f)
+                    {
                         return this.Image.Size;
+                    }
                     else
+                    {
                         return new Size((int)(this.Image.Size.Width * this.Scale),
                             (int)(this.Image.Size.Height * this.Scale));
+                    }
                 }
             }
             set {
@@ -96,7 +102,9 @@ namespace BrightIdeasSoftware
 
         public override void Stop() {
             if (this.isAnimatedImage)
+            {
                 ImageAnimator.StopAnimate(this.Image, this.OnFrameChanged);
+            }
         }
 
         public override void Draw(Graphics g) {
@@ -104,7 +112,9 @@ namespace BrightIdeasSoftware
             lock (this.locker) {
                 if (this.Image != null) {
                     if (this.isAnimatedImage)
+                    {
                         ImageAnimator.UpdateFrames(this.Image);
+                    }
 
                     this.DrawTransparentBitmap(g, this.Bounds, this.Image, this.Opacity);
                 }
@@ -136,7 +146,9 @@ namespace BrightIdeasSoftware
         /// <param name="transparency"></param>
         protected void DrawTransparentBitmap(Graphics g, Rectangle r, Image image, float transparency) {
             if (transparency <= 0.0f)
+            {
                 return;
+            }
 
             ImageAttributes imageAttributes = null;
             if (transparency < 1.0f) {

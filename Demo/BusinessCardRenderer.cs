@@ -31,7 +31,9 @@ namespace ObjectListViewDemo {
             int rows = 0;
             foreach (OLVColumn column in list.Columns) {
                 if (column.IsTileViewColumn)
+                {
                     rows++;
+                }
             }
             using (var titleFont = new Font("Tahoma", TitleFontSize))
             using (var detailFont = new Font("Tahoma", DetailFontSize))
@@ -50,7 +52,9 @@ namespace ObjectListViewDemo {
             // the rendering and the default process should do it's stuff
             ObjectListViewBase olv = e.Item.ListView as ObjectListViewBase;
             if (olv == null || olv.View != View.Tile)
+            {
                 return false;
+            }
 
             // Use buffered graphics to kill flickers
             using (BufferedGraphics buffered = BufferedGraphicsManager.Current.Allocate(g, itemBounds)) {
@@ -128,7 +132,10 @@ namespace ObjectListViewDemo {
                         RectangleF titleBounds = textBounds;
                         titleBounds.Height = size.Height;
                         using (GraphicsPath path = this.GetRoundedRect(titleBounds, ScaleSize(g, new Size(15, 15)).Width))
+                        {
                             g.FillPath(headerBackBrush, path);
+                        }
+
                         g.DrawString(item.Text, font, headerTextBrush, textBounds, format);
                         textBounds.Y += size.Height + spacing.Height;
                     }

@@ -57,7 +57,10 @@ namespace BrightIdeasSoftware.Tests
         public void Test_LayoutRoundTrip_AfterRemovingColumnBeforeHiddenColumn(int kind) {
             using (var list = CreateList(kind)) {
                 foreach (OLVColumn column in list.AllColumns)
+                {
                     column.IsVisible = true;
+                }
+
                 list.RebuildColumns();
                 list.SaveState();
                 OLVColumn hidden = list.AllColumns[2];
@@ -124,7 +127,9 @@ namespace BrightIdeasSoftware.Tests
                     .Select(item => (OLVColumn)item.Tag).ToArray();
                 CollectionAssert.AreEqual(list.AllColumns.ToArray(), menuColumns);
                 foreach (OLVColumn column in list.AllColumns.Where(column => !column.IsVisible))
+                {
                     Assert.AreEqual(-1, column.LastDisplayIndex);
+                }
 
                 list.AllColumns[enabledIndex].IsVisible = true;
                 list.RebuildColumns();
@@ -174,9 +179,12 @@ namespace BrightIdeasSoftware.Tests
                 list.SaveState();
                 list.AllColumns[1].LastDisplayIndex = 0;
                 for (int i = 0; i < 20; i++)
+                {
                     list.AllColumns.Add(new OLVColumn("Hidden " + i, "Name") {
                         IsVisible = false, LastDisplayIndex = 0
                     });
+                }
+
                 OLVColumn[] expected = list.AllColumns.Where(column => column != list.AllColumns[2])
                     .Concat(new[] { list.AllColumns[2] }).ToArray();
 
@@ -187,7 +195,10 @@ namespace BrightIdeasSoftware.Tests
                 Assert.AreEqual(0, list.AllColumns[1].LastDisplayIndex);
 
                 foreach (OLVColumn column in list.AllColumns)
+                {
                     column.IsVisible = true;
+                }
+
                 list.RebuildColumns();
                 CollectionAssert.AreEqual(expected,
                     list.Columns.Cast<OLVColumn>().OrderBy(column => column.DisplayIndex).ToArray());
@@ -211,7 +222,9 @@ namespace BrightIdeasSoftware.Tests
                 list.AllColumns[1].DisplayIndex = 0;
 
                 if (recreateHandle)
+                {
                     list.RecreateNativeHandle();
+                }
                 else {
                     list.NotifyColumnReordered();
                     Application.DoEvents();

@@ -16,7 +16,10 @@ namespace ObjectListViewDemo
             InitializeComponent();
             DemoTheme.ApplyInformationBanner(this.label26);
             if (DemoTheme.IsDarkMode)
+            {
                 this.olvFast.AlternateRowBackColor = ObjectListViewTheme.ControlColor;
+            }
+
             this.ListView = this.olvFast;
         }
 
@@ -52,9 +55,15 @@ namespace ObjectListViewDemo
                 // and the second half gets music
                 Person person = ((Person) row);
                 if ("AEIOU".Contains(person.Name.Substring(0, 1)))
+                {
                     return 0; // star
+                }
+
                 if (person.Name.CompareTo("N") < 0)
+                {
                     return 1; // heart
+                }
+
                 return 2; // music
             };
 
@@ -81,7 +90,10 @@ namespace ObjectListViewDemo
             this.olvColumn28.ImageGetter = delegate(object row) {
                 Person p = (Person) row;
                 if ((p.BirthDate.Year % 10) == 4)
+                {
                     return 3;
+                }
+
                 return -1; // no image
             };
 
@@ -90,9 +102,15 @@ namespace ObjectListViewDemo
 
             this.olvColumn31.AspectGetter = delegate(object row) {
                 if (((Person) row).GetRate() < 100)
+                {
                     return "Little";
+                }
+
                 if (((Person) row).GetRate() > 1000)
+                {
                     return "Lots";
+                }
+
                 return "Medium";
             };
             this.olvColumn31.Renderer = new MappedImageRenderer(new Object[] {"Little", Resource1.down16, "Medium", Resource1.tick16, "Lots", Resource1.star16});
@@ -145,9 +163,13 @@ namespace ObjectListViewDemo
 
             bool isControlKeyDown = ((Control.ModifierKeys & Keys.Control) == Keys.Control);
             if (isControlKeyDown)
+            {
                 this.ListView.EnableObjects(this.ListView.DisabledObjects);
+            }
             else
+            {
                 this.ListView.DisableObjects(this.ListView.SelectedObjects);
+            }
 
             System.Diagnostics.Debug.WriteLine(String.Format("Disable UI action took {0} ms", ts.Elapsed.TotalMilliseconds));
         }
@@ -156,9 +178,13 @@ namespace ObjectListViewDemo
         {
             bool isControlKeyDown = ((Control.ModifierKeys & Keys.Control) == Keys.Control);
             if (isControlKeyDown)
+            {
                 this.ListView.ClearObjects();
+            }
             else
+            {
                 this.ListView.RemoveObjects(this.ListView.SelectedObjects);
+            }
         }
 
         private void buttonAdd_Click(object sender, EventArgs e) {
@@ -215,11 +241,15 @@ namespace ObjectListViewDemo
             {
                 Rectangle bounds = this.CellBounds;
                 if (bounds.IsEmpty)
+                {
                     return bounds;
+                }
 
                 // It seems cell 0 is off by 1 on the x-axis
                 if (this.ListItem.SubItems[0] == this.SubItem)
+                {
                     bounds.X -= 1;
+                }
 
                 // We want the grid of one cell to overlap with the bottom of the previous cell,
                 // so we move the top up by one but don't move the bottom
@@ -233,7 +263,9 @@ namespace ObjectListViewDemo
             {
                 Rectangle bounds = this.CalculateBounds();
                 if (!bounds.IsEmpty && this.BorderPen != null)
+                {
                     g.DrawRectangle(this.BorderPen, bounds);
+                }
             }
         }
     }

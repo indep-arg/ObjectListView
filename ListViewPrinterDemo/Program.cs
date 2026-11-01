@@ -14,7 +14,10 @@ namespace ListViewPrinterDemo
         {
 #if !NETFRAMEWORK
             if (!Application.SetHighDpiMode(HighDpiMode.PerMonitorV2))
+            {
                 throw new InvalidOperationException("The demo must configure DPI awareness before initializing Windows Forms.");
+            }
+
             Application.SetColorMode(SystemColorMode.System);
 #endif
             Application.EnableVisualStyles();

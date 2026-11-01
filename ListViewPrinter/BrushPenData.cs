@@ -113,9 +113,13 @@ namespace BrightIdeasSoftware
         public Brush GetBrush()
         {
             if (this.Alpha < 255)
+            {
                 return new SolidBrush(Color.FromArgb(this.Alpha, this.Color));
+            }
             else
+            {
                 return new SolidBrush(this.Color);
+            }
         }
 
         [DefaultValue(typeof(Color), "")]
@@ -198,9 +202,13 @@ namespace BrightIdeasSoftware
         public Brush GetBrush()
         {
             if (this.Image == null)
+            {
                 return null;
+            }
             else
+            {
                 return new TextureBrush(this.Image, this.WrapMode);
+            }
         }
 
         public Image Image

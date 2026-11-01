@@ -27,9 +27,13 @@ namespace BrightIdeasSoftware
         {
             IBrushData bd = this.GetBrushData();
             if (bd == null)
+            {
                 return null;
+            }
             else
+            {
                 return bd.GetBrush();
+            }
         }
 
         public void SetBrush(IBrushData value)
@@ -45,11 +49,17 @@ namespace BrightIdeasSoftware
             RadioButton turnedOn = this.rbNone;
             if (value != null) {
                 if (value.GetType() == typeof(SolidBrushData))
+                {
                     turnedOn = this.rbSolid;
+                }
                 else if (value.GetType() == typeof(LinearGradientBrushData))
+                {
                     turnedOn = this.rbGradient;
+                }
                 else if (value.GetType() == typeof(HatchBrushData))
+                {
                     turnedOn = this.rbHatch;
+                }
             }
 
             turnedOn.Checked = true;
@@ -107,9 +117,13 @@ namespace BrightIdeasSoftware
         {
             PenData data = this.GetPenData();
             if (data == null)
+            {
                 return null;
+            }
             else
+            {
                 return data.GetPen();
+            }
         }
 
         public void SetPenData(PenData value)

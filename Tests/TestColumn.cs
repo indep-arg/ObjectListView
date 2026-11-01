@@ -221,7 +221,10 @@ namespace BrightIdeasSoftware.Tests
             column.Width = 123;
             column.AspectGetter = delegate(object model) {
                 if (((Person)model).Name == "second")
+                {
                     throw new InvalidOperationException("Cannot fetch this row.");
+                }
+
                 return "first";
             };
             try {
@@ -245,7 +248,10 @@ namespace BrightIdeasSoftware.Tests
                 int textWidth = TextRenderer.MeasureText("Image row", list.Font).Width;
                 int checkboxWidth;
                 using (var graphics = list.CreateGraphics())
+                {
                     checkboxWidth = CheckBoxRenderer.GetGlyphSize(graphics, System.Windows.Forms.VisualStyles.CheckBoxState.UncheckedNormal).Width;
+                }
+
                 int expected = textWidth + image.Width + 8 + checkboxWidth;
                 list.AutoResizeColumnToContents(0);
                 Assert.IsGreaterThanOrEqualTo(expected, column.Width);

@@ -14,8 +14,7 @@ namespace BrightIdeasSoftware {
         /// Adapt an existing regular, virtual, or tree control.
         /// </summary>
         public TypedObjectListViewAdapter(ObjectListViewBase listView) {
-            if (listView == null)
-                throw new ArgumentNullException("listView");
+            ArgumentNullException.ThrowIfNull(listView, nameof(listView));
             this.ListView = listView;
         }
 
@@ -136,7 +135,9 @@ namespace BrightIdeasSoftware {
         /// <summary>Generate aspect getters for the existing columns.</summary>
         public void GenerateAspectGetters() {
             foreach (OLVColumn column in this.ListView.Columns)
+            {
                 TypedColumn<T>.For(column).GenerateAspectGetter();
+            }
         }
 
         /// <summary>Replace the existing selection.</summary>
@@ -186,10 +187,16 @@ namespace BrightIdeasSoftware {
         public T this[int index] {
             get {
                 if (index < 0 || index >= this.Count)
-                    throw new ArgumentOutOfRangeException("index");
+                {
+                    throw new ArgumentOutOfRangeException(nameof(index));
+                }
+
                 if (this.listView.ShowGroups && (this.listView.Groups.Count > 0 ||
                     (this.listView.OLVGroups != null && this.listView.OLVGroups.Count > 0)))
+                {
                     index = this.listView.GetNthItemInDisplayOrder(index).Index;
+                }
+
                 return (T)this.listView.GetModelAt(index);
             }
         }
@@ -201,9 +208,15 @@ namespace BrightIdeasSoftware {
         private IEnumerable<T> Enumerate(int version) {
             for (int i = 0; ; i++) {
                 if (version != this.listView.ModelRowsVersion)
+                {
                     throw new InvalidOperationException("The displayed rows changed during enumeration.");
+                }
+
                 if (i >= this.Count)
+                {
                     yield break;
+                }
+
                 yield return this[i];
             }
         }

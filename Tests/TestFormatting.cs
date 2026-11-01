@@ -39,9 +39,15 @@ namespace BrightIdeasSoftware.Tests
                 column.AspectGetter = delegate { return text; };
                 column.ImageGetter = delegate {
                     if (selectorKind == "index")
+                    {
                         return 0;
+                    }
+
                     if (selectorKind == "key")
+                    {
                         return "icon";
+                    }
+
                     return image;
                 };
                 column.IsButton = true;
@@ -68,7 +74,9 @@ namespace BrightIdeasSoftware.Tests
                 }
                 Assert.AreEqual(image.Width * image.Height, pixels);
                 if (text.Length > 0)
+                {
                     Assert.AreEqual(rightToLeft, (double)totalX / pixels > bounds.Left + bounds.Width / 2);
+                }
             }
         }
 
@@ -116,7 +124,9 @@ namespace BrightIdeasSoftware.Tests
             this.olv.RowFormatter = null;
             this.olv.HyperlinkStyle = null;
             foreach (OLVColumn column in this.olv.Columns)
+            {
                 column.Hyperlink = false;
+            }
         }
 
         [TestMethod]
@@ -137,9 +147,13 @@ namespace BrightIdeasSoftware.Tests
             this.olv.SetObjects(PersonDb.All);
             for (int i = 0; i < this.olv.GetItemCount(); i++) {
                 if ((i % 2) == 0)
+                {
                     Assert.AreEqual(this.olv.BackColor, this.olv.GetItem(i).BackColor);
+                }
                 else
+                {
                     Assert.AreEqual(this.olv.AlternateRowBackColor, this.olv.GetItem(i).BackColor);
+                }
             }
         }
 
@@ -295,8 +309,10 @@ namespace BrightIdeasSoftware.Tests
             this.olv.HyperlinkStyle = new HyperlinkStyle();
             this.olv.HyperlinkStyle.Normal.ForeColor = hyperlinkForeground;
 
-            foreach (OLVColumn column in this.olv.Columns) 
+            foreach (OLVColumn column in this.olv.Columns)
+            {
                 column.Hyperlink = column.Index < 2;
+            }
 
             this.olv.SetObjects(PersonDb.All);
 

@@ -54,7 +54,7 @@ namespace BrightIdeasSoftware
     /// <summary>
     /// An animation is the "canvas" upon which multiple sprites and sounds will be drawn.
     /// </summary>
-    public class Animation
+    public class Animation : IDisposable
     {
         #region Life and death
 
@@ -63,6 +63,44 @@ namespace BrightIdeasSoftware
             this.Stopwatch = new System.Diagnostics.Stopwatch();
             this.Interval = 30;
         }
+
+        /// <summary>
+        /// Stop the animation and release its timer. Added components remain caller-owned.
+        /// </summary>
+        public void Dispose() {
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Release resources owned by this animation.
+        /// </summary>
+        /// <param name="disposing">Whether managed resources should be released.</param>
+        protected virtual void Dispose(bool disposing) {
+            if (!disposing)
+            {
+                return;
+            }
+
+            lock (this.Timer) {
+                if (this.disposed)
+                {
+                    return;
+                }
+
+                this.disposed = true;
+            }
+            try {
+                this.Stop();
+            } finally {
+                lock (this.Timer)
+                {
+                    this.Timer.Dispose();
+                }
+            }
+        }
+
+        private bool disposed;
 
         #endregion
 
@@ -96,9 +134,13 @@ namespace BrightIdeasSoftware
             }
             set {
                 if (value)
+                {
                     this.Pause();
+                }
                 else
+                {
                     this.Unpause();
+                }
             }
         }
 
@@ -131,28 +173,36 @@ namespace BrightIdeasSoftware
 
         protected void OnStarted(StartAnimationEventArgs e) {
             if (this.Started != null)
+            {
                 this.Started(this, e);
+            }
         }
 
         public event EventHandler<TickEventArgs> Ticked;
 
         protected void OnTicked(TickEventArgs e) {
             if (this.Ticked != null)
+            {
                 this.Ticked(this, e);
+            }
         }
 
         public event EventHandler<StopAnimationEventArgs> Stopped;
 
         protected void OnStopped(StopAnimationEventArgs e) {
             if (this.Stopped != null)
+            {
                 this.Stopped(this, e);
+            }
         }
 
         public event EventHandler<RedrawEventArgs> Redraw;
 
         protected void OnRedraw(RedrawEventArgs e) {
             if (this.Redraw != null)
+            {
                 this.Redraw(this, e);
+            }
         }
 
         #endregion
@@ -177,10 +227,17 @@ namespace BrightIdeasSoftware
         /// Start the story
         /// </summary>
         public void Start() {
-            this.Running = true;
-            this.Timer.Elapsed += new System.Timers.ElapsedEventHandler(Timer_Elapsed);
-            this.Stopwatch.Start();
-            this.Timer.Start();
+            lock (this.Timer) {
+                if (this.disposed)
+                {
+                    throw new ObjectDisposedException(nameof(Animation));
+                }
+
+                this.Running = true;
+                this.Timer.Elapsed += new System.Timers.ElapsedEventHandler(Timer_Elapsed);
+                this.Stopwatch.Start();
+                this.Timer.Start();
+            }
             this.OnStarted(new StartAnimationEventArgs());
         }
 
@@ -189,26 +246,39 @@ namespace BrightIdeasSoftware
         /// </summary>
         /// <remarks>Any sounds that are already playing will continue to play.</remarks>
         public void Pause() {
-            this.Stopwatch.Stop();
-            this.Timer.Stop();
+            lock (this.Timer) {
+                this.Stopwatch.Stop();
+                this.Timer.Stop();
+            }
         }
 
         /// <summary>
         /// Unpause the story
         /// </summary>
         public void Unpause() {
-            this.Stopwatch.Start();
-            this.Timer.Start();
+            lock (this.Timer) {
+                if (this.disposed)
+                {
+                    throw new ObjectDisposedException(nameof(Animation));
+                }
+
+                this.Stopwatch.Start();
+                this.Timer.Start();
+            }
         }
 
         /// <summary>
         /// Stop the story.
         /// </summary>
         public void Stop() {
-            this.Running = false;
-            this.Timer.Elapsed -= new System.Timers.ElapsedEventHandler(Timer_Elapsed);
-            this.Timer.Stop();
-            this.Stopwatch.Stop();
+            bool notifyStopped;
+            lock (this.Timer) {
+                notifyStopped = !this.disposed || this.Running;
+                this.Running = false;
+                this.Timer.Elapsed -= new System.Timers.ElapsedEventHandler(Timer_Elapsed);
+                this.Timer.Stop();
+                this.Stopwatch.Stop();
+            }
             foreach (AnimateableControlBlock cb in this.ControlBlocks) {
                 if (cb.Started && !cb.Stopped) {
                     cb.Component.Stop();
@@ -217,7 +287,10 @@ namespace BrightIdeasSoftware
             }
 
             // Tell the world we have stopped
-            this.OnStopped(new StopAnimationEventArgs());
+            if (notifyStopped)
+            {
+                this.OnStopped(new StopAnimationEventArgs());
+            }
         }
 
         /// <summary>
@@ -272,17 +345,32 @@ namespace BrightIdeasSoftware
         /// <param name="sender"></param>
         /// <param name="e"></param>
         void Timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e) {
+            lock (this.Timer) {
+                if (this.disposed)
+                {
+                    return;
+                }
+            }
             TickEventArgs args = new TickEventArgs();
             this.OnTicked(args);
             if (!args.Handled)
+            {
                 this.Tick();
+            }
         }
 
         /// <summary>
         /// Advance each sprite by one "tick"
         /// </summary>
         protected void TickOnce() {
-            this.Timer.Enabled = false;
+            lock (this.Timer) {
+                if (this.disposed)
+                {
+                    return;
+                }
+
+                this.Timer.Enabled = false;
+            }
             long ms = this.Stopwatch.ElapsedMilliseconds;
             foreach (AnimateableControlBlock cb in this.ControlBlocks) {
 
@@ -299,10 +387,23 @@ namespace BrightIdeasSoftware
             }
 
             // If any component is not stopped, restart the timer. Otherwise stop the animation.
-            if (this.ControlBlocks.Exists(delegate(AnimateableControlBlock cb) { return !cb.Stopped; }))
-                this.Timer.Enabled = true;
-            else
+            bool ended;
+            lock (this.Timer) {
+                if (this.disposed)
+                {
+                    return;
+                }
+
+                ended = !this.ControlBlocks.Exists(delegate(AnimateableControlBlock cb) { return !cb.Stopped; });
+                if (!ended)
+                {
+                    this.Timer.Enabled = true;
+                }
+            }
+            if (ended)
+            {
                 this.AnimationEnded();
+            }
         }
 
         protected void AnimationEnded() {

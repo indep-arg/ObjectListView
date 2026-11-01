@@ -39,6 +39,7 @@ using System;
 using System.Collections;
 using System.ComponentModel;
 using System.Drawing;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using System.Security.Permissions;
@@ -134,21 +135,25 @@ namespace BrightIdeasSoftware
         /// <summary>
         /// 
         /// </summary>
+        [SuppressMessage("Naming", "CA1707", Justification = "The public name mirrors the Win32 tooltip notification constant.")]
         public const int TTN_SHOW = (TTN_FIRST - 1);
 
         /// <summary>
         /// 
         /// </summary>
+        [SuppressMessage("Naming", "CA1707", Justification = "The public name mirrors the Win32 tooltip notification constant.")]
         public const int TTN_POP = (TTN_FIRST - 2);
 
         /// <summary>
         /// 
         /// </summary>
+        [SuppressMessage("Naming", "CA1707", Justification = "The public name mirrors the Win32 tooltip notification constant.")]
         public const int TTN_LINKCLICK = (TTN_FIRST - 3);
 
         /// <summary>
         /// 
         /// </summary>
+        [SuppressMessage("Naming", "CA1707", Justification = "The public name mirrors the Win32 tooltip notification constant.")]
         public const int TTN_GETDISPINFO = (TTN_FIRST - 10);
 
         const int TTDT_AUTOMATIC = 0;
@@ -181,21 +186,29 @@ namespace BrightIdeasSoftware
             }
             set {
                 if (this.IsBalloon == value)
+                {
                     return;
+                }
 
                 int windowStyle = this.WindowStyle;
                 if (value) {
                     windowStyle |= (TTS_BALLOON | TTS_USEVISUALSTYLE);
                     // On XP, a border makes the balloon look wrong
                     if (!ObjectListViewBase.IsVistaOrLater)
-                        windowStyle &= ~WS_BORDER; 
+                    {
+                        windowStyle &= ~WS_BORDER;
+                    }
                 } else {
                     windowStyle &= ~(TTS_BALLOON | TTS_USEVISUALSTYLE);
                     if (!ObjectListViewBase.IsVistaOrLater) {
                         if (this.hasBorder)
+                        {
                             windowStyle |= WS_BORDER;
+                        }
                         else
+                        {
                             windowStyle &= ~WS_BORDER;
+                        }
                     }
                 }
                 this.WindowStyle = windowStyle;
@@ -211,7 +224,9 @@ namespace BrightIdeasSoftware
             }
             set {
                 if (this.hasBorder == value)
+                {
                     return;
+                }
 
                 if (value) {
                     this.WindowStyle |= WS_BORDER;
@@ -268,12 +283,19 @@ namespace BrightIdeasSoftware
             }
             set {
                 if (String.IsNullOrEmpty(value))
+                {
                     this.title = String.Empty;
+                }
                 else
                     if (value.Length >= 100)
+                    {
                         this.title = value.Substring(0, 99);
+                    }
                     else
+                    {
                         this.title = value;
+                    }
+
                 NativeMethods.SendMessageString(this.Handle, TTM_SETTITLE, (int)this.standardIcon, this.title);
             }
         }
@@ -302,14 +324,20 @@ namespace BrightIdeasSoftware
             get {
                 IntPtr hfont = NativeMethods.SendMessage(this.Handle, WM_GETFONT, 0, 0);
                 if (hfont == IntPtr.Zero)
+                {
                     return Control.DefaultFont;
+                }
                 else
+                {
                     return Font.FromHfont(hfont);
+                }
             }
             set {
                 Font newFont = value ?? Control.DefaultFont;
                 if (newFont == this.font)
+                {
                     return;
+                }
 
                 this.font = newFont;
                 IntPtr hfont = this.font.ToHfont(); // THINK: When should we delete this hfont?
@@ -362,7 +390,9 @@ namespace BrightIdeasSoftware
         /// <remarks>This does nothing if the control has already been created</remarks>
         public void Create(IntPtr parentHandle) {
             if (this.Handle != IntPtr.Zero)
+            {
                 return;
+            }
 
             CreateParams cp = new CreateParams();
             cp.ClassName = "tooltips_class32";
@@ -386,7 +416,10 @@ namespace BrightIdeasSoftware
         public void PushSettings() {
             // Ignore any nested calls
             if (this.settings != null)
+            {
                 return;
+            }
+
             this.settings = new Hashtable();
             this.settings["IsBalloon"] = this.IsBalloon;
             this.settings["HasBorder"] = this.HasBorder;
@@ -407,7 +440,9 @@ namespace BrightIdeasSoftware
         /// </summary>
         public void PopSettings() {
             if (this.settings == null)
+            {
                 return;
+            }
 
             this.IsBalloon = (bool)this.settings["IsBalloon"];
             this.HasBorder = (bool)this.settings["HasBorder"];
@@ -530,7 +565,9 @@ namespace BrightIdeasSoftware
             args.ToolTipControl = this;
             this.OnShowing(args);
             if (String.IsNullOrEmpty(args.Text))
+            {
                 return false;
+            }
 
             this.ApplyEventFormatting(args);
 
@@ -538,7 +575,10 @@ namespace BrightIdeasSoftware
             dispInfo.lpszText = args.Text;
             dispInfo.hinst = IntPtr.Zero;
             if (args.RightToLeft == RightToLeft.Yes)
+            {
                 dispInfo.uFlags |= TTF_RTLREADING;
+            }
+
             Marshal.StructureToPtr(dispInfo, msg.LParam, false);
 
             return true;
@@ -552,23 +592,45 @@ namespace BrightIdeasSoftware
                 !args.StandardIcon.HasValue &&
                 !args.AutoPopDelay.HasValue &&
                 args.Font == null)
+            {
                 return;
+            }
 
             this.PushSettings();
             if (args.IsBalloon.HasValue)
+            {
                 this.IsBalloon = args.IsBalloon.Value;
+            }
+
             if (args.BackColor.HasValue)
+            {
                 this.BackColor = args.BackColor.Value;
+            }
+
             if (args.ForeColor.HasValue)
+            {
                 this.ForeColor = args.ForeColor.Value;
+            }
+
             if (args.StandardIcon.HasValue)
+            {
                 this.StandardIcon = args.StandardIcon.Value;
+            }
+
             if (args.AutoPopDelay.HasValue)
+            {
                 this.AutoPopDelay = args.AutoPopDelay.Value;
+            }
+
             if (args.Font != null)
+            {
                 this.Font = args.Font;
+            }
+
             if (args.Title != null)
+            {
                 this.Title = args.Title;
+            }
         }
 
         /// <summary>
@@ -617,22 +679,34 @@ namespace BrightIdeasSoftware
                 case TTN_SHOW:
                     //System.Diagnostics.Trace.WriteLine("reflect TTN_SHOW");
                     if (this.HandleShow(ref msg))
+                    {
                         return true;
+                    }
+
                     break;
                 case TTN_POP:
                     //System.Diagnostics.Trace.WriteLine("reflect TTN_POP");
                     if (this.HandlePop(ref msg))
+                    {
                         return true;
+                    }
+
                     break;
                 case TTN_LINKCLICK:
                     //System.Diagnostics.Trace.WriteLine("reflect TTN_LINKCLICK");
                     if (this.HandleLinkClick(ref msg))
+                    {
                         return true;
+                    }
+
                     break;
                 case TTN_GETDISPINFO:
                     //System.Diagnostics.Trace.WriteLine("reflect TTN_GETDISPINFO");
                     if (this.HandleGetDispInfo(ref msg))
+                    {
                         return true;
+                    }
+
                     break;
             }
 
@@ -651,12 +725,18 @@ namespace BrightIdeasSoftware
             switch (msg.Msg) {
                 case 0x4E: // WM_NOTIFY
                     if (!this.HandleNotify(ref msg))
+                    {
                         return;
+                    }
+
                     break;
 
                 case 0x204E: // WM_REFLECT_NOTIFY
                     if (!this.HandleReflectNotify(ref msg))
+                    {
                         return;
+                    }
+
                     break;
             }
 
@@ -683,7 +763,9 @@ namespace BrightIdeasSoftware
         /// <param name="e"></param>
         protected virtual void OnShowing(ToolTipShowingEventArgs e) {
             if (this.Showing != null)
+            {
                 this.Showing(this, e);
+            }
         }
 
         /// <summary>
@@ -692,7 +774,9 @@ namespace BrightIdeasSoftware
         /// <param name="e"></param>
         protected virtual void OnPop(EventArgs e) {
             if (this.Pop != null)
+            {
                 this.Pop(this, e);
+            }
         }
 
         #endregion

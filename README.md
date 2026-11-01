@@ -35,8 +35,16 @@ msbuild ObjectListView.sln /restore /p:Configuration=Debug /p:Platform="Any CPU"
 ```
 
 Outputs are in each project's `bin\<Configuration>\<TargetFramework>` directory.
+All projects use C# 14, including the .NET Framework targets.
 Build the whole solution before packing `ObjectListView\ObjectListView.csproj`
 to include the required designer assets.
+
+## Source code analysis
+
+`Directory.Build.props` enables the .NET 10 SDK's recommended .NET analyzers for
+all projects and target frameworks, both during builds and live in Visual Studio.
+Analyzer diagnostics are warnings by default; no additional analyzer package is
+required. The shared settings are available under Solution Items.
 
 ## Dark mode
 

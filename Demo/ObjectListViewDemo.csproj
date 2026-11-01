@@ -28,6 +28,7 @@
     <ProjectReference Include="..\SparkleLibrary\SparkleLibrary.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\ObjectListView\Implementation\ArgumentNullExceptionExtensions.cs" Link="ArgumentNullExceptionExtensions.cs" />
     <Compile Update="BusinessCardRenderer.cs" SubType="Component" />
     <Compile Update="MainForm.cs" SubType="Form" />
     <Compile Update="MainForm.Designer.cs" DependentUpon="MainForm.cs" />

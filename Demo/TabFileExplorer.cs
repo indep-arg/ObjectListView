@@ -26,7 +26,10 @@ namespace ObjectListViewDemo {
         private void SetupControls() {
             // Setup initial state of controls on tab
             if (ObjectListView.IsVistaOrLater)
+            {
                 this.comboBoxHotItemStyle.Items.Add("Vista");
+            }
+
             this.comboBoxView.SelectedIndex = 4; // Details
             this.comboBoxHotItemStyle.SelectedIndex = 0; // None
             this.comboBoxNagLevel.SelectedIndex = 0; // Slight
@@ -43,14 +46,18 @@ namespace ObjectListViewDemo {
             this.olvFiles.ShowItemToolTips = true;
             this.olvFiles.CellToolTipShowing += delegate(object sender, ToolTipShowingEventArgs e) {
                 if (this.showToolTipsOnFiles)
+                {
                     e.Text = String.Format("Tool tip for '{0}', column '{1}'\r\nValue shown: '{2}'", e.Model, e.Column.Text, e.SubItem.Text);
+                }
             };
 
             // Show a menu -- but only when the user right clicks on the first column
             this.olvFiles.CellRightClick += delegate(object sender, CellRightClickEventArgs e) {
                 System.Diagnostics.Trace.WriteLine(String.Format("right clicked {0}, {1}). model {2}", e.RowIndex, e.ColumnIndex, e.Model));
                 if (e.ColumnIndex == 0)
+                {
                     e.MenuStrip = this.contextMenuStrip2;
+                }
             };
         }
 
@@ -59,7 +66,9 @@ namespace ObjectListViewDemo {
             // Folders and errors are represented as negative numbers
             this.olvColumnSize.AspectGetter = delegate(object x) {
                 if (x is DirectoryInfo)
+                {
                     return (long)-1;
+                }
 
                 try {
                     return ((FileInfo)x).Length;
@@ -77,7 +86,10 @@ namespace ObjectListViewDemo {
             this.olvColumnSize.AspectToStringConverter = delegate(object x) {
                 long sizeInBytes = (long)x;
                 if (sizeInBytes < 0) // folder or error
+                {
                     return "";
+                }
+
                 return Coordinator.FormatFileSize(sizeInBytes);
             };
             this.olvColumnSize.MakeGroupies(new long[] {0, 1024 * 1024, 512 * 1024 * 1024},
@@ -129,11 +141,15 @@ namespace ObjectListViewDemo {
 
         private void PopulateListFromPath(string path) {
             if (String.IsNullOrEmpty(path))
+            {
                 return;
+            }
 
             DirectoryInfo pathInfo = new DirectoryInfo(path);
             if (!pathInfo.Exists)
+            {
                 return;
+            }
 
             Stopwatch sw = new Stopwatch();
 
@@ -153,7 +169,9 @@ namespace ObjectListViewDemo {
         private void olvFiles_ItemActivate(object sender, EventArgs e) {
             Object rowObject = this.olvFiles.SelectedObject;
             if (rowObject == null)
+            {
                 return;
+            }
 
             if (rowObject is DirectoryInfo) {
                 this.textBoxFolderPath.Text = ((DirectoryInfo)rowObject).FullName;
@@ -190,7 +208,9 @@ namespace ObjectListViewDemo {
         private void buttonUp_Click(object sender, EventArgs e) {
             DirectoryInfo di = Directory.GetParent(this.textBoxFolderPath.Text);
             if (di == null)
+            {
                 System.Media.SystemSounds.Asterisk.Play();
+            }
             else {
                 this.textBoxFolderPath.Text = di.FullName;
                 this.buttonGo.PerformClick();
@@ -247,7 +267,7 @@ namespace ObjectListViewDemo {
             this.showToolTipsOnFiles = !this.showToolTipsOnFiles;
         }
 
-        private bool showToolTipsOnFiles = false;
+        private bool showToolTipsOnFiles;
 
         private void comboBoxHotItemStyle_SelectedIndexChanged(object sender, EventArgs e) {
             Coordinator.ChangeHotItemStyle(this.ListView, (ComboBox)sender);
@@ -269,7 +289,9 @@ namespace ObjectListViewDemo {
 
         private void buttonRestoreState_Click(object sender, EventArgs e) {
             if (!this.olvFiles.RestoreState(this.fileListViewState))
+            {
                 MessageBox.Show(this, "The saved layout is incompatible. Save a new layout.", "Restore layout");
+            }
         }
 
         private void buttonColumns_Click(object sender, EventArgs e) {

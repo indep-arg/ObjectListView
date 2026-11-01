@@ -232,7 +232,10 @@ namespace BrightIdeasSoftware
         protected TreeDataSourceAdapter Adapter {
             get {
                 if (this.adapter == null)
+                {
                     this.adapter = new TreeDataSourceAdapter(this);
+                }
+
                 return adapter;
             }
             set { adapter = value; }

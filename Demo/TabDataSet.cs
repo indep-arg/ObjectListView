@@ -45,23 +45,40 @@ namespace ObjectListViewDemo
                         if (text.Contains("bk-" + name)) {
                             e.SubItem.BackColor = Color.FromName(name);
                             if (DemoTheme.IsDarkMode)
+                            {
                                 e.SubItem.ForeColor = e.SubItem.BackColor.GetBrightness() > 0.5f ? Color.Black : Color.White;
+                            }
                         } else
+                        {
                             e.SubItem.ForeColor = GetDataTextColor(name);
+                        }
                     }
                 }
                 FontStyle style = FontStyle.Regular;
                 if (text.Contains("bold"))
+                {
                     style |= FontStyle.Bold;
+                }
+
                 if (text.Contains("italic"))
+                {
                     style |= FontStyle.Italic;
+                }
+
                 if (text.Contains("underline"))
+                {
                     style |= FontStyle.Underline;
+                }
+
                 if (text.Contains("strikeout"))
+                {
                     style |= FontStyle.Strikeout;
+                }
 
                 if (style != FontStyle.Regular)
+                {
                     e.SubItem.Font = new Font(e.SubItem.Font, style);
+                }
             };
         }
 

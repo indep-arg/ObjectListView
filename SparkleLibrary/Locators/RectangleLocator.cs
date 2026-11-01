@@ -72,7 +72,9 @@ namespace BrightIdeasSoftware
 
         protected Rectangle Expand(Rectangle r) {
             if (this.Expansion == Point.Empty)
+            {
                 return r;
+            }
 
             Rectangle r2 = r;
             r2.Inflate(this.Expansion.X, this.Expansion.Y);
@@ -88,12 +90,16 @@ namespace BrightIdeasSoftware
 
         protected void InitializeLocator(IPointLocator locator) {
             if (locator != null && locator.Sprite == null)
+            {
                 locator.Sprite = this.Sprite;
+            }
         }
 
         protected void InitializeLocator(IRectangleLocator locator) {
             if (locator != null && locator.Sprite == null)
+            {
                 locator.Sprite = this.Sprite;
+            }
         }
 
         #endregion

@@ -134,7 +134,10 @@ namespace BrightIdeasSoftware
         protected DataSourceAdapter Adapter {
             get {
                 if (adapter == null)
+                {
                     adapter = this.CreateDataSourceAdapter();
+                }
+
                 return adapter;
             }
             set { adapter = value; }

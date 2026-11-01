@@ -56,13 +56,14 @@ namespace BrightIdeasSoftware
     /// // add sprites to animation
     /// animation.Start();
     /// </example>
-    public class AnimationAdapter
+    public class AnimationAdapter : IDisposable
     {
         #region Life and death
 
         public AnimationAdapter(Control control) {
             this.Animation = new Animation();
             this.Control = control;
+            this.Control.Disposed += new EventHandler(Control_Disposed);
 
             this.Animation.Started += new EventHandler<StartAnimationEventArgs>(Animation_Started);
             this.Animation.Stopped += new EventHandler<StopAnimationEventArgs>(Animation_Stopped);
@@ -73,12 +74,44 @@ namespace BrightIdeasSoftware
             // Use reflection to get around DoubleBuffered being protected
             PropertyInfo pi = control.GetType().GetProperty("DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic);
             if (pi != null)
+            {
                 pi.SetValue(control, true, null);
-        
+            }
+
             // Default values
             this.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
             this.SmoothingMode = SmoothingMode.HighQuality;
         }
+
+        /// <summary>
+        /// Unbind from the control and dispose the owned animation.
+        /// </summary>
+        public void Dispose() {
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Release resources owned by this adapter.
+        /// </summary>
+        /// <param name="disposing">Whether managed resources should be released.</param>
+        protected virtual void Dispose(bool disposing) {
+            if (!disposing || this.disposed)
+            {
+                return;
+            }
+
+            this.disposed = true;
+            this.Control.Disposed -= new EventHandler(Control_Disposed);
+            this.Control.Paint -= new PaintEventHandler(Control_Paint);
+            this.Animation.Started -= new EventHandler<StartAnimationEventArgs>(Animation_Started);
+            this.Animation.Stopped -= new EventHandler<StopAnimationEventArgs>(Animation_Stopped);
+            this.Animation.Redraw -= new EventHandler<RedrawEventArgs>(Animation_Redraw);
+            this.Animation.Ticked -= new EventHandler<TickEventArgs>(Animation_Ticked);
+            this.Animation.Dispose();
+        }
+
+        private bool disposed;
 
         #endregion
 
@@ -128,7 +161,7 @@ namespace BrightIdeasSoftware
         #region Event handlers
 
         protected virtual void Control_Disposed(object sender, EventArgs e) {
-            this.Animation.Stop();
+            this.Dispose();
         }
 
         protected virtual void Control_Paint(object sender, PaintEventArgs e) {
@@ -151,7 +184,6 @@ namespace BrightIdeasSoftware
             this.SetAnimationBounds();
 
             this.Control.Paint += new PaintEventHandler(Control_Paint);
-            this.Control.Disposed += new EventHandler(Control_Disposed);
         }
 
         /// <summary>
@@ -166,7 +198,6 @@ namespace BrightIdeasSoftware
 
         protected virtual void Animation_Stopped(object sender, StopAnimationEventArgs e) {
             this.Control.Paint -= new PaintEventHandler(Control_Paint);
-            this.Control.Disposed -= new EventHandler(Control_Disposed);
         }
 
         protected virtual void Animation_Redraw(object sender, RedrawEventArgs e) {

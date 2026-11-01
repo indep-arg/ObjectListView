@@ -49,14 +49,18 @@ namespace BrightIdeasSoftware.Tests
             Application.ThreadException -= this.OnUiException;
             Application.VisualStyleState = this.originalVisualStyles;
             if (this.uiException != null)
+            {
                 System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(this.uiException).Throw();
+            }
         }
 
         private void OnUiException(object sender, ThreadExceptionEventArgs e) {
             this.uiException = e.Exception;
             Console.Error.WriteLine(e.Exception);
             foreach (var form in Application.OpenForms.OfType<ObjectListViewDemo.MainForm>().ToArray())
+            {
                 form.Close();
+            }
         }
 
         [TestMethod]
@@ -115,7 +119,10 @@ namespace BrightIdeasSoftware.Tests
                 }
                 using (var bitmap = new Bitmap(button.Width, button.Height)) {
                     using (Graphics graphics = Graphics.FromImage(bitmap))
+                    {
                         button.Draw(graphics);
+                    }
+
                     Assert.AreEqual(ObjectListViewTheme.ButtonColor.ToArgb(), bitmap.GetPixel(button.Width / 2, 2).ToArgb());
                 }
 #else
@@ -158,19 +165,30 @@ namespace BrightIdeasSoftware.Tests
                     var resources = new ComponentResourceManager(typeof(ObjectListViewDemo.TabComplexExample));
                     source.ImageStream = (ImageListStreamer)resources.GetObject("imageList1.ImageStream");
                     for (int i = 0; i < 18; i++)
+                    {
                         source.Images.SetKeyName(i, "asset" + i);
+                    }
+
                     int expectedPixel;
                     using (var original = (Bitmap)source.Images["asset17"])
+                    {
                         expectedPixel = original.GetPixel(8, 8).ToArgb();
+                    }
+
                     initialization.EndInit();
 
                     Assert.AreEqual(17, list.SmallImageList.Images.IndexOfKey("asset17"));
                     Assert.AreEqual(18, source.Images.Count);
                     using (var preserved = (Bitmap)list.SmallImageList.Images["asset17"])
+                    {
                         Assert.AreEqual(expectedPixel, preserved.GetPixel(8, 8).ToArgb());
+                    }
+
                     foreach (string key in new[] { ObjectListViewBase.CHECKED_KEY, ObjectListViewBase.UNCHECKED_KEY, ObjectListViewBase.INDETERMINATE_KEY }) {
                         using (Image state = list.SmallImageList.Images[key])
+                        {
                             Assert.AreEqual(new Size(16, 16), state.Size);
+                        }
                     }
                 }
                 Assert.AreEqual(18, source.Images.Count);
@@ -193,7 +211,9 @@ namespace BrightIdeasSoftware.Tests
                     Assert.IsGreaterThan(0.5f, banner.ForeColor.GetBrightness());
                     foreach (ObjectListViewBase list in controls.OfType<ObjectListViewBase>()) {
                         if (list.UseAlternatingBackColors && list.GetItemCount() > 1)
+                        {
                             Assert.IsLessThan(0.5f, list.GetItem(1).BackColor.GetBrightness());
+                        }
                     }
 #if NET10_0_OR_GREATER
                     foreach (ComboBox combo in controls.OfType<ComboBox>()) {
@@ -254,7 +274,9 @@ namespace BrightIdeasSoftware.Tests
                     renderer.DrawBusinessCard(graphics, bounds, model, list, item);
                     Assert.AreEqual(clip, graphics.ClipBounds);
                     using (var after = graphics.Transform)
+                    {
                         CollectionAssert.AreEqual(transform.Elements, after.Elements);
+                    }
                 }
             }
         }
@@ -273,7 +295,10 @@ namespace BrightIdeasSoftware.Tests
                     timer.Stop();
                     try {
                         if (DateTime.UtcNow > deadline)
+                        {
                             throw new TimeoutException("The demo did not complete its theme reload.");
+                        }
+
                         var form = Application.OpenForms.OfType<ObjectListViewDemo.MainForm>().SingleOrDefault();
                         if (form == null || !form.Visible || !form.IsHandleCreated) {
                             timer.Start();
@@ -309,7 +334,10 @@ namespace BrightIdeasSoftware.Tests
                     } catch (Exception ex) {
                         failure = ex;
                         foreach (Form form in Application.OpenForms.Cast<Form>().ToArray())
+                        {
                             form.Close();
+                        }
+
                         Application.ExitThread();
                     }
                 };
@@ -324,7 +352,10 @@ namespace BrightIdeasSoftware.Tests
                 }
             }
             if (failure != null)
+            {
                 System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(failure).Throw();
+            }
+
             Assert.AreEqual(3, stage);
             Assert.AreEqual(1, threadExits);
         }
@@ -333,7 +364,9 @@ namespace BrightIdeasSoftware.Tests
             foreach (Control child in parent.Controls) {
                 yield return child;
                 foreach (Control descendant in Descendants(child))
+                {
                     yield return descendant;
+                }
             }
         }
 
@@ -412,7 +445,9 @@ namespace BrightIdeasSoftware.Tests
         private sealed class StockButtonProbe : Button {
             public void Draw(Graphics graphics) {
                 using (var args = new PaintEventArgs(graphics, this.ClientRectangle))
+                {
                     this.OnPaint(args);
+                }
             }
         }
 

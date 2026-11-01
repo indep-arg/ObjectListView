@@ -135,7 +135,9 @@ namespace BrightIdeasSoftware
             set {
                 fixedLocation = value;
                 if (fixedLocation != null)
+                {
                     fixedLocation.Sprite = this;
+                }
             }
         }
         private IPointLocator fixedLocation;
@@ -149,7 +151,9 @@ namespace BrightIdeasSoftware
             set {
                 fixedBounds = value;
                 if (fixedBounds != null)
+                {
                     fixedBounds.Sprite = this;
+                }
             }
         }
         private IRectangleLocator fixedBounds;
@@ -260,10 +264,14 @@ namespace BrightIdeasSoftware
         /// </summary>
         protected void ApplyFixedLocations() {
             if (this.FixedBounds != null)
+            {
                 this.Bounds = this.FixedBounds.GetRectangle();
+            }
             else
                 if (this.FixedLocation != null)
+                {
                     this.Location = this.FixedLocation.GetPoint();
+                }
         }
 
         /// <summary>
@@ -353,7 +361,10 @@ namespace BrightIdeasSoftware
                 // TODO: Make a SpinCentre property
                 Point spinCentre = r.Location;
                 if (!this.SpinAroundOrigin)
+                {
                     spinCentre = new Point(r.X + r.Width / 2, r.Y + r.Height / 2);
+                }
+
                 m.RotateAt(this.Spin, spinCentre);
             }
 

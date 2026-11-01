@@ -26,7 +26,9 @@ namespace ObjectListViewDemo {
         public static void Main(string[] args) {
 #if !NETFRAMEWORK
             if (!Application.SetHighDpiMode(HighDpiMode.PerMonitorV2))
+            {
                 throw new InvalidOperationException("The demo must configure DPI awareness before initializing Windows Forms.");
+            }
 #endif
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
@@ -35,7 +37,9 @@ namespace ObjectListViewDemo {
 
         internal static void RunDemo() {
             using (var context = new DemoApplicationContext())
+            {
                 Application.Run(context);
+            }
         }
 
         private sealed class DemoApplicationContext : ApplicationContext {
@@ -96,7 +100,9 @@ namespace ObjectListViewDemo {
 
         private void InitializeThemeMenu() {
             if (this.DesignMode)
+            {
                 return;
+            }
 
             var themeMenu = new ToolStripDropDownButton("Theme") {
                 Name = "themeMenu",
@@ -117,20 +123,27 @@ namespace ObjectListViewDemo {
             };
             item.Click += delegate {
                 if (ObjectListViewTheme.ColorMode == mode)
+                {
                     return;
+                }
+
                 this.requestedColorMode = mode;
                 this.Close();
             };
             menu.DropDownItems.Add(item);
             if (item.Checked)
+            {
                 menu.Text = "Theme: " + text;
+            }
         }
 
         void InitializeExamples() {
             // Use different font under Vista
             if (ObjectListView.IsVistaOrLater)
+            {
                 this.Font = new Font("Segoe UI", 9);
-             
+            }
+
             OLVDemoCoordinator coordinator = new OLVDemoCoordinator(this);
 
             this.tabSimple.Coordinator = coordinator;
@@ -157,7 +170,9 @@ namespace ObjectListViewDemo {
         private void tabControl1_Selected(object sender, TabControlEventArgs e)
         {
             if (tabControl1.TabPages[e.TabPageIndex].Name == "tabPagePrinting")
+            {
                 this.tabPrinting1.UpdatePrintPreview();
+            }
         }
     }
 }

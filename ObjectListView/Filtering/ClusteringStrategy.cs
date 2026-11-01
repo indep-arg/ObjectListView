@@ -157,8 +157,11 @@ namespace BrightIdeasSoftware {
         /// <returns></returns>
         virtual public string GetClusterDisplayLabel(ICluster cluster) {
             string s = this.Column.ValueToString(cluster.ClusterKey) ?? NULL_LABEL;
-            if (String.IsNullOrEmpty(s)) 
+            if (String.IsNullOrEmpty(s))
+            {
                 s = EMPTY_LABEL;
+            }
+
             return this.ApplyDisplayFormat(cluster, s);
         }
 

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.IO;
+using BrightIdeasSoftware;
 
 namespace ObjectListViewDemo.Models {
     /// <summary>
@@ -13,7 +14,7 @@ namespace ObjectListViewDemo.Models {
     public class MyFileSystemInfo : IEquatable<MyFileSystemInfo> 
     {
         public MyFileSystemInfo(FileSystemInfo fileSystemInfo) {
-            if (fileSystemInfo == null) throw new ArgumentNullException("fileSystemInfo");
+            ArgumentNullException.ThrowIfNull(fileSystemInfo, nameof(fileSystemInfo));
             this.info = fileSystemInfo;
         }
 
@@ -59,7 +60,9 @@ namespace ObjectListViewDemo.Models {
             ArrayList children = new ArrayList();
             if (this.IsDirectory) {
                 foreach (FileSystemInfo x in this.AsDirectory.GetFileSystemInfos())
+                {
                     children.Add(new MyFileSystemInfo(x));
+                }
             }
             return children;
         }
@@ -67,14 +70,34 @@ namespace ObjectListViewDemo.Models {
         // Two file system objects are equal if they point to the same file system path
 
         public bool Equals(MyFileSystemInfo other) {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
+            if (ReferenceEquals(null, other))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
             return Equals(other.info.FullName, this.info.FullName);
         }
         public override bool Equals(object obj) {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != typeof(MyFileSystemInfo)) return false;
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
+            if (obj.GetType() != typeof(MyFileSystemInfo))
+            {
+                return false;
+            }
+
             return Equals((MyFileSystemInfo)obj);
         }
         public override int GetHashCode() {

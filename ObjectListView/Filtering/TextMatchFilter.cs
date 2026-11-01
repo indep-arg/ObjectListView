@@ -162,13 +162,17 @@ namespace BrightIdeasSoftware {
         public IEnumerable<string> ContainsStrings {
             get {
                 foreach (TextMatchingStrategy component in this.MatchingStrategies)
+                {
                     yield return component.Text;
+                }
             }
             set {
                 this.MatchingStrategies = new List<TextMatchingStrategy>();
                 if (value != null) {
                     foreach (string text in value)
+                    {
                         this.MatchingStrategies.Add(new TextContainsMatchingStrategy(this, text));
+                    }
                 }
             }
         }
@@ -203,13 +207,17 @@ namespace BrightIdeasSoftware {
         public IEnumerable<string> PrefixStrings {
             get {
                 foreach (TextMatchingStrategy component in this.MatchingStrategies)
+                {
                     yield return component.Text;
+                }
             }
             set {
                 this.MatchingStrategies = new List<TextMatchingStrategy>();
                 if (value != null) {
                     foreach (string text in value)
+                    {
                         this.MatchingStrategies.Add(new TextBeginsMatchingStrategy(this, text));
+                    }
                 }
             }
         }
@@ -261,13 +269,17 @@ namespace BrightIdeasSoftware {
         public IEnumerable<string> RegexStrings {
             get {
                 foreach (TextMatchingStrategy component in this.MatchingStrategies)
+                {
                     yield return component.Text;
+                }
             }
             set {
                 this.MatchingStrategies = new List<TextMatchingStrategy>();
                 if (value != null) {
                     foreach (string text in value)
+                    {
                         this.MatchingStrategies.Add(new TextRegexMatchingStrategy(this, text));
+                    }
                 }
             }
         }
@@ -292,14 +304,20 @@ namespace BrightIdeasSoftware {
         protected virtual IEnumerable<OLVColumn> IterateColumns() {
             if (this.Columns == null) {
                 foreach (OLVColumn column in this.ListView.Columns)
+                {
                     yield return column;
+                }
             } else {
                 foreach (OLVColumn column in this.Columns)
+                {
                     yield return column;
+                }
             }
             if (this.AdditionalColumns != null) {
                 foreach (OLVColumn column in this.AdditionalColumns)
+                {
                     yield return column;
+                }
             }
         }
 
@@ -314,7 +332,9 @@ namespace BrightIdeasSoftware {
         /// <returns></returns>
         public override bool Filter(object modelObject) {
             if (this.ListView == null || !this.HasComponents)
+            {
                 return true;
+            }
 
             foreach (OLVColumn column in this.IterateColumns()) {
                 if (column.IsVisible && column.Searchable) {
@@ -322,10 +342,15 @@ namespace BrightIdeasSoftware {
                     if (cellTexts != null && cellTexts.Length > 0) {
                         foreach (TextMatchingStrategy filter in this.MatchingStrategies) {
                             if (String.IsNullOrEmpty(filter.Text))
+                            {
                                 return true;
+                            }
+
                             foreach (string cellText in cellTexts) {
                                 if (filter.MatchesText(cellText))
+                                {
                                     return true;
+                                }
                             }
                         }
                     }
@@ -347,7 +372,9 @@ namespace BrightIdeasSoftware {
 
             foreach (TextMatchingStrategy filter in this.MatchingStrategies) {
                  if (!String.IsNullOrEmpty(filter.Text))
+                {
                     ranges.AddRange(filter.FindAllMatchedRanges(cellText));
+                }
             }
 
             return ranges;
@@ -365,7 +392,9 @@ namespace BrightIdeasSoftware {
 
             foreach (OLVColumn x in this.Columns) {
                 if (x == column)
+                {
                     return true;
+                }
             }
 
             return false;
@@ -531,7 +560,9 @@ namespace BrightIdeasSoftware {
                 List<CharacterRange> ranges = new List<CharacterRange>();
 
                 if (cellText.StartsWith(this.Text, this.StringComparison))
+                {
                     ranges.Add(new CharacterRange(0, this.Text.Length));
+                }
 
                 return ranges;
             }
@@ -607,7 +638,10 @@ namespace BrightIdeasSoftware {
             /// <returns>Return true if the given cellText matches our strategy</returns>
             public override bool MatchesText(string cellText) {
                 if (this.IsRegexInvalid)
+                {
                     return true;
+                }
+
                 return this.Regex.Match(cellText).Success;
             }
 
@@ -629,7 +663,9 @@ namespace BrightIdeasSoftware {
                 if (!this.IsRegexInvalid) {
                     foreach (Match match in this.Regex.Matches(cellText)) {
                         if (match.Length > 0)
+                        {
                             ranges.Add(new CharacterRange(match.Index, match.Length));
+                        }
                     }
                 }
 

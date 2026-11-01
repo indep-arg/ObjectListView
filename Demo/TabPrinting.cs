@@ -46,15 +46,25 @@ namespace ObjectListViewDemo
 
             // Set the list view printer's ListView property to say which ObjectListView you want to print
             if (this.rbShowSimple.Checked == true)
+            {
                 this.listViewPrinter1.ListView = this.SimpleView;
+            }
             else if (this.rbShowComplex.Checked == true)
+            {
                 this.listViewPrinter1.ListView = this.ComplexView;
+            }
             else if (this.rbShowDataset.Checked == true)
+            {
                 this.listViewPrinter1.ListView = this.DataListView;
+            }
             else if (this.rbShowTree.Checked == true)
+            {
                 this.listViewPrinter1.ListView = this.TreeListView;
+            }
             else if (this.rbShowFileExplorer.Checked == true)
+            {
                 this.listViewPrinter1.ListView = this.FileExplorerView;
+            }
 
             // Copy settings from UI onto the list view printer
             this.listViewPrinter1.DocumentName = this.tbTitle.Text;
@@ -69,14 +79,22 @@ namespace ObjectListViewDemo
 
             // Give the list view printer the appropriate styling
             if (this.rbStyleMinimal.Checked)
+            {
                 this.ApplyMinimalFormatting();
+            }
             else if (this.rbStyleModern.Checked)
+            {
                 this.ApplyModernFormatting();
+            }
             else if (this.rbStyleTooMuch.Checked)
+            {
                 this.ApplyOverTheTopFormatting();
+            }
 
             if (this.cbCellGridLines.Checked == false)
+            {
                 this.listViewPrinter1.ListGridPen = null;
+            }
 
             // Finally, tell the print preview to redraw itself
 

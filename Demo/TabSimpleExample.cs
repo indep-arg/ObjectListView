@@ -95,10 +95,14 @@ namespace ObjectListViewDemo {
             this.olvSimple.FormatRow += delegate (object sender, FormatRowEventArgs args) {
                 Person p = args.Model as Person;
                 if (p == null)
+                {
                     return;
+                }
 
                 if (p.Name.StartsWith("N"))
+                {
                     args.Item.BackColor = Color.LightPink;
+                }
             };
         }
 
@@ -113,18 +117,27 @@ namespace ObjectListViewDemo {
 
                 // CellFormat is triggered for *every* cell. You must filter for only the column(s) you want
                 if (args.Column.Text != "Cooking Skill")
+                {
                     return;
+                }
 
                 // We will get the cooking skill rating from the model directly. 
                 // We could also use args.CellValue.
                 Person p = args.Model as Person;
                 if (p == null)
+                {
                     return;
+                }
 
                 if (p.CulinaryRating < 10)
+                {
                     args.SubItem.BackColor = Color.PaleVioletRed;
+                }
+
                 if (p.CulinaryRating >= 40)
+                {
                     args.SubItem.BackColor = Color.PaleGreen;
+                }
             };
         }
 
@@ -168,13 +181,17 @@ namespace ObjectListViewDemo {
                 // What item was dropped on?
                 Person target = e.TargetModel as Person;
                 if (target == null)
+                {
                     return;
+                }
 
                 // Since groups are calculated, there isn't a direct way to move models into a particular group.
                 // The right way to do it is to change the data (culinary rating, in this case) of the target
                 // so that those targets now belong to the desired group, and then rebuild the list.
                 foreach (Person source in e.SourceModels)
+                {
                     source.CulinaryRating = target.CulinaryRating;
+                }
 
                 olvSimple.BuildList(true);
             };
@@ -269,7 +286,12 @@ namespace ObjectListViewDemo {
             image.Add(1000, 900, Effects.Fade(1.0f, 0.0f));
             animation.Add(0, image);
 
-            Sprite text = new TextSprite("Animations!", new Font("Tahoma", 32), Color.Blue, Color.AliceBlue, Color.Red, 3.0f);
+            Font textFont = new Font("Tahoma", 32);
+            TextSprite text = new TextSprite("Animations!", textFont, Color.Blue, Color.AliceBlue, Color.Red, 3.0f);
+            animation.Stopped += delegate {
+                text.Dispose();
+                textFont.Dispose();
+            };
             text.Opacity = 0.0f;
             text.FixedLocation = Locators.SpriteAligned(Corner.MiddleCenter);
             text.Add(900, 900, Effects.Fade(0.0f, 1.0f));

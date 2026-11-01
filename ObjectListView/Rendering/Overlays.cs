@@ -222,9 +222,13 @@ namespace BrightIdeasSoftware
             get { return this.CornerRounding > 0; }
             set {
                 if (value)
+                {
                     this.CornerRounding = 16.0f;
+                }
                 else
+                {
                     this.CornerRounding = 0.0f;
+                }
             }
         }
 
@@ -240,7 +244,9 @@ namespace BrightIdeasSoftware
         /// <param name="r">The bounds of the rendering</param>
         public virtual void Draw(ObjectListViewBase olv, Graphics g, Rectangle r) {
             if (String.IsNullOrEmpty(this.Text))
+            {
                 return;
+            }
 
             Rectangle insetRect = r;
             insetRect.Inflate(-this.InsetX, -this.InsetY);
@@ -284,7 +290,9 @@ namespace BrightIdeasSoftware
         /// <param name="r">The bounds of the rendering</param>
         public override void Draw(ObjectListViewBase olv, Graphics g, Rectangle r) {
             if (String.IsNullOrEmpty(this.Text))
+            {
                 return;
+            }
 
             // Calculate the bounds of the text, and then move it to where it should be
             Rectangle textRect = this.CalculateTextBounds(g, r, this.Text);
@@ -292,9 +300,14 @@ namespace BrightIdeasSoftware
 
             // Make sure the billboard is within the bounds of the List, as far as is possible
             if (textRect.Right > r.Width)
+            {
                 textRect.X = Math.Max(r.Left, r.Width - textRect.Width);
+            }
+
             if (textRect.Bottom > r.Height)
+            {
                 textRect.Y = Math.Max(r.Top, r.Height - textRect.Height);
+            }
 
             this.DrawBorderedText(g, textRect, this.Text, 255);
         }

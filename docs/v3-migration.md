@@ -131,6 +131,19 @@ Regular controls copy assigned sequences. Later source-collection changes do not
 update the control; use mutation methods or assign the sequence again. Untyped
 mutations on typed controls reject incompatible model types before changing rows.
 
+### Drawing-resource lifetime
+
+`TextAdornment` (including text overlays/decorations), `BorderDecoration`,
+`SimpleDropSink`, `TextSprite`, `Animation`, and `AnimationAdapter` implement
+`IDisposable`. Dispose caller-created instances when no longer needed.
+They release their generated drawing resources or timers, not caller-assigned
+fonts, formats, pens, brushes, or animation components. Gradient borders use
+a temporary brush without replacing or disposing `FillBrush`.
+
+ObjectListView disposes its generated standard text overlays and drop sinks
+created by `IsSimpleDropSink`. Explicitly assigned overlays and drop sinks remain
+caller-owned; detached drop sinks stop scrolling and can be reused.
+
 ## Queries and snapshot getters
 
 ```csharp

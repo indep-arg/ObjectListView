@@ -36,7 +36,7 @@ namespace BrightIdeasSoftware
     /// <summary>
     /// Support running an animation as a decoration on an ObjectListView
     /// </summary>
-    class AnimatedDecoration : AbstractDecoration
+    class AnimatedDecoration : AbstractDecoration, IDisposable
     {
         #region Life and death
 
@@ -81,6 +81,11 @@ namespace BrightIdeasSoftware
             this.Column = olv.GetColumn(item.SubItems.IndexOf(subItem));
         }
 
+        public void Dispose() {
+            this.UnsubscribeEvents();
+            this.Animation.Dispose();
+        }
+
         #endregion
 
         #region Public properties
@@ -116,16 +121,23 @@ namespace BrightIdeasSoftware
 
         public override void Draw(ObjectListViewBase olv, Graphics g, Rectangle r) {
             if (!this.Animation.Running)
+            {
                 return;
+            }
 
             if (this.ModelObject != null) {
                 this.ListItem = this.ListView.ModelToItem(this.ModelObject);
                 if (this.ListItem == null)
+                {
                     return;
+                }
+
                 if (this.Column != null) {
                     this.Animation.Bounds = this.ListItem.GetSubItemBounds(this.Column.Index);
-                } else 
+                } else
+                {
                     this.Animation.Bounds = this.RowBounds;
+                }
             } else {
                 this.Animation.Bounds = r;
             } 
@@ -138,7 +150,10 @@ namespace BrightIdeasSoftware
         #region Event handlers
 
         protected virtual void ListView_Disposed(object sender, EventArgs e) {
-            this.Animation.Stop();
+            if (this.Animation.Repeat == Repeat.None)
+            {
+                this.Dispose();
+            }
         }
 
         protected virtual void Animation_Started(object sender, StartAnimationEventArgs e) {
@@ -151,6 +166,7 @@ namespace BrightIdeasSoftware
                 this.ListView.Invoke((MethodInvoker)delegate {
                     this.UnsubscribeEvents();
                     this.ListView.RemoveDecoration(this);
+                    this.Dispose();
                 });
             }
         }

@@ -32,9 +32,15 @@ namespace ObjectListViewDemo
         protected ImageList.ImageCollection SmallImageCollection {
             get {
                 if (this.listView != null)
+                {
                     return this.listView.SmallImageList.Images;
+                }
+
                 if (this.treeView != null)
+                {
                     return this.treeView.ImageList.Images;
+                }
+
                 return null;
             }
         }
@@ -42,7 +48,10 @@ namespace ObjectListViewDemo
         protected ImageList.ImageCollection LargeImageCollection {
             get {
                 if (this.listView != null)
+                {
                     return this.listView.LargeImageList.Images;
+                }
+
                 return null;
             }
         }
@@ -50,9 +59,15 @@ namespace ObjectListViewDemo
         protected ImageList SmallImageList {
             get {
                 if (this.listView != null)
+                {
                     return this.listView.SmallImageList;
+                }
+
                 if (this.treeView != null)
+                {
                     return this.treeView.ImageList;
+                }
+
                 return null;
             }
         }
@@ -60,7 +75,10 @@ namespace ObjectListViewDemo
         protected ImageList LargeImageList {
             get {
                 if (this.listView != null)
+                {
                     return this.listView.LargeImageList;
+                }
+
                 return null;
             }
         }
@@ -117,13 +135,19 @@ namespace ObjectListViewDemo
         public int GetImageIndex(string path)
         {
             if (System.IO.Directory.Exists(path))
+            {
                 path = System.Environment.SystemDirectory; // optimization! give all directories the same image
+            }
             else
                 if (System.IO.Path.HasExtension(path))
+                {
                     path = System.IO.Path.GetExtension(path);
+                }
 
             if (this.SmallImageCollection.ContainsKey(path))
+            {
                 return this.SmallImageCollection.IndexOfKey(path);
+            }
 
             using (Icon smallIcon = ShellUtilities.GetFileIcon(path, true, true))
             using (Icon largeIcon = this.LargeImageList == null ? null : ShellUtilities.GetFileIcon(path, false, true)) {
@@ -140,7 +164,9 @@ namespace ObjectListViewDemo
 
         private void AddImageToCollection(string key, ImageList imageList, Icon image) {
             if (imageList == null)
+            {
                 return;
+            }
 
             // Materialize the native list before disposing the source image.
             IntPtr handle = imageList.Handle;
@@ -205,9 +231,13 @@ namespace ObjectListViewDemo
             int flags = SHGFI_TYPENAME;
             IntPtr result = ShellUtilities.SHGetFileInfo(path, 0, out shfi, Marshal.SizeOf(shfi), flags);
             if (result.ToInt32() == 0)
+            {
                 return String.Empty;
+            }
             else
+            {
                 return shfi.szTypeName;
+            }
         }
 
         /// <summary>
@@ -221,24 +251,35 @@ namespace ObjectListViewDemo
         {
             int flags = SHGFI_ICON;
             if (isSmallImage)
+            {
                 flags |= SHGFI_SMALLICON;
+            }
 
             int fileAttributes = 0;
             if (useFileType) {
                 flags |= SHGFI_USEFILEATTRIBUTES;
                 if (System.IO.Directory.Exists(path))
+                {
                     fileAttributes = FILE_ATTRIBUTE_DIRECTORY;
+                }
                 else
+                {
                     fileAttributes = FILE_ATTRIBUTE_NORMAL;
+                }
             }
 
             SHFILEINFO shfi = new SHFILEINFO();
             IntPtr result = ShellUtilities.SHGetFileInfo(path, fileAttributes, out shfi, Marshal.SizeOf(shfi), flags);
             if (result == IntPtr.Zero)
+            {
                 return null;
+            }
+
             try {
                 using (Icon shellIcon = Icon.FromHandle(shfi.hIcon))
+                {
                     return (Icon)shellIcon.Clone();
+                }
             } finally {
                 DestroyIcon(shfi.hIcon);
             }
@@ -257,9 +298,13 @@ namespace ObjectListViewDemo
             int flags = SHGFI_ICON | SHGFI_SYSICONINDEX;
             IntPtr result = ShellUtilities.SHGetFileInfo(path, 0, out shfi, Marshal.SizeOf(shfi), flags);
             if (result.ToInt32() == 0)
+            {
                 return -1;
+            }
             else
+            {
                 return shfi.iIcon;
+            }
         }
 
         #region Native methods

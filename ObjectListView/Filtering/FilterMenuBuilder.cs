@@ -129,12 +129,14 @@ namespace BrightIdeasSoftware {
         /// <param name="column"></param>
         /// <returns>The strip that should be shown to the user</returns>
         virtual public ToolStripDropDown MakeFilterMenu(ToolStripDropDown strip, ObjectListViewBase listView, OLVColumn column) {
-            if (strip == null) throw new ArgumentNullException("strip");
-            if (listView == null) throw new ArgumentNullException("listView");
-            if (column == null) throw new ArgumentNullException("column");
+            ArgumentNullException.ThrowIfNull(strip, nameof(strip));
+            ArgumentNullException.ThrowIfNull(listView, nameof(listView));
+            ArgumentNullException.ThrowIfNull(column, nameof(column));
 
             if (!column.UseFiltering || column.ClusteringStrategy == null || listView.ModelObjects == null)
+            {
                 return strip;
+            }
 
             List<ICluster> clusters = this.Cluster(column.ClusteringStrategy, listView, column);
             if (clusters.Count > 0) {
@@ -160,12 +162,16 @@ namespace BrightIdeasSoftware {
                 this.ClusterOneModel(strategy, map, model);
 
                 if (count++ > this.MaxObjectsToConsider)
+                {
                     break;
+                }
             }
 
             // Now that we know exactly how many items are in each cluster, create a label for it
             foreach (ICluster cluster in map.Values)
+            {
                 cluster.DisplayLabel = strategy.GetClusterDisplayLabel(cluster);
+            }
 
             return new List<ICluster>(map.Values);
         }
@@ -176,23 +182,34 @@ namespace BrightIdeasSoftware {
             // If the returned value is an IEnumerable, that means the given model can belong to more than one cluster
             IEnumerable keyEnumerable = clusterKey as IEnumerable;
             if (clusterKey is string || keyEnumerable == null)
+            {
                 keyEnumerable = new object[] {clusterKey};
+            }
 
             // Deal with nulls and DBNulls
             ArrayList nullCorrected = new ArrayList();
             foreach (object key in keyEnumerable) {
                 if (key == null || key == System.DBNull.Value) {
                     if (this.TreatNullAsDataValue)
+                    {
                         nullCorrected.Add(null);
-                } else nullCorrected.Add(key);
+                    }
+                } else
+                {
+                    nullCorrected.Add(key);
+                }
             }
 
             // Group by key
             foreach (object key in nullCorrected) {
-                if (map.ContainsKey(key))
-                    map[key].Count += 1;
+                if (map.TryGetValue(key, out ICluster cluster))
+                {
+                    cluster.Count += 1;
+                }
                 else
+                {
                     map[key] = strategy.CreateCluster(key);
+                }
             }
         }
 
@@ -215,13 +232,20 @@ namespace BrightIdeasSoftware {
             ToolStripCheckedListBox checkedList = new ToolStripCheckedListBox();
             checkedList.Tag = column;
             foreach (ICluster cluster in clusters)
+            {
                 checkedList.AddItem(cluster, column.ValuesChosenForFiltering.Contains(cluster.ClusterKey));
+            }
+
             if (!String.IsNullOrEmpty(SELECT_ALL_LABEL)) {
                 int checkedCount = checkedList.CheckedItems.Count;
                 if (checkedCount == 0)
+                {
                     checkedList.AddItem(SELECT_ALL_LABEL, CheckState.Unchecked);
+                }
                 else
+                {
                     checkedList.AddItem(SELECT_ALL_LABEL, checkedCount == clusters.Count ? CheckState.Checked : CheckState.Indeterminate);
+                }
             }
             checkedList.ItemCheck += new ItemCheckEventHandler(HandleItemCheckedWrapped);
 
@@ -246,7 +270,9 @@ namespace BrightIdeasSoftware {
         /// <param name="e"></param>
         private void HandleItemCheckedWrapped(object sender, ItemCheckEventArgs e) {
             if (alreadyInHandleItemChecked)
+            {
                 return;
+            }
 
             try {
                 alreadyInHandleItemChecked = true;
@@ -256,7 +282,7 @@ namespace BrightIdeasSoftware {
                 alreadyInHandleItemChecked = false;
             }
         }
-        bool alreadyInHandleItemChecked = false;
+        bool alreadyInHandleItemChecked;
 
         /// <summary>
         /// Handle a user-generated ItemCheck event
@@ -266,16 +292,29 @@ namespace BrightIdeasSoftware {
         virtual protected void HandleItemChecked(object sender, ItemCheckEventArgs e) {
 
             ToolStripCheckedListBox checkedList = sender as ToolStripCheckedListBox;
-            if (checkedList == null) return;
+            if (checkedList == null)
+            {
+                return;
+            }
+
             OLVColumn column = checkedList.Tag as OLVColumn;
-            if (column == null) return;
+            if (column == null)
+            {
+                return;
+            }
+
             ObjectListViewBase listView = column.ListView as ObjectListViewBase;
-            if (listView == null) return;
+            if (listView == null)
+            {
+                return;
+            }
 
             // Deal with the "Select All" item if there is one
             int selectAllIndex = checkedList.Items.IndexOf(SELECT_ALL_LABEL);
             if (selectAllIndex >= 0)
+            {
                 HandleSelectAllItem(e, checkedList, selectAllIndex);
+            }
         }
 
         /// <summary>
@@ -289,9 +328,15 @@ namespace BrightIdeasSoftware {
             // Did they check/uncheck the "Select All"?
             if (e.Index == selectAllIndex) {
                 if (e.NewValue == CheckState.Checked)
+                {
                     checkedList.CheckAll();
+                }
+
                 if (e.NewValue == CheckState.Unchecked)
+                {
                     checkedList.UncheckAll();
+                }
+
                 return;
             }
 
@@ -307,7 +352,9 @@ namespace BrightIdeasSoftware {
             // First complication.
             // The value of the Select All itself doesn't count
             if (checkedList.GetItemCheckState(selectAllIndex) != CheckState.Unchecked)
+            {
                 count -= 1;
+            }
 
             // Another complication.
             // CheckedItems does not yet know about the item the user has just
@@ -315,18 +362,28 @@ namespace BrightIdeasSoftware {
             // it is going to be
             if (e.NewValue != e.CurrentValue) {
                 if (e.NewValue == CheckState.Checked)
+                {
                     count += 1;
+                }
                 else
+                {
                     count -= 1;
+                }
             }
 
             // Update the state of the Select All item
             if (count == 0)
+            {
                 checkedList.SetItemState(selectAllIndex, CheckState.Unchecked);
+            }
             else if (count == checkedList.Items.Count - 1)
+            {
                 checkedList.SetItemState(selectAllIndex, CheckState.Checked);
+            }
             else
+            {
                 checkedList.SetItemState(selectAllIndex, CheckState.Indeterminate);
+            }
         }
 
         /// <summary>
@@ -337,7 +394,9 @@ namespace BrightIdeasSoftware {
 
             ObjectListViewBase olv = column.ListView as ObjectListViewBase;
             if (olv == null || olv.IsDisposed)
+            {
                 return;
+            }
 
             olv.ResetColumnFiltering();
         }
@@ -351,7 +410,9 @@ namespace BrightIdeasSoftware {
             
             ObjectListViewBase olv = column.ListView as ObjectListViewBase;
             if (olv == null || olv.IsDisposed)
+            {
                 return;
+            }
 
             // Collect all the checked values
             ArrayList chosenValues = new ArrayList();

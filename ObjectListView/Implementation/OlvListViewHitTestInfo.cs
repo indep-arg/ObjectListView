@@ -28,6 +28,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Diagnostics.CodeAnalysis;
 using System.Windows.Forms;
 
 namespace BrightIdeasSoftware {
@@ -106,6 +107,8 @@ namespace BrightIdeasSoftware {
     /// A collection of ListViewHitTest constants
     /// </summary>
     [Flags]
+    [SuppressMessage("Naming", "CA1707", Justification = "Member names mirror the Win32 hit-test constants.")]
+    [SuppressMessage("Design", "CA1069", Justification = "Win32 uses bit 0x8 for both state-icon hits and above-control hits in different contexts.")]
     public enum HitTestLocationEx {
         /// <summary>
         /// 
@@ -220,11 +223,18 @@ namespace BrightIdeasSoftware {
                     break;
                 default:
                     if ((this.HitTestLocationEx & HitTestLocationEx.LVHT_EX_GROUP_COLLAPSE) == HitTestLocationEx.LVHT_EX_GROUP_COLLAPSE)
+                    {
                         this.HitTestLocation = HitTestLocation.GroupExpander;
+                    }
                     else if ((this.HitTestLocationEx & HitTestLocationEx.LVHT_EX_GROUP_MINUS_FOOTER_AND_BKGRD) != 0)
+                    {
                         this.HitTestLocation = HitTestLocation.Group;
+                    }
                     else
+                    {
                         this.HitTestLocation = HitTestLocation.Nothing;
+                    }
+
                     break;
             }
         }
@@ -251,7 +261,9 @@ namespace BrightIdeasSoftware {
             // (if we hit an item) or to AboveClientAream if nothing was hit.
 
             if ((8 & flags) == 8)
+            {
                 return (ListViewHitTestLocations)(0xf7 & flags | (hitItem == null ? 0x100 : 0x200));
+            }
 
             // Mask off the LVHT_EX_XXXX values since ListViewHitTestLocations doesn't have them
             return (ListViewHitTestLocations)(flags & 0xffff);

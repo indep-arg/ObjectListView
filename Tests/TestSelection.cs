@@ -145,9 +145,14 @@ namespace BrightIdeasSoftware.Tests
             // normal lists, there should two selectedIndex events for each object.
             // Regardless of anything, there should be only one selection changed event.
             if (this.olv.VirtualMode)
+            {
                 Assert.AreEqual(PersonDb.All.Count + 1, countSelectedIndexChanged);
+            }
             else
+            {
                 Assert.AreEqual(PersonDb.All.Count * 2, countSelectedIndexChanged);
+            }
+
             Assert.AreEqual(1, countSelectionChanged);
 
             // Cleanup

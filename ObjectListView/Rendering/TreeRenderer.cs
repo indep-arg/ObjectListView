@@ -82,7 +82,7 @@ namespace BrightIdeasSoftware {
                 get { return useTriangles; }
                 set { useTriangles = value; }
             }
-            private bool useTriangles = false;
+            private bool useTriangles;
 
             #endregion
 
@@ -129,10 +129,14 @@ namespace BrightIdeasSoftware {
                 int expandGlyphRectangleMidVertical = expandGlyphRectangle.Y + (expandGlyphRectangle.Height/2);
 
                 if (this.IsShowLines)
+                {
                     this.DrawLines(g, r, this.LinePen, br, expandGlyphRectangleMidVertical);
+                }
 
-                if (br.CanExpand && this.IsShowGlyphs) 
+                if (br.CanExpand && this.IsShowGlyphs)
+                {
                     this.DrawExpansionGlyph(g, expandGlyphRectangle, br.IsExpanded);
+                }
 
                 int indent = br.Level * PIXELS_PER_LEVEL;
                 paddedRectangle.Offset(indent, 0);
@@ -214,7 +218,9 @@ namespace BrightIdeasSoftware {
                 g.DrawLine(Pens.Black, x + 2, y + 4, x + w - 2, y + 4);
 
                 if (!isExpanded)
+                {
                     g.DrawLine(Pens.Black, x + 4, y + 2, x + 4, y + h - 2);
+                }
             }
 
             /// <summary>
@@ -255,12 +261,18 @@ namespace BrightIdeasSoftware {
                 // Vertical line second
                 if (br.IsFirstBranch) {
                     if (!br.IsLastChild && !br.IsOnlyBranch)
+                    {
                         g.DrawLine(p, midX, glyphMidVertical, midX, r2.Bottom);
+                    }
                 } else {
                     if (br.IsLastChild)
+                    {
                         g.DrawLine(p, midX, top, midX, glyphMidVertical);
+                    }
                     else
+                    {
                         g.DrawLine(p, midX, top, midX, r2.Bottom);
+                    }
                 }
             }
 

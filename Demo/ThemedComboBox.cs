@@ -23,13 +23,17 @@ namespace ObjectListViewDemo {
                 return;
             }
             using (Brush brush = new SolidBrush(this.BackColor))
+            {
                 e.Graphics.FillRectangle(brush, e.ClipRectangle);
+            }
         }
 
         protected override void OnPaint(PaintEventArgs e) {
             base.OnPaint(e);
             if (this.GetStyle(ControlStyles.UserPaint))
+            {
                 this.DrawDarkArrow(e.Graphics);
+            }
         }
 
         protected override void OnMouseEnter(EventArgs e) {
@@ -72,7 +76,10 @@ namespace ObjectListViewDemo {
         private void DrawDarkArrow(Graphics graphics) {
             Rectangle bounds = this.ClientRectangle;
             if (bounds.Width < 2 || bounds.Height < 2)
+            {
                 return;
+            }
+
             int width = Math.Min(bounds.Width - 2, (int)Math.Ceiling(17 * graphics.DpiX / 96f));
             Rectangle arrow = new Rectangle(this.RightToLeft == RightToLeft.Yes ? 1 : bounds.Right - width - 1,
                 1, width, bounds.Height - 2);
@@ -84,19 +91,27 @@ namespace ObjectListViewDemo {
                 TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.EndEllipsis |
                 (this.RightToLeft == RightToLeft.Yes ? TextFormatFlags.Right | TextFormatFlags.RightToLeft : TextFormatFlags.Left));
             using (Brush brush = new SolidBrush(this.DroppedDown ? ObjectListViewTheme.ControlDarkColor : this.BackColor))
+            {
                 graphics.FillRectangle(brush, arrow);
+            }
+
             int centerX = arrow.Left + arrow.Width / 2;
             int centerY = arrow.Top + arrow.Height / 2;
             int halfWidth = Math.Max(3, (int)Math.Ceiling(3 * graphics.DpiX / 96f));
             using (Brush brush = new SolidBrush(this.Enabled ? ObjectListViewTheme.TextColor : ObjectListViewTheme.GrayTextColor))
+            {
                 graphics.FillPolygon(brush, new[] {
                     new Point(centerX - halfWidth, centerY - 2),
                     new Point(centerX + halfWidth, centerY - 2),
                     new Point(centerX, centerY + 2)
                 });
+            }
+
             using (Pen pen = new Pen(this.Focused || this.hot || this.DroppedDown ?
                 ObjectListViewTheme.AccentColor : ObjectListViewTheme.ControlDarkColor))
+            {
                 graphics.DrawRectangle(pen, bounds.X, bounds.Y, bounds.Width - 1, bounds.Height - 1);
+            }
         }
     }
 }

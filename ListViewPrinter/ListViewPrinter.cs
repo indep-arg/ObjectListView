@@ -141,7 +141,7 @@ namespace BrightIdeasSoftware
             get { return isTextOnly; }
             set { isTextOnly = value; }
         }
-        private bool isTextOnly = false;
+        private bool isTextOnly;
 
         /// <summary>
         /// Should this report be shrunk to fit into the width of a page?
@@ -167,7 +167,7 @@ namespace BrightIdeasSoftware
             get { return isPrintSelectionOnly; }
             set { isPrintSelectionOnly = value; }
         }
-        private bool isPrintSelectionOnly = false;
+        private bool isPrintSelectionOnly;
 
         /// <summary>
         /// Should this report use the column order as the user sees them? With this enabled,
@@ -221,7 +221,7 @@ namespace BrightIdeasSoftware
             get { return firstPage; }
             set { firstPage = value; }
         }
-        private int firstPage = 0;
+        private int firstPage;
 
         /// <summary>
         /// Return the index of the last page of the report that should be printed
@@ -300,7 +300,9 @@ namespace BrightIdeasSoftware
             get {
                 // The group header format cannot be null
                 if (groupHeaderFormat == null)
+                {
                     groupHeaderFormat = BlockFormat.GroupHeader();
+                }
 
                 return groupHeaderFormat;
             }
@@ -319,7 +321,9 @@ namespace BrightIdeasSoftware
             get {
                 // The cell format cannot be null
                 if (cellFormat == null)
+                {
                     cellFormat = BlockFormat.DefaultCell();
+                }
 
                 return cellFormat;
             }
@@ -387,7 +391,9 @@ namespace BrightIdeasSoftware
             set {
                 header = value;
                 if (!String.IsNullOrEmpty(header))
+                {
                     header = header.Replace("\\t", "\t");
+                }
             }
         }
         private String header;
@@ -406,7 +412,9 @@ namespace BrightIdeasSoftware
             set {
                 footer = value;
                 if (!String.IsNullOrEmpty(footer))
+                {
                     footer = footer.Replace("\\t", "\t");
+                }
             }
         }
         private String footer;
@@ -448,9 +456,13 @@ namespace BrightIdeasSoftware
         {
             get {
                 if (this.WatermarkFont == null)
+                {
                     return new Font("Tahoma", 72);
+                }
                 else
+                {
                     return this.WatermarkFont;
+                }
             }
         }
 
@@ -475,9 +487,13 @@ namespace BrightIdeasSoftware
         {
             get {
                 if (this.WatermarkColor == Color.Empty)
+                {
                     return Color.Gray;
+                }
                 else
+                {
                     return this.WatermarkColor;
+                }
             }
         }
 
@@ -506,12 +522,18 @@ namespace BrightIdeasSoftware
         protected int GetRowCount(ListView lv)
         {
             if (this.IsPrintSelectionOnly)
+            {
                 return lv.SelectedIndices.Count;
+            }
             else
                 if (lv.VirtualMode)
+                {
                     return lv.VirtualListSize;
+                }
                 else
+                {
                     return lv.Items.Count;
+                }
         }
 
         /// <summary>
@@ -523,16 +545,28 @@ namespace BrightIdeasSoftware
         protected ListViewItem GetRow(ListView lv, int n)
         {
             if (this.IsPrintSelectionOnly)
+            {
                 if (lv.VirtualMode)
+                {
                     return this.GetVirtualItem(lv, lv.SelectedIndices[n]);
+                }
                 else
+                {
                     return lv.SelectedItems[n];
+                }
+            }
 
             if (!this.IsShowingGroups)
+            {
                 if (lv.VirtualMode)
+                {
                     return this.GetVirtualItem(lv, n);
+                }
                 else
+                {
                     return lv.Items[n];
+                }
+            }
 
             // If we are showing groups, things are more complicated. The n'th
             // row of the report doesn't directly correspond to existing list.
@@ -540,8 +574,13 @@ namespace BrightIdeasSoftware
             // and then figure out which item it is within the groups items.
             int i;
             for (i = this.groupStartPositions.Count - 1; i >= 0; i--)
+            {
                 if (n >= this.groupStartPositions[i])
+                {
                     break;
+                }
+            }
+
             int indexInList = n - this.groupStartPositions[i];
             return lv.Groups[i].Items[indexInList];
         }
@@ -567,9 +606,13 @@ namespace BrightIdeasSoftware
         protected ListViewItem.ListViewSubItem GetSubItem(ListViewItem lvi, int i)
         {
             if (i < lvi.SubItems.Count)
+            {
                 return lvi.SubItems[this.GetColumn(i).Index];
+            }
             else
+            {
                 return new ListViewItem.ListViewSubItem();
+            }
         }
 
         /// <summary>
@@ -685,7 +728,9 @@ namespace BrightIdeasSoftware
         override protected void OnPrintPage(PrintPageEventArgs e)
         {
             if (this.ListView == null || this.ListView.View != View.Details)
+            {
                 return;
+            }
 
             base.OnPrintPage(e);
 
@@ -707,7 +752,9 @@ namespace BrightIdeasSoftware
 
                 // If we ran out of pages before reaching the first page, simply return
                 if (!e.HasMorePages)
+                {
                     return;
+                }
             }
 
             // If we haven't reached the end of the requested pages, print one.
@@ -715,7 +762,9 @@ namespace BrightIdeasSoftware
                 e.HasMorePages = this.PrintOnePage(e);
                 e.HasMorePages = e.HasMorePages && (this.pageNumber < this.LastPage);
             } else
+            {
                 e.HasMorePages = false;
+            }
         }
 
         #endregion
@@ -728,14 +777,20 @@ namespace BrightIdeasSoftware
         protected void PreparePrint()
         {
             if (this.ListView == null)
+            {
                 return;
+            }
 
             // Build sortedColumn so it holds the column in the order they should be printed
             foreach (ColumnHeader column in this.ListView.Columns) {
                 if (this.UseColumnDisplayOrder)
+                {
                     this.sortedColumns.Add(column.DisplayIndex, column);
+                }
                 else
+                {
                     this.sortedColumns.Add(column.Index, column);
+                }
             }
 
             // If the listview is grouped, build an array to holds the start
@@ -771,10 +826,14 @@ namespace BrightIdeasSoftware
         {
             // Printing to a real printer doesn't take the printers hard margins into account
             if (this.PrintController.IsPreview)
+            {
                 this.pageBounds = (RectangleF)e.MarginBounds;
+            }
             else
+            {
                 this.pageBounds = new RectangleF(e.MarginBounds.X - e.PageSettings.HardMarginX,
                     e.MarginBounds.Y - e.PageSettings.HardMarginY, e.MarginBounds.Width, e.MarginBounds.Height);
+            }
 
             this.listBounds = this.pageBounds;
         }
@@ -787,7 +846,9 @@ namespace BrightIdeasSoftware
         {
             // If we are in the middle of printing a listview, don't change the parameters
             if (this.rowIndex >= 0 && this.rowIndex < this.GetRowCount(lv))
+            {
                 return;
+            }
 
             this.rowIndex = 0;
 
@@ -813,7 +874,9 @@ namespace BrightIdeasSoftware
                 // Iterate the columns until we find a column that won't fit on the page
                 int width = 0;
                 for (int i = this.indexLeftColumn; i < this.GetColumnCount() && (width += this.GetColumn(i).Width) < this.listBounds.Width; i++)
+                {
                     this.indexRightColumn = i;
+                }
             }
         }
 
@@ -824,7 +887,9 @@ namespace BrightIdeasSoftware
         protected void ApplyScaling(Graphics g)
         {
             if (this.scaleFactor >= 1.0f)
+            {
                 return;
+            }
 
             g.ScaleTransform(this.scaleFactor, this.scaleFactor);
 
@@ -839,7 +904,9 @@ namespace BrightIdeasSoftware
         protected void PrintWatermark(Graphics g)
         {
             if (String.IsNullOrEmpty(this.Watermark))
+            {
                 return;
+            }
 
             StringFormat strFormat = new StringFormat();
             strFormat.LineAlignment = StringAlignment.Center;
@@ -874,7 +941,9 @@ namespace BrightIdeasSoftware
             this.currentOrigin = this.listBounds.Location;
 
             if (this.rowIndex == 0 || this.IsListHeaderOnEachPage)
+            {
                 this.PrintListHeader(g, lv);
+            }
 
             this.PrintRows(g, lv);
 
@@ -892,7 +961,9 @@ namespace BrightIdeasSoftware
             // If there is no format for the header, we don't draw it
             BlockFormat fmt = this.ListHeaderFormat;
             if (fmt == null)
+            {
                 return;
+            }
 
             // Calculate the height of the list header
             float height = 0;
@@ -925,7 +996,9 @@ namespace BrightIdeasSoftware
                 // Will this row fit before the end of page?
                 float rowHeight = this.CalculateRowHeight(g, lv, this.rowIndex);
                 if (this.currentOrigin.Y + rowHeight > this.listBounds.Bottom)
+                {
                     break;
+                }
 
                 // If we are printing group and there is a group beginning at the current position,
                 // print it so long as the group header and at least one following row will fit on the page
@@ -957,11 +1030,15 @@ namespace BrightIdeasSoftware
         {
             // If we're including graphics in the report, we need to allow for the height of a small image
             if (!this.IsTextOnly && lv.SmallImageList != null)
+            {
                 this.CellFormat.MinimumTextHeight = lv.SmallImageList.ImageSize.Height;
+            }
 
             // If the cell lines can't wrap, calculate the generic height of the row
             if (!this.CellFormat.CanWrap)
+            {
                 return this.CellFormat.CalculateHeight(g);
+            }
 
             // If the cell lines can wrap, calculate the height of the tallest cell
             float height = 0f;
@@ -970,7 +1047,9 @@ namespace BrightIdeasSoftware
                 ColumnHeader column = this.GetColumn(i);
                 int colWidth = column.Width;
                 if (!this.IsTextOnly && column.Index == 0 && lv.SmallImageList != null && lvi.ImageIndex != -1)
+                {
                     colWidth -= lv.SmallImageList.ImageSize.Width;
+                }
 
                 // If we are using an specialized renderer in an ObjectListView, it could do anything
                 // with the Text value (e.g. it could be a BLOB that is presented as an Image).
@@ -978,7 +1057,9 @@ namespace BrightIdeasSoftware
                 // the other cells in the row.
                 OLVColumn olvc = column as OLVColumn;
                 if (olvc == null || !(olvc.Renderer is BaseRenderer))
+                {
                     height = Math.Max(height, this.CellFormat.CalculateHeight(g, this.GetSubItem(lvi, i).Text, colWidth));
+                }
             }
             return height;
         }
@@ -1049,7 +1130,10 @@ namespace BrightIdeasSoftware
                 // Now draw the image into the area reserved for it
                 RectangleF r = fmt.CalculatePaddedTextBox(cell);
                 if (lv.SmallImageList.ImageSize.Height < r.Height)
+                {
                     r.Y += (r.Height - lv.SmallImageList.ImageSize.Height) / 2;
+                }
+
                 g.DrawImage(lv.SmallImageList.Images[lvi.ImageIndex], r.Location);
             } else {
                 // No image to draw. SImply draw the text
@@ -1064,10 +1148,14 @@ namespace BrightIdeasSoftware
         protected void PrintHeaderFooter(Graphics g)
         {
             if (!String.IsNullOrEmpty(this.Header))
+            {
                 PrintPageHeader(g);
+            }
 
             if (!String.IsNullOrEmpty(this.Footer))
+            {
                 PrintPageFooter(g);
+            }
         }
 
         /// <summary>
@@ -1078,7 +1166,9 @@ namespace BrightIdeasSoftware
         {
             BlockFormat fmt = this.HeaderFormat;
             if (fmt == null)
+            {
                 return;
+            }
 
             float height = fmt.CalculateHeight(g);
             RectangleF headerRect = new RectangleF(this.listBounds.X, this.listBounds.Y, this.listBounds.Width, height);
@@ -1097,7 +1187,9 @@ namespace BrightIdeasSoftware
         {
             BlockFormat fmt = this.FooterFormat;
             if (fmt == null)
+            {
                 return;
+            }
 
             float height = fmt.CalculateHeight(g);
             RectangleF r = new RectangleF(this.listBounds.X, this.listBounds.Bottom - height, this.listBounds.Width, height);
@@ -1134,9 +1226,13 @@ namespace BrightIdeasSoftware
             {
                 Pen p = this.ListGridPen;
                 if (p == null)
+                {
                     return Color.Empty;
+                }
                 else
+                {
                     return p.Color;
+                }
             }
             set
             {
@@ -1201,7 +1297,10 @@ namespace BrightIdeasSoftware
         {
             float height = base.CalculateRowHeight(g, lv, n);
             if (lv is ObjectListViewBase)
+            {
                 height = Math.Max(height, ((ObjectListViewBase)lv).RowHeightEffective);
+            }
+
             return height;
         }
 
@@ -1211,12 +1310,18 @@ namespace BrightIdeasSoftware
         protected bool ApplyCellSpecificBackground(BlockFormat fmt, ListViewItem lvi, ListViewItem.ListViewSubItem lvsi)
         {
             if (fmt.BackgroundBrush != null)
+            {
                 return false;
+            }
 
             if (lvi.UseItemStyleForSubItems)
+            {
                 fmt.BackgroundBrush = new SolidBrush(lvi.BackColor);
+            }
             else
+            {
                 fmt.BackgroundBrush = new SolidBrush(lvsi.BackColor);
+            }
 
             return true;
         }
@@ -1271,7 +1376,9 @@ namespace BrightIdeasSoftware
                 bool bkChanged = this.ApplyCellSpecificBackground(this.CellFormat, renderer.ListItem, renderer.SubItem);
                 this.CellFormat.Draw(g, cell, "", "", "");
                 if (bkChanged)
+                {
                     this.CellFormat.BackgroundBrush = null;
+                }
 
                 // The renderer draws into the text area of the block. Unfortunately, the renderer uses Rectangle's 
                 // rather than RectangleF's, so we have to convert, trying to prevent rounding errors
@@ -1348,9 +1455,13 @@ namespace BrightIdeasSoftware
         {
             get {
                 if (this.Font == null)
+                {
                     return new Font("Ms Sans Serif", 12);
+                }
                 else
+                {
                     return this.Font;
+                }
             }
         }
 
@@ -1379,7 +1490,9 @@ namespace BrightIdeasSoftware
             set {
                 textBrushData = value;
                 if (value != null)
+                {
                     this.TextBrush = value.GetBrush();
+                }
             }
         }
         private IBrushData textBrushData;	
@@ -1392,9 +1505,13 @@ namespace BrightIdeasSoftware
         {
             get {
                 if (this.TextBrush == null)
+                {
                     return Brushes.Black;
+                }
                 else
+                {
                     return this.TextBrush;
+                }
             }
         }
 
@@ -1418,7 +1535,9 @@ namespace BrightIdeasSoftware
             set {
                 backgroundBrushData = value;
                 if (value != null)
+                {
                     this.BackgroundBrush = value.GetBrush();
+                }
             }
         }
         private IBrushData backgroundBrushData;	
@@ -1434,7 +1553,7 @@ namespace BrightIdeasSoftware
             get { return canWrap; }
             set { canWrap = value; }
         }
-        private bool canWrap = false;
+        private bool canWrap;
 
         /// <summary>
         /// If this is set, at least this much vertical space will be reserved for the text,
@@ -1446,7 +1565,7 @@ namespace BrightIdeasSoftware
             get { return minimumTextHeight; }
             set { minimumTextHeight = value; }
         }
-        private float minimumTextHeight = 0;
+        private float minimumTextHeight;
 
         //----------------------------------------------------------------------------------
         // All of these attributes are solely to make them appear in the IDE
@@ -1465,7 +1584,9 @@ namespace BrightIdeasSoftware
             set {
                 topBorderPenData = value;
                 if (value != null)
+                {
                     this.SetBorderPen(Sides.Top, value.GetPen());
+                }
             }
         }
         private PenData topBorderPenData;
@@ -1482,7 +1603,9 @@ namespace BrightIdeasSoftware
             set {
                 leftBorderPenData = value;
                 if (value != null)
+                {
                     this.SetBorderPen(Sides.Left, value.GetPen());
+                }
             }
         }
         private PenData leftBorderPenData;
@@ -1499,7 +1622,9 @@ namespace BrightIdeasSoftware
             set {
                 bottomBorderPenData = value;
                 if (value != null)
+                {
                     this.SetBorderPen(Sides.Bottom, value.GetPen());
+                }
             }
         }
         private PenData bottomBorderPenData;
@@ -1516,7 +1641,9 @@ namespace BrightIdeasSoftware
             set {
                 rightBorderPenData = value;
                 if (value != null)
+                {
                     this.SetBorderPen(Sides.Right, value.GetPen());
+                }
             }
         }
         private PenData rightBorderPenData;
@@ -1533,9 +1660,13 @@ namespace BrightIdeasSoftware
                 if (leftBorderPenData == topBorderPenData &&
                     leftBorderPenData == rightBorderPenData &&
                     leftBorderPenData == bottomBorderPenData)
+                {
                     return leftBorderPenData;
+                }
                 else
+                {
                     return null;
+                }
             }
             set {
                 this.LeftBorderPenData = value;
@@ -1559,9 +1690,13 @@ namespace BrightIdeasSoftware
             get
             {
                 if (this.BackgroundBrush == null || !(this.BackgroundBrush is SolidBrush))
+                {
                     return Color.Empty;
+                }
                 else
+                {
                     return ((SolidBrush)this.BackgroundBrush).Color;
+                }
             }
             set
             {
@@ -1579,16 +1714,24 @@ namespace BrightIdeasSoftware
             get
             {
                 if (this.TextBrush == null || !(this.TextBrush is SolidBrush))
+                {
                     return Color.Empty;
+                }
                 else
+                {
                     return ((SolidBrush)this.TextBrush).Color;
+                }
             }
             set
             {
                 if (value.IsEmpty)
+                {
                     this.TextBrush = null;
+                }
                 else
+                {
                     this.TextBrush = new SolidBrush(value);
+                }
             }
         }
         
@@ -1649,9 +1792,13 @@ namespace BrightIdeasSoftware
         {
             Brush b = this.GetBorderBrush(side);
             if (b != null && b is SolidBrush)
+            {
                 return ((SolidBrush)b).Color;
+            }
             else
+            {
                 return Color.Empty;
+            }
         }
 
         #endregion
@@ -1666,10 +1813,7 @@ namespace BrightIdeasSoftware
         /// <returns>The width of the padding</returns>
         public float GetPadding(Sides side)
         {
-            if (this.Padding.ContainsKey(side))
-                return this.Padding[side];
-            else
-                return 0.0f;
+            return this.Padding.TryGetValue(side, out float padding) ? padding : 0.0f;
         }
 
         /// <summary>
@@ -1685,7 +1829,9 @@ namespace BrightIdeasSoftware
                 this.Padding[Sides.Right] = value;
                 this.Padding[Sides.Bottom] = value;
             } else
+            {
                 this.Padding[side] = value;
+            }
         }
         
         /// <summary>
@@ -1697,9 +1843,13 @@ namespace BrightIdeasSoftware
         {
             Pen p = this.GetBorderPen(side);
             if (p == null)
+            {
                 return null;
+            }
             else
+            {
                 return p.Brush;
+            }
         }
 
         /// <summary>
@@ -1709,10 +1859,7 @@ namespace BrightIdeasSoftware
         /// <returns>The pen of the border</returns>
         public Pen GetBorderPen(Sides side)
         {
-            if (this.BorderPen.ContainsKey(side))
-                return this.BorderPen[side];
-            else
-                return null;
+            return this.BorderPen.TryGetValue(side, out Pen pen) ? pen : null;
         }
 
         /// <summary>
@@ -1724,9 +1871,13 @@ namespace BrightIdeasSoftware
         {
             Pen p = this.GetBorderPen(side);
             if (p == null)
+            {
                 return 0;
+            }
             else
+            {
                 return p.Width;
+            }
         }
 
         /// <summary>
@@ -1758,7 +1909,7 @@ namespace BrightIdeasSoftware
                 this.BorderPen[side] = p;
             }
         }
-        private bool areSideBorderEqual = false;
+        private bool areSideBorderEqual;
 
         /// <summary>
         /// Get the distance that the text should be inset from the border on a given side
@@ -1783,16 +1934,14 @@ namespace BrightIdeasSoftware
                 this.TextInset[Sides.Right] = value;
                 this.TextInset[Sides.Bottom] = value;
             } else
+            {
                 this.TextInset[side] = value;
+            }
         }
 
-        // I hate the fact that Dictionary doesn't have a method like this!
         private ValueT GetKeyOrDefault<KeyT, ValueT>(Dictionary<KeyT, ValueT> map, KeyT key, ValueT defaultValue)
         {
-            if (map.ContainsKey(key))
-                return map[key];
-            else
-                return defaultValue;
+            return map.TryGetValue(key, out ValueT value) ? value : defaultValue;
         }
 
         private Dictionary<Sides, Pen> BorderPen = new Dictionary<Sides, Pen>();
@@ -1828,7 +1977,10 @@ namespace BrightIdeasSoftware
             StringFormat fmt = new StringFormat();
             fmt.Trimming = StringTrimming.EllipsisCharacter;
             if (!this.CanWrap)
+            {
                 fmt.FormatFlags = StringFormatFlags.NoWrap;
+            }
+
             float height = g.MeasureString(s, this.FontOrDefault, width, fmt).Height;
             height = Math.Max(height, this.MinimumTextHeight);
             height += this.GetPadding(Sides.Top);
@@ -1941,11 +2093,19 @@ namespace BrightIdeasSoftware
             String left = null, centre = null, right = null;
 
             if (strings.Length >= 1)
+            {
                 left = strings[0];
+            }
+
             if (strings.Length >= 2)
+            {
                 centre = strings[1];
+            }
+
             if (strings.Length >= 3)
+            {
                 right = strings[2];
+            }
 
             this.Draw(g, r, left, centre, right);
         }
@@ -1997,7 +2157,9 @@ namespace BrightIdeasSoftware
         {
             LinearGradientBrush lgb = value as LinearGradientBrush;
             if (lgb == null)
+            {
                 return value;
+            }
 
             // We really just want to change the bounds of the gradient, but there is no way to do that
             // so we have to make a new brush and copy across the information we can
@@ -2018,9 +2180,15 @@ namespace BrightIdeasSoftware
         static public Pen PreparePenForDrawing(Pen value, RectangleF r)
         {
             if (r.Height == 0)
+            {
                 r.Height = value.Width;
+            }
+
             if (r.Width == 0)
+            {
                 r.Width = value.Width;
+            }
+
             value.Brush = BlockFormat.PrepareBrushForDrawing(value.Brush, r);
             return value;
         }
@@ -2029,7 +2197,9 @@ namespace BrightIdeasSoftware
         {
             LinearGradientBrush lgb = value as LinearGradientBrush;
             if (lgb == null)
+            {
                 return value;
+            }
 
             // We really just want to change the bounds of the gradient, but there is no way to do that
             // so we have to make a new brush and copy across the information we can
@@ -2058,14 +2228,20 @@ namespace BrightIdeasSoftware
             Pen p = this.GetBorderPen(side);
 
             if (p == null)
+            {
                 return;
+            }
 
             PreparePenForDrawing(p, new RectangleF(x1, y1, x2-x1, y2-y1));
 
             if (isRectangle)
+            {
                 g.DrawRectangle(p, x1, y1, x2, y2);
+            }
             else
+            {
                 g.DrawLine(p, x1, y1, x2, y2);
+            }
         }
 
         private void DrawText(Graphics g, RectangleF r, string left, string centre, string right)
@@ -2076,7 +2252,10 @@ namespace BrightIdeasSoftware
 
             StringFormat fmt = new StringFormat();
             if (!this.CanWrap)
+            {
                 fmt.FormatFlags = StringFormatFlags.NoWrap;
+            }
+
             fmt.LineAlignment = StringAlignment.Center;
             fmt.Trimming = StringTrimming.EllipsisCharacter;
 

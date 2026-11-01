@@ -9,6 +9,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BrightIdeasSoftware.Tests {
     [STATestClass]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1001", Justification = "The fixture form owns tolv and disposes its child controls during TestCleanup.")]
     public class TestTypedListView : WinFormsTestFixture {
         [TestMethod]
         public void Test_Objects_All() {
@@ -85,7 +86,9 @@ namespace BrightIdeasSoftware.Tests {
             Assert.AreEqual(replaceWithNull, this.tolv.Objects == null);
             Assert.AreEqual(replaceWithNull, this.tolv.GetObjectsSnapshot() == null);
             if (!replaceWithNull)
+            {
                 Assert.IsEmpty(this.tolv.GetObjectsSnapshot());
+            }
 
             this.tolv.ItemsChanging += delegate(object sender, ItemsChangingEventArgs args) {
                 args.Canceled = true;
@@ -135,7 +138,10 @@ namespace BrightIdeasSoftware.Tests {
             this.tolv.Objects = new[] { PersonDb.All[0], PersonDb.All[3] };
             this.tolv.UseFiltering = useFiltering;
             if (useFiltering)
+            {
                 this.tolv.ModelFilter = new ModelFilter(model => model != null && model != PersonDb.All[2]);
+            }
+
             this.tolv.ItemsAdding += delegate(object sender, ItemsAddingEventArgs args) {
                 args.ObjectsToAdd = new[] { PersonDb.All[1], null, PersonDb.All[2] };
             };
@@ -147,10 +153,14 @@ namespace BrightIdeasSoftware.Tests {
                 new[] { PersonDb.All[0], PersonDb.All[1], null, PersonDb.All[2], PersonDb.All[3] };
             CollectionAssert.AreEqual(expected, this.tolv.Storage);
             if (useFiltering)
+            {
                 CollectionAssert.AreEqual(new[] { PersonDb.All[0], PersonDb.All[1], PersonDb.All[3] },
                     Enumerable.Range(0, this.tolv.GetItemCount()).Select(this.tolv.GetModelObject).ToArray());
+            }
             else
+            {
                 Assert.AreEqual(expected.Length, this.tolv.GetItemCount());
+            }
         }
 
         [TestMethod]
@@ -297,7 +307,10 @@ namespace BrightIdeasSoftware.Tests {
                 list.CreateControl();
                 list.Objects = PersonDb.All.Take(1);
                 if (showGroups)
+                {
                     list.BuildGroups(list.GetColumn(0), SortOrder.Ascending);
+                }
+
                 list.SelectedIndices.Add(0);
                 list.Projection = new Person("projected");
 
@@ -384,7 +397,10 @@ namespace BrightIdeasSoftware.Tests {
                     typedSnapshot.Clear();
                     IList source = ((ObjectListViewBase)list).ModelObjects as IList;
                     if (source != null)
+                    {
                         Assert.ThrowsExactly<NotSupportedException>(() => source.Clear());
+                    }
+
                     Assert.AreEqual(2, list.GetItemCount(), list.GetType().Name);
                     CollectionAssert.AreEqual(PersonDb.All.Take(2).ToArray(), (ICollection)list.Objects);
                 }
@@ -731,19 +747,35 @@ namespace BrightIdeasSoftware.Tests {
             public bool RejectChanges { get; set; }
             public override Person SelectedObject {
                 get { return base.SelectedObject; }
-                set { if (!this.RejectChanges) base.SelectedObject = value; }
+                set { if (!this.RejectChanges)
+                    {
+                        base.SelectedObject = value;
+                    }
+                }
             }
             public override Person CheckedObject {
                 get { return base.CheckedObject; }
-                set { if (!this.RejectChanges) base.CheckedObject = value; }
+                set { if (!this.RejectChanges)
+                    {
+                        base.CheckedObject = value;
+                    }
+                }
             }
             public override IList<Person> SelectedObjects {
                 get { return base.SelectedObjects; }
-                set { if (!this.RejectChanges) base.SelectedObjects = value; }
+                set { if (!this.RejectChanges)
+                    {
+                        base.SelectedObjects = value;
+                    }
+                }
             }
             public override IList<Person> CheckedObjects {
                 get { return base.CheckedObjects; }
-                set { if (!this.RejectChanges) base.CheckedObjects = value; }
+                set { if (!this.RejectChanges)
+                    {
+                        base.CheckedObjects = value;
+                    }
+                }
             }
         }
 
@@ -756,6 +788,7 @@ namespace BrightIdeasSoftware.Tests {
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1067", Justification = "This test model verifies that IEquatable alone does not change object-based identity semantics.")]
         private sealed class EquatableModel : IEquatable<EquatableModel> {
             public string Name { get { return "same"; } }
             public bool Equals(EquatableModel other) { return other != null; }
@@ -807,7 +840,9 @@ namespace BrightIdeasSoftware.Tests {
                 get { return base.SelectedObjects; }
                 set {
                     if (!RejectPropertyChanges)
+                    {
                         base.SelectedObjects = value;
+                    }
                 }
             }
 
@@ -815,7 +850,9 @@ namespace BrightIdeasSoftware.Tests {
                 get { return base.CheckedObjects; }
                 set {
                     if (!RejectPropertyChanges)
+                    {
                         base.CheckedObjects = value;
+                    }
                 }
             }
         }

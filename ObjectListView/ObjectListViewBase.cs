@@ -700,20 +700,34 @@ namespace BrightIdeasSoftware
         /// </summary>
         /// <param name="disposing"></param>
         protected override void Dispose(bool disposing) {
+            if (disposing)
+            {
+                this.DropSink = null;
+            }
+
             base.Dispose(disposing);
 
-            if (!disposing) 
+            if (!disposing)
+            {
                 return;
+            }
 
             foreach (GlassPanelForm glassPanel in this.glassPanels) {
                 glassPanel.Unbind();
                 glassPanel.Dispose();
             }
             this.glassPanels.Clear();
+            this.standardTextOverlay?.Dispose();
+            this.standardEmptyListMsgOverlay?.Dispose();
             if (this.subItemCheckBoxImageList != null)
+            {
                 this.subItemCheckBoxImageList.Dispose();
+            }
+
             if (this.resizedImageList != null)
+            {
                 this.resizedImageList.Dispose();
+            }
 
             this.UnsubscribeNotifications(null);
         }
@@ -741,7 +755,10 @@ namespace BrightIdeasSoftware
         public static bool IsVistaOrLater {
             get {
                 if (!ObjectListViewBase.sIsVistaOrLater.HasValue)
+                {
                     ObjectListViewBase.sIsVistaOrLater = Environment.OSVersion.Version.Major >= 6;
+                }
+
                 return ObjectListViewBase.sIsVistaOrLater.Value;
             }
         }
@@ -804,25 +821,36 @@ namespace BrightIdeasSoftware
         /// </remarks>
         public static ArrayList EnumerableToArray(IEnumerable collection, bool alwaysCreate) {
             if (collection == null)
+            {
                 return new ArrayList();
+            }
 
             if (!alwaysCreate) {
                 ArrayList array = collection as ArrayList;
                 if (array != null)
+                {
                     return array;
+                }
 
                 IList iList = collection as IList;
                 if (iList != null)
+                {
                     return ArrayList.Adapter(iList);
+                }
             }
 
             ICollection iCollection = collection as ICollection;
             if (iCollection != null)
+            {
                 return new ArrayList(iCollection);
+            }
 
             ArrayList newObjects = new ArrayList();
             foreach (object x in collection)
+            {
                 newObjects.Add(x);
+            }
+
             return newObjects;
         }
 
@@ -835,16 +863,23 @@ namespace BrightIdeasSoftware
         /// <remarks>When we move to .NET 3.5, we can use LINQ and not need this method.</remarks>
         public static int EnumerableCount(IEnumerable collection) {
             if (collection == null)
+            {
                 return 0;
+            }
 
             ICollection iCollection = collection as ICollection;
             if (iCollection != null)
+            {
                 return iCollection.Count;
+            }
 
             int i = 0;
 // ReSharper disable once UnusedVariable
             foreach (object x in collection)
+            {
                 i++;
+            }
+
             return i;
         }
 
@@ -946,7 +981,10 @@ namespace BrightIdeasSoftware
             set
             {
                 if (this.additionalFilter == value)
+                {
                     return;
+                }
+
                 this.additionalFilter = value;
                 this.UpdateColumnFiltering();
             }
@@ -1064,7 +1102,9 @@ namespace BrightIdeasSoftware
             set {
                 cellEditActivation = value;
                 if (this.Created)
+                {
                     this.Invalidate();
+                }
             }
         }
         private CellEditActivateMode cellEditActivation = CellEditActivateMode.None;
@@ -1249,7 +1289,9 @@ namespace BrightIdeasSoftware
                     this.VirtualMode = true;
 
                     // Re-enact the bits that we lost by switching to virtual mode
+#pragma warning disable CA2245 // Reapply group settings after restoring virtual mode.
                     this.ShowGroups = this.ShowGroups;
+#pragma warning restore CA2245
                     this.BuildList(true);
                 } else {
                     base.CheckBoxes = value;
@@ -1308,7 +1350,9 @@ namespace BrightIdeasSoftware
                     for (int i = 0; i < this.GetItemCount(); i++) {
                         OLVListItem olvi = this.GetItem(i);
                         if (olvi.CheckState == CheckState.Checked)
+                        {
                             list.Add(olvi.RowObject);
+                        }
                     }
                 }
                 return list;
@@ -1324,13 +1368,17 @@ namespace BrightIdeasSoftware
         /// does nothing when checkboxes are disabled.</remarks>
         public virtual void SetCheckedObjects(IEnumerable modelObjects) {
             if (!this.CheckBoxes)
+            {
                 return;
+            }
 
             ICollection snapshot = modelObjects == null ? null : this.MaterializeModelObjects(modelObjects);
             Hashtable table = new Hashtable(this.GetItemCount());
             if (snapshot != null) {
                 foreach (object x in snapshot)
+                {
                     table[x] = true;
+                }
             }
 
             this.BeginUpdate();
@@ -1338,7 +1386,9 @@ namespace BrightIdeasSoftware
                 IEnumerable source = this.ModelObjects;
                 if (source != null) {
                     foreach (Object x in source)
+                    {
                         this.SetObjectCheckedness(x, table.ContainsKey(x) ? CheckState.Checked : CheckState.Unchecked);
+                    }
                 }
             }
             finally {
@@ -1557,17 +1607,24 @@ namespace BrightIdeasSoftware
         public void DisableObjects(IEnumerable models)
         {
             if (models == null)
+            {
                 return;
+            }
+
             ArrayList list = ObjectListViewBase.EnumerableToArray(models, false);
             foreach (object model in list)
             {
-                if (model == null) 
+                if (model == null)
+                {
                     continue;
+                }
 
                 this.disabledObjects[model] = true;
                 int modelIndex = this.IndexOf(model);
                 if (modelIndex >= 0)
+                {
                     NativeMethods.DeselectOneItem(this, modelIndex);
+                }
             }
             this.RefreshObjects(list);
         }
@@ -1589,12 +1646,17 @@ namespace BrightIdeasSoftware
         public void EnableObjects(IEnumerable models)
         {
             if (models == null)
+            {
                 return;
+            }
+
             ArrayList list = ObjectListViewBase.EnumerableToArray(models, false);
             foreach (object model in list)
             {
                 if (model != null)
+                {
                     this.disabledObjects.Remove(model);
+                }
             }
             this.RefreshObjects(list);
         }
@@ -1636,7 +1698,17 @@ namespace BrightIdeasSoftware
             get { return this.dropSink; }
             set {
                 if (this.dropSink == value)
+                {
                     return;
+                }
+
+                if (this.dropSink != null && this.dropSink.ListView == this)
+                {
+                    this.dropSink.ListView = null;
+                }
+
+                this.ownedDropSink?.Dispose();
+                this.ownedDropSink = null;
 
                 // Stop listening for events on the old sink
                 SimpleDropSink oldSink = this.dropSink as SimpleDropSink;
@@ -1650,7 +1722,9 @@ namespace BrightIdeasSoftware
                 this.dropSink = value;
                 this.AllowDrop = (value != null);
                 if (this.dropSink != null)
+                {
                     this.dropSink.ListView = this;
+                }
 
                 // Start listening for events on the new sink
                 SimpleDropSink newSink = value as SimpleDropSink;
@@ -1663,6 +1737,7 @@ namespace BrightIdeasSoftware
             }
         }
         private IDropSink dropSink;
+        private SimpleDropSink ownedDropSink;
 
         // Forward events from the drop sink to the control itself
         void DropSinkCanDrop(object sender, OlvDropEventArgs e) { this.OnCanDrop(e); }
@@ -1719,7 +1794,9 @@ namespace BrightIdeasSoftware
             set {
                 TextOverlay overlay = this.EmptyListMsgOverlay as TextOverlay;
                 if (overlay != null)
+                {
                     overlay.Font = value;
+                }
             }
         }
 
@@ -1767,8 +1844,10 @@ namespace BrightIdeasSoftware
         public virtual IEnumerable FilteredObjects {
             get {
                 if (this.UseFiltering)
+                {
                     return this.FilterObjects(this.ModelObjects, this.ModelFilter, this.ListFilter);
-                
+                }
+
                 return this.ModelObjects;
             }
         }
@@ -1804,7 +1883,9 @@ namespace BrightIdeasSoftware
             set {
                 OLVListItem item = this.ModelToItem(value);
                 if (item != null)
+                {
                     item.Focused = true;
+                }
             }
         }
 
@@ -1954,10 +2035,14 @@ namespace BrightIdeasSoftware
             get { return this.HeaderFormatStyle == null ? null : this.HeaderFormatStyle.Normal.Font; }
             set {
                 if (value == null && this.HeaderFormatStyle == null)
+                {
                     return;
+                }
 
                 if (this.HeaderFormatStyle == null)
+                {
                     this.HeaderFormatStyle = new HeaderFormatStyle();
+                }
 
                 this.HeaderFormatStyle.SetFont(value);
             }
@@ -2055,7 +2140,9 @@ namespace BrightIdeasSoftware
             set {
                 this.headerWordWrap = value;
                 if (this.headerControl != null)
+                {
                     this.headerControl.WordWrap = value;
+                }
             }
         }
         private bool headerWordWrap;
@@ -2153,10 +2240,15 @@ namespace BrightIdeasSoftware
             get { return this.hotItemStyle; }
             set {
                 if (this.HotItemStyle != null)
+                {
                     this.RemoveOverlay(this.HotItemStyle.Overlay);
+                }
+
                 this.hotItemStyle = value;
                 if (this.HotItemStyle != null)
+                {
                     this.AddOverlay(this.HotItemStyle.Overlay);
+                }
             }
         }
         private HotItemStyle hotItemStyle;
@@ -2367,6 +2459,7 @@ namespace BrightIdeasSoftware
             get { return this.DropSink != null; }
             set {
                 this.DropSink = value ? new SimpleDropSink() : null;
+                this.ownedDropSink = this.DropSink as SimpleDropSink;
             }
         }
 
@@ -2441,7 +2534,9 @@ namespace BrightIdeasSoftware
             set {
                 listFilter = value;
                 if (this.UseFiltering)
+                {
                     this.UpdateFiltering();
+                }
             }
         }
         private IListFilter listFilter;
@@ -2521,20 +2616,26 @@ namespace BrightIdeasSoftware
                     foreach (OLVGroup group in this.OLVGroups)
                     {
                         if (group.Collapsed)
+                        {
                             yield return group;
+                        }
                     }
                 }
             }
             set
             {
                 if (this.OLVGroups == null)
+                {
                     return;
+                }
 
                 Hashtable shouldCollapse = new Hashtable();
                 if (value != null)
                 {
                     foreach (OLVGroup group in value)
+                    {
                         shouldCollapse[group.Key] = true;
+                    }
                 }
                 foreach (OLVGroup group in this.OLVGroups)
                 {
@@ -2635,7 +2736,9 @@ namespace BrightIdeasSoftware
             get { return this.imageOverlay; }
             set {
                 if (this.imageOverlay == value)
+                {
                     return;
+                }
 
                 this.RemoveOverlay(this.imageOverlay);
                 this.imageOverlay = value;
@@ -2654,7 +2757,9 @@ namespace BrightIdeasSoftware
             get { return this.textOverlay; }
             set {
                 if (this.textOverlay == value)
+                {
                     return;
+                }
 
                 this.RemoveOverlay(this.textOverlay);
                 this.textOverlay = value;
@@ -2662,6 +2767,8 @@ namespace BrightIdeasSoftware
             }
         }
         private TextOverlay textOverlay;
+        private TextOverlay standardTextOverlay;
+        private TextOverlay standardEmptyListMsgOverlay;
 
         /// <summary>
         /// Gets or sets the transparency of all the overlays.
@@ -2732,7 +2839,10 @@ namespace BrightIdeasSoftware
             get { return persistentCheckBoxes; }
             set {
                 if (persistentCheckBoxes == value)
+                {
                     return;
+                }
+
                 persistentCheckBoxes = value;
                 this.ClearPersistentCheckState();
             }
@@ -2758,8 +2868,10 @@ namespace BrightIdeasSoftware
             get { return this.sortDescriptions.GetColumn(0); }
             set {
                 this.sortDescriptions.SetColumn(0, value);
-                if (this.TintSortColumn) 
+                if (this.TintSortColumn)
+                {
                     this.SelectedColumn = value;
+                }
             }
         }
 
@@ -2795,7 +2907,9 @@ namespace BrightIdeasSoftware
             IList<OLVSortDescription> descriptions = this.SortDescriptions;
             for (int i = 0; i < descriptions.Count; i++) {
                 if (descriptions[i].Column == column)
+                {
                     return i + 1;
+                }
             }
             return 0;
         }
@@ -2832,14 +2946,24 @@ namespace BrightIdeasSoftware
             get { return rowHeight; }
             set {
                 if (value < 1)
+                {
                     rowHeight = -1;
+                }
                 else
+                {
                     rowHeight = value;
+                }
+
                 if (this.DesignMode)
+                {
                     return;
+                }
+
                 this.SetupBaseImageList();
                 if (this.CheckBoxes)
+                {
                     this.InitializeStateImageList();
+                }
             }
         }
         private int rowHeight = -1;
@@ -2861,8 +2985,10 @@ namespace BrightIdeasSoftware
 
                     case View.LargeIcon:
                         if (this.LargeImageList == null)
+                        {
                             return this.Font.Height;
-                        
+                        }
+
                         return Math.Max(this.LargeImageList.ImageSize.Height, this.Font.Height);
 
                     default:
@@ -2929,7 +3055,9 @@ namespace BrightIdeasSoftware
             set {
                 if (value) {
                     if (this.SelectColumnsOnRightClickBehaviour == ColumnSelectBehaviour.None)
+                    {
                         this.SelectColumnsOnRightClickBehaviour = ColumnSelectBehaviour.InlineMenu;
+                    }
                 } else {
                     this.SelectColumnsOnRightClickBehaviour = ColumnSelectBehaviour.None;
                 }
@@ -2985,7 +3113,9 @@ namespace BrightIdeasSoftware
                     this.RemoveDecoration(this.selectedColumnDecoration);
                 } else {
                     if (!this.HasDecoration(this.selectedColumnDecoration))
+                    {
                         this.AddDecoration(this.selectedColumnDecoration);
+                    }
                 }
             }
         }
@@ -3033,7 +3163,9 @@ namespace BrightIdeasSoftware
             set {
                 this.SelectedIndices.Clear();
                 if (value >= 0 && value < this.Items.Count)
+                {
                     this.SelectedIndices.Add(value);
+                }
             }
         }
 
@@ -3049,7 +3181,9 @@ namespace BrightIdeasSoftware
             set {
                 this.SelectedIndices.Clear();
                 if (value != null)
+                {
                     this.SelectedIndices.Add(value.Index);
+                }
             }
         }
 
@@ -3069,7 +3203,9 @@ namespace BrightIdeasSoftware
                 // If the given model is already selected, don't do anything else (prevents an flicker)
                 object selectedObject = this.SelectedModelObject;
                 if (selectedObject != null && selectedObject.Equals(value))
+                {
                     return;
+                }
 
                 this.SelectedIndices.Clear();
                 this.SelectObject(value, true); 
@@ -3089,7 +3225,10 @@ namespace BrightIdeasSoftware
             get {
                 ArrayList list = new ArrayList();
                 foreach (int index in this.SelectedIndices)
-                  list.Add(this.GetModelAt(index));
+                {
+                    list.Add(this.GetModelAt(index));
+                }
+
                 return list;
             }
             set {
@@ -3132,7 +3271,9 @@ namespace BrightIdeasSoftware
         public new virtual bool ShowGroups {
             get { return base.ShowGroups; }
             set {
+#pragma warning disable CA2245 // Reinstall the native group image list.
                 this.GroupImageList = this.GroupImageList;
+#pragma warning restore CA2245
                 base.ShowGroups = value; 
             }
         }
@@ -3169,9 +3310,14 @@ namespace BrightIdeasSoftware
             set {
                 showImagesOnSubItems = value;
                 if (this.Created)
+                {
                     this.ApplyExtendedStyles();
+                }
+
                 if (value && this.VirtualMode)
+                {
                     this.OwnerDraw = true;
+                }
             }
         }
         private bool showImagesOnSubItems;
@@ -3220,20 +3366,28 @@ namespace BrightIdeasSoftware
             get { return ObjectListViewBase.IsVistaOrLater && showHeaderInAllViews; }
             set {
                 if (showHeaderInAllViews == value)
+                {
                     return;
+                }
 
                 showHeaderInAllViews = value;
 
                 // If the control isn't already created, everything is fine.
                 if (!this.Created)
+                {
                     return;
+                }
 
                 // If the header is being hidden, we have to recreate the control
                 // to remove the style (not sure why this is)
-                if (showHeaderInAllViews) 
+                if (showHeaderInAllViews)
+                {
                     this.ApplyExtendedStyles();
-                else 
+                }
+                else
+                {
                     this.RecreateHandle();
+                }
 
                 // Still more complications. The change doesn't become visible until the View is changed
                 if (this.View != View.Details) {
@@ -3260,7 +3414,10 @@ namespace BrightIdeasSoftware
             set {
                 this.shadowedImageList = value;
                 if (this.UseSubItemCheckBoxes)
+                {
                     this.SetupSubItemCheckBoxes();
+                }
+
                 this.SetupBaseImageList();
             }
         }
@@ -3305,7 +3462,9 @@ namespace BrightIdeasSoftware
             get { return this.spaceBetweenGroups; }
             set {
                 if (this.spaceBetweenGroups == value)
+                {
                     return;
+                }
 
                 this.spaceBetweenGroups = value;
                 this.SetGroupSpacing();
@@ -3315,7 +3474,9 @@ namespace BrightIdeasSoftware
 
         private void SetGroupSpacing() {
             if (!this.IsHandleCreated)
+            {
                 return;
+            }
 
             NativeMethods.LVGROUPMETRICS metrics = new NativeMethods.LVGROUPMETRICS();
             metrics.cbSize = ((uint)Marshal.SizeOf(typeof(NativeMethods.LVGROUPMETRICS)));
@@ -3335,9 +3496,13 @@ namespace BrightIdeasSoftware
             set {
                 this.tintSortColumn = value;
                 if (value && this.PrimarySortColumn != null)
+                {
                     this.SelectedColumn = this.PrimarySortColumn;
+                }
                 else
+                {
                     this.SelectedColumn = null;
+                }
             }
         }
         private bool tintSortColumn;
@@ -3358,7 +3523,10 @@ namespace BrightIdeasSoftware
             set {
                 triStateCheckBoxes = value;
                 if (value && !this.CheckBoxes)
+                {
                     this.CheckBoxes = true;
+                }
+
                 this.InitializeStateImageList();
             }
         }
@@ -3382,14 +3550,18 @@ namespace BrightIdeasSoftware
         public virtual int TopItemIndex {
             get {
                 if (this.View == View.Details && this.IsHandleCreated)
+                {
                     return NativeMethods.GetTopIndex(this);
-                
+                }
+
                 return -1;
             }
             set {
                 int newTopIndex = Math.Min(value, this.GetItemCount() - 1);
-                if (this.View != View.Details || newTopIndex < 0) 
+                if (this.View != View.Details || newTopIndex < 0)
+                {
                     return;
+                }
 
                 try {
                     this.TopItem = this.Items[newTopIndex];
@@ -3397,7 +3569,9 @@ namespace BrightIdeasSoftware
                     // Setting the TopItem sometimes gives off by one errors,
                     // that (bizarrely) are correct on a second attempt
                     if (this.TopItem != null && this.TopItem.Index != newTopIndex)
+                    {
                         this.TopItem = this.GetItem(newTopIndex);
+                    }
                 }
                 catch (NullReferenceException) {
                     // There is a bug in the .NET code where setting the TopItem
@@ -3588,7 +3762,9 @@ namespace BrightIdeasSoftware
                     // Do not replace WinForms' dark native theme with the classic Explorer theme.
                     NativeMethods.SetWindowTheme(this.Handle, ObjectListViewTheme.IsDarkMode ? "DarkMode_Explorer" : value ? "explorer" : "", null);
                     if (ObjectListViewTheme.IsDarkMode)
+                    {
                         NativeMethods.SetWindowTheme(NativeMethods.GetHeaderControl(this), "DarkMode_ItemsView", null);
+                    }
                 }
                 
                 this.OwnerDraw = !value;
@@ -3606,7 +3782,10 @@ namespace BrightIdeasSoftware
             get { return useFiltering; }
             set {
                 if (useFiltering == value)
+                {
                     return;
+                }
+
                 useFiltering = value;
                 this.UpdateFiltering();
             }
@@ -3626,10 +3805,16 @@ namespace BrightIdeasSoftware
             get { return useFilterIndicator; }
             set {
                 if (this.useFilterIndicator == value)
+                {
                     return;
+                }
+
                 useFilterIndicator = value;
                 if (this.useFilterIndicator)
+                {
                     this.HeaderUsesThemes = false;
+                }
+
                 this.Invalidate();
             }
         }
@@ -3665,9 +3850,13 @@ namespace BrightIdeasSoftware
             set {
                 this.useHotItem = value;
                 if (value)
+                {
                     this.AddOverlay(this.HotItemStyleOrDefault.Overlay);
+                }
                 else
+                {
                     this.RemoveOverlay(this.HotItemStyleOrDefault.Overlay);
+                }
             }
         }
         private bool useHotItem;
@@ -3683,7 +3872,9 @@ namespace BrightIdeasSoftware
             set {
                 this.useHyperlinks = value;
                 if (value && this.HyperlinkStyle == null)
+                {
                     this.HyperlinkStyle = new HyperlinkStyle();
+                }
             }
         }
         private bool useHyperlinks;
@@ -3716,7 +3907,9 @@ namespace BrightIdeasSoftware
             set {
                 this.useSubItemCheckBoxes = value;
                 if (value)
+                {
                     this.SetupSubItemCheckBoxes();
+                }
             }
         }
         private bool useSubItemCheckBoxes;
@@ -3753,7 +3946,9 @@ namespace BrightIdeasSoftware
                     rbd.CornerRounding = 6.0f;
                     this.SelectedRowDecoration = rbd;
                 } else
+                {
                     this.SelectedRowDecoration = null;
+                }
             }
         }
         private bool useTranslucentSelection;
@@ -3789,7 +3984,10 @@ namespace BrightIdeasSoftware
                     his.Decoration = rbd;
                     this.HotItemStyle = his;
                 } else
+                {
                     this.HotItemStyle = null;
+                }
+
                 this.UseHotItem = value;
             }
         }
@@ -3808,7 +4006,9 @@ namespace BrightIdeasSoftware
             get { return base.View; }
             set {
                 if (base.View == value)
+                {
                     return;
+                }
 
                 if (this.Frozen) {
                     base.View = value;
@@ -3817,7 +4017,9 @@ namespace BrightIdeasSoftware
                     this.Freeze();
 
                     if (value == View.Tile)
+                    {
                         this.CalculateReasonableTileSize();
+                    }
 
                     base.View = value;
                     this.SetupBaseImageList();
@@ -3844,11 +4046,15 @@ namespace BrightIdeasSoftware
         public virtual BooleanCheckStateGetterDelegate BooleanCheckStateGetter {
             set {
                 if (value == null)
+                {
                     this.CheckStateGetter = null;
+                }
                 else
+                {
                     this.CheckStateGetter = delegate(Object x) {
                         return value(x) ? CheckState.Checked : CheckState.Unchecked;
                     };
+                }
             }
         }
 
@@ -3867,12 +4073,16 @@ namespace BrightIdeasSoftware
         public virtual BooleanCheckStatePutterDelegate BooleanCheckStatePutter {
             set {
                 if (value == null)
+                {
                     this.CheckStatePutter = null;
+                }
                 else
+                {
                     this.CheckStatePutter = delegate(Object x, CheckState state) {
                         bool isChecked = (state == CheckState.Checked);
                         return value(x, isChecked) ? CheckState.Checked : CheckState.Unchecked;
                     };
+                }
             }
         }
 
@@ -3967,14 +4177,22 @@ namespace BrightIdeasSoftware
                     this.CheckStateGetter = delegate(Object modelObject) {
                         bool? result = this.checkedAspectMunger.GetValue(modelObject) as bool?;
                         if (result.HasValue)
+                        {
                             return result.Value ? CheckState.Checked : CheckState.Unchecked;
+                        }
+
                         return this.TriStateCheckBoxes ? CheckState.Indeterminate : CheckState.Unchecked;
                     };
                     this.CheckStatePutter = delegate(Object modelObject, CheckState newValue) {
                         if (this.TriStateCheckBoxes && newValue == CheckState.Indeterminate)
+                        {
                             this.checkedAspectMunger.PutValue(modelObject, null);
+                        }
                         else
+                        {
                             this.checkedAspectMunger.PutValue(modelObject, newValue == CheckState.Checked);
+                        }
+
                         return this.CheckStateGetter(modelObject);
                     };
                 }
@@ -4087,9 +4305,13 @@ namespace BrightIdeasSoftware
         /// <remarks>See AddObjects() for more details</remarks>
         public virtual void AddObject(object modelObject) {
             if (this.InvokeRequired)
+            {
                 this.Invoke((MethodInvoker)delegate() { this.AddObject(modelObject); });
+            }
             else
+            {
                 this.AddObjects(new object[] { modelObject });
+            }
         }
 
         /// <summary>
@@ -4174,18 +4396,24 @@ namespace BrightIdeasSoftware
         public virtual void BuildGroups(OLVColumn column, SortOrder order) {
             // Sanity
             if (this.GetItemCount() == 0 || this.Columns.Count == 0)
+            {
                 return;
+            }
 
             if (order == SortOrder.None) {
                 order = this.Sorting;
                 if (order == SortOrder.None)
+                {
                     order = SortOrder.Ascending;
+                }
             }
 
             BeforeSortingEventArgs args = this.BuildBeforeSortingEventArgs(column, order);
             this.OnBeforeSorting(args);
             if (args.Canceled)
+            {
                 return;
+            }
 
             this.BuildGroups(args.ColumnToGroupBy, args.GroupByOrder, args.SortDescriptions);
 
@@ -4202,11 +4430,16 @@ namespace BrightIdeasSoftware
             OLVColumn groupBy = this.AlwaysGroupByColumn ?? column ?? this.GetColumn(0);
             SortOrder groupByOrder = this.AlwaysGroupBySortOrder;
             if (groupByOrder == SortOrder.None)
+            {
                 groupByOrder = order;
+            }
 
             BeforeSortingEventArgs args = new BeforeSortingEventArgs(groupBy, groupByOrder, descriptions);
             foreach (OLVSortDescription description in descriptions)
+            {
                 args.Canceled |= description.Column != null && !description.Column.Sortable;
+            }
+
             return args;
         }
 
@@ -4240,13 +4473,15 @@ namespace BrightIdeasSoftware
             OLVColumn column, SortOrder order, OLVColumn secondaryColumn, SortOrder secondaryOrder) {
             // Sanity checks
             if (groupByColumn == null)
+            {
                 return;
+            }
 
             // Getting the Count forces any internal cache of the ListView to be flushed. Without
             // this, iterating over the Items will not work correctly if the ListView handle
             // has not yet been created.
 #pragma warning disable 168
-// ReSharper disable once UnusedVariable
+            // ReSharper disable once UnusedVariable
             int dummy = this.Items.Count;
 #pragma warning restore 168
 
@@ -4257,19 +4492,28 @@ namespace BrightIdeasSoftware
             // Trigger an event to let the world create groups if they want
             CreateGroupsEventArgs args = new CreateGroupsEventArgs(parms);
             if (parms.GroupByColumn != null)
+            {
                 args.Canceled = !parms.GroupByColumn.Groupable;
+            }
+
             this.OnBeforeCreatingGroups(args);
             if (args.Canceled)
+            {
                 return;
+            }
 
             // If the event didn't create them for us, use our default strategy
-            if (args.Groups == null) 
+            if (args.Groups == null)
+            {
                 args.Groups = this.MakeGroups(parms);
+            }
 
             // Give the world a chance to munge the groups before they are created
             this.OnAboutToCreateGroups(args);
             if (args.Canceled)
+            {
                 return;
+            }
 
             // Create the groups now
             this.OLVGroups = args.Groups;
@@ -4325,9 +4569,13 @@ namespace BrightIdeasSoftware
             NullableDictionary<object, List<OLVListItem>> map = new NullableDictionary<object, List<OLVListItem>>();
             foreach (OLVListItem olvi in parms.ListView.Items) {
                 object key = parms.GroupByColumn.GetGroupKey(olvi.RowObject);
-                if (!map.ContainsKey(key))
-                    map[key] = new List<OLVListItem>();
-                map[key].Add(olvi);
+                if (!map.TryGetValue(key, out List<OLVListItem> groupItems))
+                {
+                    groupItems = new List<OLVListItem>();
+                    map[key] = groupItems;
+                }
+
+                groupItems.Add(olvi);
             }
 
             // Sort the items within each group (unless specifically turned off)
@@ -4345,13 +4593,18 @@ namespace BrightIdeasSoftware
                 OLVGroup lvg = parms.CreateGroup(key, map[key].Count, HasCollapsibleGroups);
                 lvg.Items = map[key];
                 if (parms.GroupByColumn.GroupFormatter != null)
+                {
                     parms.GroupByColumn.GroupFormatter(lvg, parms);
+                }
+
                 groups.Add(lvg);
             }
 
             // Sort the groups
             if (parms.GroupByOrder != SortOrder.None)
+            {
                 groups.Sort(parms.GroupComparer ?? new OLVGroupComparer(parms.GroupByOrder));
+            }
 
             return groups;
         }
@@ -4361,9 +4614,13 @@ namespace BrightIdeasSoftware
         /// </summary>
         public virtual void BuildList() {
             if (this.InvokeRequired)
+            {
                 this.Invoke(new MethodInvoker(this.BuildList));
+            }
             else
+            {
                 this.BuildList(true);
+            }
         }
 
         /// <summary>
@@ -4381,7 +4638,9 @@ namespace BrightIdeasSoftware
         public virtual void BuildList(bool shouldPreserveState) {
             this.InvalidateModelRows();
             if (this.Frozen)
+            {
                 return;
+            }
 
             Stopwatch sw = Stopwatch.StartNew();
 
@@ -4396,7 +4655,9 @@ namespace BrightIdeasSoftware
                 previousSelection = this.SelectedModelObjects;
                 OLVListItem focusedItem = this.FocusedItem as OLVListItem;
                 if (focusedItem != null)
+                {
                     previousFocus = focusedItem.RowObject;
+                }
             }
 
             IEnumerable objectsToDisplay = this.FilteredObjects;
@@ -4435,9 +4696,13 @@ namespace BrightIdeasSoftware
                 // Restore the scroll position. TopItemIndex is best, but doesn't work
                 // when the control is grouped.
                 if (this.ShowGroups)
+                {
                     this.LowLevelScroll(currentScrollPosition.X, currentScrollPosition.Y);
+                }
                 else
+                {
                     this.TopItemIndex = previousTopIndex;
+                }
             }
 
             // System.Diagnostics.Debug.WriteLine(String.Format("PERF - Building list for {2} objects took {0}ms / {1} ticks", sw.ElapsedMilliseconds, sw.ElapsedTicks, this.GetItemCount()));
@@ -4476,10 +4741,14 @@ namespace BrightIdeasSoftware
             int style = 0;
 
             if (this.ShowImagesOnSubItems && !this.VirtualMode)
+            {
                 style ^= LVS_EX_SUBITEMIMAGES;
+            }
 
             if (this.ShowHeaderInAllViews)
+            {
                 style ^= LVS_EX_HEADERINALLVIEWS;
+            }
 
             NativeMethods.SetExtendedStyle(this, style, STYLE_MASK);
         }
@@ -4490,7 +4759,9 @@ namespace BrightIdeasSoftware
         /// </summary>
         public virtual void CalculateReasonableTileSize() {
             if (this.Columns.Count <= 0)
+            {
                 return;
+            }
 
             List<OLVColumn> columns = this.AllColumns.FindAll(delegate(OLVColumn x) {
                 return (x.Index == 0) || x.IsTileViewColumn;
@@ -4521,7 +4792,9 @@ namespace BrightIdeasSoftware
                 for (int index = 0; index < columns.Count; index++)
                 {
                     if (columns[index].LastDisplayIndex == -1)
+                    {
                         columns[index].LastDisplayIndex = index;
+                    }
                 }
                 // ListView will ignore DisplayIndex FOR ALL COLUMNS if there are any errors, 
                 // e.g. duplicates (two columns with the same DisplayIndex) or gaps. 
@@ -4531,13 +4804,18 @@ namespace BrightIdeasSoftware
                 IEnumerable<OLVColumn> columnsInDisplayOrder = columns.OrderBy(column => column.LastDisplayIndex);
                 int i = 0;
                 foreach (OLVColumn col in columnsInDisplayOrder)
+                {
                     col.DisplayIndex = i++;
+                }
             }
 
 // ReSharper disable once CoVariantArrayConversion
             this.Columns.AddRange(columns.ToArray());
             if (view == View.Details || this.ShowHeaderInAllViews)
+            {
                 this.ShowSortIndicator();
+            }
+
             this.UpdateFiltering();
             this.Unfreeze();
 
@@ -4553,9 +4831,13 @@ namespace BrightIdeasSoftware
         /// <remark>This method can safely be called from background threads.</remark>
         public virtual void ClearObjects() {
             if (this.InvokeRequired)
+            {
                 this.Invoke(new MethodInvoker(this.ClearObjects));
+            }
             else
+            {
                 this.SetObjects(null);
+            }
         }
 
         /// <summary>
@@ -4574,14 +4856,18 @@ namespace BrightIdeasSoftware
         public virtual void CopySelectionToClipboard() {
             IList selection = this.SelectedModelObjects;
             if (selection.Count == 0)
+            {
                 return;
+            }
 
             // Use the DragSource object to create the data object, if so configured.
             // This relies on the assumption that DragSource will handle the selected objects only.
             // It is legal for StartDrag to return null.
             object data = null;
             if (this.CopySelectionOnControlCUsesDragSource && this.DragSource != null)
+            {
                 data = this.DragSource.StartDrag(this, MouseButtons.Left, this.ModelToItem(selection[0]));
+            }
 
             Clipboard.SetDataObject(data ?? new OLVDataObject(this, selection));
         }
@@ -4593,12 +4879,13 @@ namespace BrightIdeasSoftware
         /// the clipboard unchanged. Call this method on an STA thread.</remarks>
         /// <exception cref="ArgumentNullException">The input sequence is null.</exception>
         public virtual void CopyObjectsToClipboard(IEnumerable objectsToCopy) {
-            if (objectsToCopy == null)
-                throw new ArgumentNullException("objectsToCopy");
+            ArgumentNullException.ThrowIfNull(objectsToCopy, nameof(objectsToCopy));
 
             ArrayList snapshot = ObjectListViewBase.EnumerableToArray(objectsToCopy, true);
             if (snapshot.Count == 0)
+            {
                 return;
+            }
 
             // We don't know where these objects came from, so we can't use the DragSource to create
             // the data object, like we do with CopySelectionToClipboard() above.
@@ -4612,7 +4899,9 @@ namespace BrightIdeasSoftware
         /// </summary>
         public virtual string ObjectsToHtml(IList objectsToConvert) {
             if (objectsToConvert.Count == 0)
+            {
                 return String.Empty;
+            }
 
             OLVExporter exporter = new OLVExporter(this, objectsToConvert);
             return exporter.ExportTo(OLVExporter.ExportFormat.HTML);
@@ -4638,18 +4927,30 @@ namespace BrightIdeasSoftware
                 foreach (ListViewGroup group in this.Groups) {
                     foreach (OLVListItem olvi in group.Items) {
                         if (isFound)
+                        {
                             return olvi;
+                        }
+
                         isFound = (itemToFind == olvi);
                     }
                 }
                 return null;
             }
             if (this.GetItemCount() == 0)
+            {
                 return null;
+            }
+
             if (itemToFind == null)
+            {
                 return this.GetItem(0);
+            }
+
             if (itemToFind.Index == this.GetItemCount() - 1)
+            {
                 return null;
+            }
+
             return this.GetItem(itemToFind.Index + 1);
         }
 
@@ -4661,12 +4962,16 @@ namespace BrightIdeasSoftware
         /// <returns></returns>
         public virtual OLVListItem GetLastItemInDisplayOrder() {
             if (!this.ShowGroups)
+            {
                 return this.GetItem(this.GetItemCount() - 1);
-            
+            }
+
             if (this.Groups.Count > 0) {
                 ListViewGroup lastGroup = this.Groups[this.Groups.Count - 1];
                 if (lastGroup.Items.Count > 0)
+                {
                     return (OLVListItem)lastGroup.Items[lastGroup.Items.Count - 1];
+                }
             }
 
             return null;
@@ -4681,11 +4986,15 @@ namespace BrightIdeasSoftware
         /// <returns></returns>
         public virtual OLVListItem GetNthItemInDisplayOrder(int n) {
             if (!this.ShowGroups || this.Groups.Count == 0)
+            {
                 return this.GetItem(n);
+            }
 
             foreach (ListViewGroup group in this.Groups) {
                 if (n < group.Items.Count)
+                {
                     return (OLVListItem)group.Items[n];
+                }
 
                 n -= group.Items.Count;
             }
@@ -4702,14 +5011,19 @@ namespace BrightIdeasSoftware
         /// <returns></returns>
         public virtual int GetDisplayOrderOfItemIndex(int itemIndex) {
             if (!this.ShowGroups || this.Groups.Count == 0)
+            {
                 return itemIndex;
+            }
 
             // TODO: This could be optimized
             int i = 0;
             foreach (ListViewGroup lvg in this.Groups) {
                 foreach (ListViewItem lvi in lvg.Items) {
                     if (lvi.Index == itemIndex)
+                    {
                         return i;
+                    }
+
                     i++;
                 }
             }
@@ -4730,19 +5044,30 @@ namespace BrightIdeasSoftware
                 foreach (ListViewGroup group in this.Groups) {
                     foreach (OLVListItem lvi in group.Items) {
                         if (lvi == itemToFind)
+                        {
                             return previousItem;
-                        
+                        }
+
                         previousItem = lvi;
                     }
                 }
                 return itemToFind == null ? previousItem : null;
             }
             if (this.GetItemCount() == 0)
+            {
                 return null;
+            }
+
             if (itemToFind == null)
+            {
                 return this.GetItem(this.GetItemCount() - 1);
+            }
+
             if (itemToFind.Index == 0)
+            {
                 return null;
+            }
+
             return this.GetItem(itemToFind.Index - 1);
         }
 
@@ -4769,7 +5094,9 @@ namespace BrightIdeasSoftware
                 return;
             }
             if (modelObjects == null)
+            {
                 return;
+            }
 
             ICollection snapshot = this.MaterializeModelObjects(modelObjects);
             this.BeginUpdate();
@@ -4778,7 +5105,10 @@ namespace BrightIdeasSoftware
                 ItemsAddingEventArgs args = new ItemsAddingEventArgs(snapshot);
                 this.OnItemsAdding(args);
                 if (args.Canceled)
+                {
                     return;
+                }
+
                 snapshot = this.MaterializeModelObjects(args.ObjectsToAdd);
 
                 this.TakeOwnershipOfObjects();
@@ -4891,7 +5221,9 @@ namespace BrightIdeasSoftware
                         indicesToRemove.Add(i);
                         this.RemoveStoredModelObject(modelObject);
                         if (i <= index)
+                        {
                             index--;
+                        }
                     }
                 }
             }
@@ -4938,16 +5270,22 @@ namespace BrightIdeasSoftware
 
             // If it's not even in the control, don't bother with anything else
             if (!this.ClientRectangle.Contains(x, y))
+            {
                 return new OlvListViewHitTestInfo(null, null, 0, null, 0);
+            }
 
             // If there are no columns, also don't bother with anything else
             if (this.Columns.Count == 0)
+            {
                 return new OlvListViewHitTestInfo(null, null, 0, null, 0);
+            }
 
             // Is the point over the header?
             OlvListViewHitTestInfo.HeaderHitTestInfo headerHitTestInfo = this.HeaderControl.HitTest(x, y);
-            if (headerHitTestInfo != null) 
+            if (headerHitTestInfo != null)
+            {
                 return new OlvListViewHitTestInfo(this, headerHitTestInfo.ColumnIndex, headerHitTestInfo.IsOverCheckBox, headerHitTestInfo.OverDividerIndex);
+            }
 
             // Call the native hit test method, which is a little confusing.
             NativeMethods.LVHITTESTINFO lParam = new NativeMethods.LVHITTESTINFO();
@@ -5036,9 +5374,14 @@ namespace BrightIdeasSoftware
                     // - cell 0 at the left edge of the screen
                     hti = this.LowLevelHitTest(sides.Y + 4, y);
                     if (hti.Item == null)
+                    {
                         hti = this.LowLevelHitTest(sides.X - 4, y);
+                    }
+
                     if (hti.Item == null)
+                    {
                         hti = this.LowLevelHitTest(4, y);
+                    }
 
                     if (hti.Item != null) {
                         // We hit something! So, the original point must have been in cell 0
@@ -5051,9 +5394,13 @@ namespace BrightIdeasSoftware
             }
 
             if (this.OwnerDraw)
+            {
                 this.CalculateOwnerDrawnHitTest(hti, x, y);
+            }
             else
+            {
                 this.CalculateStandardHitTest(hti, x, y);
+            }
 
             return hti;
         }
@@ -5069,7 +5416,9 @@ namespace BrightIdeasSoftware
             // Standard hit test works fine for the primary column
             if (this.View != View.Details || hti.ColumnIndex == 0 ||
                 hti.SubItem == null || hti.Column == null)
+            {
                 return;
+            }
 
             Rectangle cellBounds = hti.SubItem.Bounds;
             bool hasImage = (this.GetActualImageIndex(hti.SubItem.ImageSelector) != -1);
@@ -5098,7 +5447,9 @@ namespace BrightIdeasSoftware
             Rectangle textBounds = cellBounds;
             textBounds.X += 4;
             if (hasImage)
+            {
                 textBounds.X += this.SmallImageSize.Width;
+            }
 
             Size proposedSize = new Size(textBounds.Width, textBounds.Height);
             Size textSize = TextRenderer.MeasureText(hti.SubItem.Text, this.Font, proposedSize, TextFormatFlags.EndEllipsis | TextFormatFlags.SingleLine | TextFormatFlags.NoPrefix);
@@ -5127,11 +5478,15 @@ namespace BrightIdeasSoftware
         protected virtual void CalculateOwnerDrawnHitTest(OlvListViewHitTestInfo hti, int x, int y) {
             // If the click wasn't on an item, give up
             if (hti.Item == null)
+            {
                 return;
+            }
 
             // If the list is showing column, but they clicked outside the columns, also give up
             if (this.View == View.Details && hti.Column == null)
+            {
                 return;
+            }
 
             // Which renderer was responsible for drawing that point
             IRenderer renderer = this.View == View.Details
@@ -5140,7 +5495,9 @@ namespace BrightIdeasSoftware
 
             // We can't decide who was responsible. Give up
             if (renderer == null)
+            {
                 return;
+            }
 
             // Ask the responsible renderer what is at that point
             renderer.HitTest(hti, x, y);
@@ -5177,9 +5534,13 @@ namespace BrightIdeasSoftware
         /// </remarks>
         public virtual void RemoveObject(object modelObject) {
             if (this.InvokeRequired)
+            {
                 this.Invoke((MethodInvoker)delegate() { this.RemoveObject(modelObject); });
+            }
             else
+            {
                 this.RemoveObjects(new object[] { modelObject });
+            }
         }
 
         /// <summary>
@@ -5196,7 +5557,9 @@ namespace BrightIdeasSoftware
                 return;
             }
             if (modelObjects == null)
+            {
                 return;
+            }
 
             ICollection snapshot = this.MaterializeModelObjects(modelObjects);
             this.BeginUpdate();
@@ -5205,7 +5568,10 @@ namespace BrightIdeasSoftware
                 ItemsRemovingEventArgs args = new ItemsRemovingEventArgs(snapshot);
                 this.OnItemsRemoving(args);
                 if (args.Canceled)
+                {
                     return;
+                }
+
                 snapshot = this.MaterializeModelObjects(args.ObjectsToRemove);
 
                 this.TakeOwnershipOfObjects();
@@ -5214,7 +5580,9 @@ namespace BrightIdeasSoftware
                         this.RemoveStoredModelObject(modelObject);
                         int i = this.IndexOf(modelObject);
                         if (i >= 0)
+                        {
                             this.Items.RemoveAt(i);
+                        }
                     }
                 }
                 this.PostProcessRows();
@@ -5323,7 +5691,10 @@ namespace BrightIdeasSoftware
             ItemsChangingEventArgs args = new ItemsChangingEventArgs(this.ModelObjects, snapshot);
             this.OnItemsChanging(args);
             if (args.Canceled)
+            {
                 return;
+            }
+
             this.SetStoredModelObjects(args.NewObjects == null ? null : this.MaterializeModelObjects(args.NewObjects));
             this.BuildList(preserveState);
 
@@ -5346,9 +5717,13 @@ namespace BrightIdeasSoftware
         /// </remarks>
         public virtual void UpdateObject(object modelObject) {
             if (this.InvokeRequired)
+            {
                 this.Invoke((MethodInvoker)delegate() { this.UpdateObject(modelObject); });
+            }
             else
+            {
                 this.UpdateObjects(new object[] { modelObject });
+            }
         }
 
         /// <summary>
@@ -5368,7 +5743,9 @@ namespace BrightIdeasSoftware
                 return;
             }
             if (modelObjects == null || modelObjects.Count == 0)
+            {
                 return;
+            }
 
             ICollection snapshot = this.MaterializeModelObjects(modelObjects);
             this.BeginUpdate();
@@ -5381,7 +5758,9 @@ namespace BrightIdeasSoftware
                 foreach (object modelObject in snapshot) {
                     if (modelObject != null) {
                         if (!this.ReplaceStoredModelObject(modelObject, modelObject))
+                        {
                             objectsToAdd.Add(modelObject);
+                        }
                         else {
                             OLVListItem olvi = this.ModelToItem(modelObject);
                             if (olvi != null) {
@@ -5413,7 +5792,9 @@ namespace BrightIdeasSoftware
         /// <param name="collection"></param>
         protected virtual void UpdateNotificationSubscriptions(IEnumerable collection) {
             if (!this.UseNotifyPropertyChanged)
+            {
                 return;
+            }
 
             // We could calculate a symmetric difference between the old models and the new models
             // except that we don't have the previous models at this point.
@@ -5442,12 +5823,19 @@ namespace BrightIdeasSoftware
             get { return this.useNotifyPropertyChanged; }
             set {
                 if (this.useNotifyPropertyChanged == value)
+                {
                     return;
+                }
+
                 this.useNotifyPropertyChanged = value;
                 if (value)
+                {
                     this.SubscribeNotifications(this.ModelObjects);
+                }
                 else
+                {
                     this.UnsubscribeNotifications(null);
+                }
             }
         }
         private bool useNotifyPropertyChanged;
@@ -5458,7 +5846,10 @@ namespace BrightIdeasSoftware
         /// <param name="models"></param>
         protected void SubscribeNotifications(IEnumerable models) {
             if (!this.UseNotifyPropertyChanged || models == null)
+            {
                 return;
+            }
+
             foreach (object x in models) {
                 INotifyPropertyChanged notifier = x as INotifyPropertyChanged;
                 if (notifier != null && !subscribedModels.ContainsKey(notifier)) {
@@ -5550,17 +5941,20 @@ namespace BrightIdeasSoftware
         /// <returns>Returns true if the state was restored. Invalid, incompatible, and legacy
         /// BinaryFormatter layouts return false without changing the control.</returns>
         public virtual bool RestoreState(byte[] state) {
-            if (state == null)
-                throw new ArgumentNullException("state");
+            ArgumentNullException.ThrowIfNull(state, nameof(state));
 
             // Validate length before allocating or reading. Each column has two Int32s and one byte.
             if (state.LongLength != 25L + 9L * this.AllColumns.Count)
+            {
                 return false;
+            }
 
             using (BinaryReader reader = new BinaryReader(new MemoryStream(state, false))) {
                 if (reader.ReadInt32() != 0x53564C4F || reader.ReadInt32() != 1 ||
                     reader.ReadInt32() != this.AllColumns.Count)
+                {
                     return false;
+                }
 
                 int view = reader.ReadInt32();
                 int sortColumn = reader.ReadInt32();
@@ -5570,7 +5964,9 @@ namespace BrightIdeasSoftware
                     sortColumn < -1 || sortColumn >= this.AllColumns.Count ||
                     sortOrder < (int)SortOrder.None || sortOrder > (int)SortOrder.Descending ||
                     showGroups > 1)
+                {
                     return false;
+                }
 
                 int[] widths = new int[this.AllColumns.Count];
                 int[] displayIndices = new int[this.AllColumns.Count];
@@ -5581,13 +5977,19 @@ namespace BrightIdeasSoftware
                     byte isVisible = reader.ReadByte();
                     // Hidden columns can retain ordering keys beyond the current count after removals.
                     if (widths[i] < -2 || displayIndices[i] < -1 || isVisible > 1)
+                    {
                         return false;
+                    }
+
                     visible[i] = isVisible == 1;
                 }
 
                 // Establish DPI-scaled limits before restoring device-pixel widths.
                 if (!this.IsHandleCreated)
+                {
                     this.CreateHandle();
+                }
+
                 this.PrimarySortColumn = sortColumn == -1 ? null : this.AllColumns[sortColumn];
                 this.PrimarySortOrder = sortColumn == -1 ? SortOrder.None : (SortOrder)sortOrder;
                 for (int i = 0; i < this.AllColumns.Count; i++) {
@@ -5597,11 +5999,18 @@ namespace BrightIdeasSoftware
                     column.LastDisplayIndex = displayIndices[i];
                 }
                 if ((showGroups == 1) != this.ShowGroups)
+                {
                     this.ShowGroups = showGroups == 1;
+                }
+
                 if (this.View == (View)view)
+                {
                     this.RebuildColumns();
+                }
                 else
+                {
                     this.View = (View)view;
+                }
             }
 
             return true;
@@ -5653,7 +6062,9 @@ namespace BrightIdeasSoftware
 
                 // Force any empty list msg to redraw when the list is scrolled horizontally
                 if (this.GetItemCount() == 0)
+                {
                     this.Invalidate();
+                }
             }
             if (nmlvscroll.dy != 0) {
                 int scrollPositionV = NativeMethods.GetScrollPosition(this, false);
@@ -5736,7 +6147,9 @@ namespace BrightIdeasSoftware
         protected virtual void HandleHeaderToolTipShowing(object sender, ToolTipShowingEventArgs e) {
             e.ColumnIndex = this.HeaderControl.ColumnIndexUnderCursor;
             if (e.ColumnIndex < 0)
+            {
                 return;
+            }
 
             e.RowIndex = -1;
             e.Model = null;
@@ -5758,7 +6171,9 @@ namespace BrightIdeasSoftware
         /// </summary>
         protected virtual void HandleColumnClick(ColumnClickEventArgs e, Keys modifiers) {
             if (!this.PossibleFinishCellEditing())
+            {
                 return;
+            }
 
             OLVColumn column = this.GetColumn(e.Column);
             bool addToSort = (modifiers & Keys.Shift) == Keys.Shift;
@@ -5793,7 +6208,10 @@ namespace BrightIdeasSoftware
             switch (m.Msg) {
                 case 2: // WM_DESTROY
                     if (!this.HandleDestroy(ref m))
+                    {
                         base.WndProc(ref m);
+                    }
+
                     break;
                 //case 0x14: // WM_ERASEBKGND
                 //    Can't do anything here since, when the control is double buffered, anything
@@ -5801,46 +6219,76 @@ namespace BrightIdeasSoftware
                 //    break;
                 case 0x0F: // WM_PAINT
                     if (!this.HandlePaint(ref m))
+                    {
                         base.WndProc(ref m);
+                    }
+
                     break;
                 case 0x46: // WM_WINDOWPOSCHANGING
                     if (this.PossibleFinishCellEditing() && !this.HandleWindowPosChanging(ref m))
+                    {
                         base.WndProc(ref m);
+                    }
+
                     break;
                 case 0x4E: // WM_NOTIFY
                     if (!this.HandleNotify(ref m))
+                    {
                         base.WndProc(ref m);
+                    }
+
                     break;
                 case 0x0100: // WM_KEY_DOWN
                     if (!this.HandleKeyDown(ref m))
+                    {
                         base.WndProc(ref m);
+                    }
+
                     break;
                 case 0x0102: // WM_CHAR
                     if (!this.HandleChar(ref m))
+                    {
                         base.WndProc(ref m);
+                    }
+
                     break;
                 case 0x0200: // WM_MOUSEMOVE
                     if (!this.HandleMouseMove(ref m))
+                    {
                         base.WndProc(ref m);
+                    }
+
                     break;
                 case 0x0201: // WM_LBUTTONDOWN
                     // System.Diagnostics.Debug.WriteLine("WM_LBUTTONDOWN");
                     if (this.PossibleFinishCellEditing() && !this.HandleLButtonDown(ref m))
+                    {
                         base.WndProc(ref m);
+                    }
+
                     break;
                 case 0x202:  // WM_LBUTTONUP
                     // System.Diagnostics.Debug.WriteLine("WM_LBUTTONUP");
                     if (this.PossibleFinishCellEditing() && !this.HandleLButtonUp(ref m))
+                    {
                         base.WndProc(ref m);
+                    }
+
                     break;
                 case 0x0203: // WM_LBUTTONDBLCLK
                     if (this.PossibleFinishCellEditing() && !this.HandleLButtonDoubleClick(ref m))
+                    {
                         base.WndProc(ref m);
+                    }
+
                     break;
                 case 0x0204: // WM_RBUTTONDOWN
                     // System.Diagnostics.Debug.WriteLine("WM_RBUTTONDOWN");
-                    if (this.PossibleFinishCellEditing() && !this.HandleRButtonDown(ref m)) 
+                    if (this.PossibleFinishCellEditing() && !this.HandleRButtonDown(ref m))
+                    {
                         base.WndProc(ref m);
+                    }
+
                     break;
                 case 0x0205: // WM_RBUTTONUP
                     // System.Diagnostics.Debug.WriteLine("WM_RBUTTONUP");
@@ -5848,28 +6296,46 @@ namespace BrightIdeasSoftware
                     break;
                 case 0x0206: // WM_RBUTTONDBLCLK
                     if (this.PossibleFinishCellEditing() && !this.HandleRButtonDoubleClick(ref m))
+                    {
                         base.WndProc(ref m);
+                    }
+
                     break;
                 case 0x204E: // WM_REFLECT_NOTIFY
                     if (!this.HandleReflectNotify(ref m))
+                    {
                         base.WndProc(ref m);
+                    }
+
                     break;
                 case 0x114: // WM_HSCROLL:
                 case 0x115: // WM_VSCROLL:
                     //System.Diagnostics.Debug.WriteLine("WM_VSCROLL");
                     if (this.PossibleFinishCellEditing())
+                    {
                         base.WndProc(ref m);
+                    }
+
                     break;
                 case 0x20A: // WM_MOUSEWHEEL:
                 case 0x20E: // WM_MOUSEHWHEEL:
                     if (this.AllowCellEditorsToProcessMouseWheel && this.IsCellEditing)
+                    {
                         break;
+                    }
+
                     if (this.PossibleFinishCellEditing())
+                    {
                         base.WndProc(ref m);
+                    }
+
                     break;
                 case 0x7B: // WM_CONTEXTMENU
                     if (!this.HandleContextMenu(ref m))
+                    {
                         base.WndProc(ref m);
+                    }
+
                     break;
                 case 0x1000 + 18: // LVM_HITTEST:
                     //System.Diagnostics.Debug.WriteLine("LVM_HITTEST");
@@ -5896,7 +6362,9 @@ namespace BrightIdeasSoftware
             // Trigger a normal KeyPress event, which listeners can handle if they want.
             // Handling the event stops ObjectListView's fancy search-by-typing.
             if (this.ProcessKeyEventArgs(ref m))
+            {
                 return true;
+            }
 
             const int MILLISECONDS_BETWEEN_KEYPRESSES = 1000;
 
@@ -5909,9 +6377,13 @@ namespace BrightIdeasSoftware
             }
 
             if (System.Environment.TickCount < (this.timeLastCharEvent + MILLISECONDS_BETWEEN_KEYPRESSES))
+            {
                 this.lastSearchString += character;
+            }
             else
+            {
                 this.lastSearchString = character.ToString(CultureInfo.InvariantCulture);
+            }
 
             // If this control is showing checkboxes, we want to ignore single space presses,
             // since they are used to toggle the selected checkboxes.
@@ -5931,7 +6403,9 @@ namespace BrightIdeasSoftware
                 if (this.lastSearchString.Length == 1) {
                     start += 1;
                     if (start == this.GetItemCount())
+                    {
                         start = 0;
+                    }
                 }
             }
 
@@ -5939,7 +6413,9 @@ namespace BrightIdeasSoftware
             BeforeSearchingEventArgs args = new BeforeSearchingEventArgs(this.lastSearchString, start);
             this.OnBeforeSearching(args);
             if (args.Canceled)
+            {
                 return true;
+            }
 
             // The parameters of the search may have been changed
             string searchString = args.StringToFind;
@@ -5955,7 +6431,10 @@ namespace BrightIdeasSoftware
                     OLVListItem lvi = this.GetNthItemInDisplayOrder(found);
                     if (lvi != null) {
                         if (lvi.Enabled)
+                        {
                             lvi.Selected = true;
+                        }
+
                         lvi.Focused = true;
                         this.EnsureVisible(lvi.Index);
                     }
@@ -5969,7 +6448,9 @@ namespace BrightIdeasSoftware
             this.OnAfterSearching(args2);
             if (!args2.Handled) {
                 if (found < 0)
+                {
                     System.Media.SystemSounds.Beep.Play();
+                }
             }
 
             // When did this event occur?
@@ -5990,21 +6471,29 @@ namespace BrightIdeasSoftware
         protected virtual bool HandleContextMenu(ref Message m) {
             // Don't try to handle context menu commands at design time.
             if (this.DesignMode)
+            {
                 return false;
+            }
 
             // If the context menu command was generated by the keyboard, LParam will be -1.
             // We don't want to process these.
             if (m.LParam == this.minusOne)
+            {
                 return false;
+            }
 
             // If the context menu came from somewhere other than the header control,
             // we also don't want to ignore it
             if (m.WParam != this.HeaderControl.Handle)
+            {
                 return false;
+            }
 
             // OK. Looks like a right click in the header
             if (!this.PossibleFinishCellEditing())
+            {
                 return true;
+            }
 
             int columnIndex = this.HeaderControl.ColumnIndexUnderCursor;
             return this.HandleHeaderRightClick(columnIndex);
@@ -6041,13 +6530,17 @@ namespace BrightIdeasSoftware
             // are spurious and only serve to make the control flicker annoyingly.
             // So, we ignore messages that are outside of a paint event.
             if (!this.isInWmPaintEvent)
+            {
                 return true;
+            }
 
             // One more complication! Sometimes with owner drawn virtual lists, the act of drawing
             // the overlays triggers a second attempt to paint the control -- which makes an annoying
             // flicker. So, we only do the custom drawing once per WmPaint event.
             if (!this.shouldDoCustomDrawing)
+            {
                 return true;
+            }
 
             NativeMethods.NMLVCUSTOMDRAW nmcustomdraw = (NativeMethods.NMLVCUSTOMDRAW)m.GetLParam(typeof(NativeMethods.NMLVCUSTOMDRAW));
             //System.Diagnostics.Debug.WriteLine(String.Format("cd: {0:x}, {1}, {2}", nmcustomdraw.nmcd.dwDrawStage, nmcustomdraw.dwItemType, nmcustomdraw.nmcd.dwItemSpec));
@@ -6072,7 +6565,9 @@ namespace BrightIdeasSoftware
                     //System.Diagnostics.Debug.WriteLine("CDDS_PREPAINT");
                     // Remember which items were drawn during this paint cycle
                     if (this.prePaintLevel == 0)
+                    {
                         this.drawnItems = new List<OLVListItem>();
+                    }
 
                     // If there are any items, we have to wait until at least one has been painted
                     // before we draw the overlays. If there aren't any items, there will never be any
@@ -6121,7 +6616,9 @@ namespace BrightIdeasSoftware
                     // completely owner drawn, those erasures don't happen.
                     if (this.View == View.Tile) {
                         if (this.OwnerDraw && this.ItemRenderer != null)
+                        {
                             base.WndProc(ref m);
+                        }
                     } else {
                         base.WndProc(ref m);
                     }
@@ -6134,9 +6631,11 @@ namespace BrightIdeasSoftware
                     // Remember which items have been drawn so we can draw any decorations for them
                     // once all other painting is finished
                     if (this.Columns.Count > 0) {
-                        OLVListItem olvi = this.GetItem((int)nmcustomdraw.nmcd.dwItemSpec);
+                        OLVListItem olvi = this.GetItem(checked((int)nmcustomdraw.nmcd.dwItemSpec));
                         if (olvi != null)
+                        {
                             this.drawnItems.Add(olvi);
+                        }
                     }
                     break;
 
@@ -6156,21 +6655,29 @@ namespace BrightIdeasSoftware
                     // trigger our own DrawSubItem, and then prevent the default processing from occurring.
 
                     // Are we owner drawing column 0 when it's in any column except 0?
-                    if (!this.OwnerDraw) 
-                         return false;
+                    if (!this.OwnerDraw)
+                    {
+                        return false;
+                    }
 
                     int columnIndex = nmcustomdraw.iSubItem;
                     if (columnIndex != 0)
+                    {
                         return false;
+                    }
 
                     int displayIndex = this.Columns[0].DisplayIndex;
                     if (displayIndex == 0)
+                    {
                         return false;
+                    }
 
-                    int rowIndex = (int)nmcustomdraw.nmcd.dwItemSpec;
+                    int rowIndex = checked((int)nmcustomdraw.nmcd.dwItemSpec);
                     OLVListItem item = this.GetItem(rowIndex);
                     if (item == null)
+                    {
                         return false;
+                    }
 
                     // OK. We have the error condition, so lets do what the .NET framework should do.
                     // Trigger an event to draw column 0 when it is not at display index 0
@@ -6259,7 +6766,9 @@ namespace BrightIdeasSoftware
 
             // We can only handle string searches
             if ((findInfo.flags & LVFI_STRING) != LVFI_STRING)
+            {
                 return false;
+            }
 
             int start = m.WParam.ToInt32();
             m.Result = (IntPtr)this.FindMatchingRow(findInfo.psz, start, SearchDirectionHint.Down);
@@ -6280,26 +6789,37 @@ namespace BrightIdeasSoftware
         public virtual int FindMatchingRow(string text, int start, SearchDirectionHint direction) {
             // We also can't do anything if we don't have data
             if (this.Columns.Count == 0)
+            {
                 return -1;
+            }
+
             int rowCount = this.GetItemCount();
             if (rowCount == 0)
+            {
                 return -1;
+            }
 
             // Which column are we going to use for our comparing?
             OLVColumn column = this.GetColumn(0);
             if (this.IsSearchOnSortColumn && this.View == View.Details && this.PrimarySortColumn != null)
+            {
                 column = this.PrimarySortColumn;
+            }
 
             // Do two searches if necessary to find a match. The second search is the wrap-around part of searching
             int i;
             if (direction == SearchDirectionHint.Down) {
                 i = this.FindMatchInRange(text, start, rowCount - 1, column);
                 if (i == -1 && start > 0)
+                {
                     i = this.FindMatchInRange(text, 0, start - 1, column);
+                }
             } else {
                 i = this.FindMatchInRange(text, start, 0, column);
                 if (i == -1 && start != rowCount)
+                {
                     i = this.FindMatchInRange(text, rowCount - 1, start + 1, column);
+                }
             }
 
             return i;
@@ -6318,13 +6838,17 @@ namespace BrightIdeasSoftware
                 for (int i = first; i <= last; i++) {
                     string data = column.GetStringValue(this.GetNthItemInDisplayOrder(i).RowObject);
                     if (data.StartsWith(text, StringComparison.CurrentCultureIgnoreCase))
+                    {
                         return i;
+                    }
                 }
             } else {
                 for (int i = first; i >= last; i--) {
                     string data = column.GetStringValue(this.GetNthItemInDisplayOrder(i).RowObject);
                     if (data.StartsWith(text, StringComparison.CurrentCultureIgnoreCase))
+                    {
                         return i;
+                    }
                 }
             }
 
@@ -6346,7 +6870,9 @@ namespace BrightIdeasSoftware
             // Ignore state changes that aren't related to selection, focus or collapsedness
             const uint INTERESTING_STATES = (uint) (GroupState.LVGS_COLLAPSED | GroupState.LVGS_FOCUSED | GroupState.LVGS_SELECTED);
             if ((nmlvgroup.uOldState & INTERESTING_STATES) == (nmlvgroup.uNewState & INTERESTING_STATES))
+            {
                 return false;
+            }
 
             foreach (OLVGroup group in this.OLVGroups) {
                 if (group.GroupId == nmlvgroup.iGroupId) {
@@ -6397,7 +6923,9 @@ namespace BrightIdeasSoftware
 
             // It's possible that the processing in base.WndProc has actually destroyed this control
             if (this.IsDisposed)
+            {
                 return true;
+            }
 
             // If the keydown processing changed the scroll position, trigger a Scroll event
             int newScrollPositionH = NativeMethods.GetScrollPosition(this, true);
@@ -6415,7 +6943,9 @@ namespace BrightIdeasSoftware
             }
 
             if (scrollPositionH != newScrollPositionH || scrollPositionV != newScrollPositionV)
+            {
                 this.RefreshHotItem();
+            }
 
             return true;
         }
@@ -6435,13 +6965,18 @@ namespace BrightIdeasSoftware
         /// </remarks>
         public void ToggleSelectedRowCheckBoxes() {
             if (this.SelectedIndices.Count == 0)
+            {
                 return;
+            }
+
             Object primaryModel = this.GetItem(this.SelectedIndices[0]).RowObject;
             this.ToggleCheckObject(primaryModel);
             CheckState? state = this.GetCheckState(primaryModel);
             if (state.HasValue) {
                 foreach (Object x in this.SelectedModelObjects)
+                {
                     this.SetObjectCheckedness(x, state.Value);
+                }
             }
         }
 
@@ -6453,7 +6988,9 @@ namespace BrightIdeasSoftware
         protected virtual bool HandleLButtonDown(ref Message m) {
             // If there are no columns, the base ListView class can throw OutOfRange exceptions.
             if (this.Columns.Count == 0)
+            {
                 return true;
+            }
 
             // We have to intercept this low level message rather than the more natural
             // overridding of OnMouseDown, since ListCtrl's internal mouse down behavior
@@ -6477,7 +7014,9 @@ namespace BrightIdeasSoftware
         protected virtual bool ProcessLButtonDown(OlvListViewHitTestInfo hti) {
 
             if (hti.Item == null)
+            {
                 return false;
+            }
 
             // If the click occurs on a button, ignore it so the row isn't selected
             if (hti.HitTestLocation == HitTestLocation.Button) {
@@ -6488,16 +7027,23 @@ namespace BrightIdeasSoftware
 
             // If they didn't click checkbox, we can just return
             if (hti.HitTestLocation != HitTestLocation.CheckBox)
+            {
                 return false;
+            }
 
             // Disabled rows cannot change checkboxes
             if (!hti.Item.Enabled)
+            {
                 return true;
+            }
 
             // Did they click a sub item checkbox?
             if (hti.Column != null && hti.Column.Index > 0) {
                 if (hti.Column.IsEditable && hti.Item.Enabled)
+                {
                     this.ToggleSubItemCheckBox(hti.RowObject, hti.Column);
+                }
+
                 return true;
             }
 
@@ -6510,7 +7056,9 @@ namespace BrightIdeasSoftware
                 CheckState? state = this.GetCheckState(hti.RowObject);
                 if (state.HasValue) {
                     foreach (Object x in this.SelectedModelObjects)
+                    {
                         this.SetObjectCheckedness(x, state.Value);
+                    }
                 }
             }
 
@@ -6525,10 +7073,14 @@ namespace BrightIdeasSoftware
         protected virtual bool HandleLButtonUp(ref Message m) {
             // If there are no columns, the base ListView class can throw OutOfRange exceptions.
             if (this.Columns.Count == 0)
+            {
                 return true;
+            }
 
             if (this.MouseMoveHitTest == null)
+            {
                 return false;
+            }
 
             int x = m.LParam.ToInt32() & 0xFFFF;
             int y = (m.LParam.ToInt32() >> 16) & 0xFFFF;
@@ -6551,11 +7103,15 @@ namespace BrightIdeasSoftware
             // Are they trying to expand/collapse a group?
             if (this.MouseMoveHitTest.HitTestLocation == HitTestLocation.GroupExpander) {
                 if (this.TriggerGroupExpandCollapse(this.MouseMoveHitTest.Group))
+                {
                     return true;
+                }
             }
 
             if (ObjectListViewBase.IsVistaOrLater && this.HasCollapsibleGroups)
+            {
                 base.DefWndProc(ref m);
+            }
 
             return false;
         }
@@ -6580,7 +7136,9 @@ namespace BrightIdeasSoftware
         protected virtual bool HandleRButtonDown(ref Message m) {
             // If there are no columns, the base ListView class can throw OutOfRange exceptions.
             if (this.Columns.Count == 0)
+            {
                 return true;
+            }
 
             int x = m.LParam.ToInt32() & 0xFFFF;
             int y = (m.LParam.ToInt32() >> 16) & 0xFFFF;
@@ -6596,7 +7154,9 @@ namespace BrightIdeasSoftware
         /// <returns>True if the message has been handled</returns>
         protected virtual bool ProcessRButtonDown(OlvListViewHitTestInfo hti) {            
             if (hti.Item == null)
+            {
                 return false;
+            }
 
             // Ignore clicks on checkboxes
             return (hti.HitTestLocation == HitTestLocation.CheckBox);
@@ -6610,7 +7170,9 @@ namespace BrightIdeasSoftware
         protected virtual bool HandleLButtonDoubleClick(ref Message m) {
             // If there are no columns, the base ListView class can throw OutOfRange exceptions.
             if (this.Columns.Count == 0)
+            {
                 return true;
+            }
 
             int x = m.LParam.ToInt32() & 0xFFFF;
             int y = (m.LParam.ToInt32() >> 16) & 0xFFFF;
@@ -6638,7 +7200,9 @@ namespace BrightIdeasSoftware
 
             // If there are no columns, the base ListView class can throw OutOfRange exceptions.
             if (this.Columns.Count == 0)
+            {
                 return true;
+            }
 
             int x = m.LParam.ToInt32() & 0xFFFF;
             int y = (m.LParam.ToInt32() >> 16) & 0xFFFF;
@@ -6805,7 +7369,9 @@ namespace BrightIdeasSoftware
                                     {
                                         int modelIndex = this.IndexOf(disabledModel);
                                         if (modelIndex >= 0)
+                                        {
                                             NativeMethods.DeselectOneItem(this, modelIndex);
+                                        }
                                     }
                                     // System.Diagnostics.Debug.WriteLine(String.Format("PERF - Deselecting took {0}ms / {1} ticks", sw.ElapsedMilliseconds, sw.ElapsedTicks));
                                 }
@@ -6814,7 +7380,9 @@ namespace BrightIdeasSoftware
                                     // If the object just selected is disabled, explicitly de-select it
                                     OLVListItem olvi = this.GetItem(nmlistviewPtr2.iItem);
                                     if (olvi != null && !olvi.Enabled)
+                                    {
                                         NativeMethods.DeselectOneItem(this, nmlistviewPtr2.iItem);
+                                    }
                                 }
                             }
                         }
@@ -6918,7 +7486,10 @@ namespace BrightIdeasSoftware
 
                 case NM_CUSTOMDRAW:
                     if (!this.OwnerDrawnHeader)
+                    {
                         isMsgHandled = this.HeaderControl.HandleHeaderCustomDraw(ref m);
+                    }
+
                     break;
 
                 case HDN_ITEMCLICKA:
@@ -6959,9 +7530,14 @@ namespace BrightIdeasSoftware
                         NativeMethods.HDITEM hditem = (NativeMethods.HDITEM)Marshal.PtrToStructure(nmheader.pHDITEM, typeof(NativeMethods.HDITEM));
                         OLVColumn column = this.GetColumn(nmheader.iItem);
                         if (hditem.cxy < column.MinimumWidth)
+                        {
                             hditem.cxy = column.MinimumWidth;
+                        }
                         else if (column.MaximumWidth != -1 && hditem.cxy > column.MaximumWidth)
+                        {
                             hditem.cxy = column.MaximumWidth;
+                        }
+
                         Marshal.StructureToPtr(hditem, nmheader.pHDITEM, false);
                     }
                     break;
@@ -6986,19 +7562,28 @@ namespace BrightIdeasSoftware
                 case ToolTipControl.TTN_SHOW:
                     //System.Diagnostics.Debug.WriteLine("olv TTN_SHOW");
                     if (this.CellToolTip.Handle == nmheader.nhdr.hwndFrom)
+                    {
                         isMsgHandled = this.CellToolTip.HandleShow(ref m);
+                    }
+
                     break;
 
                 case ToolTipControl.TTN_POP:
                     //System.Diagnostics.Debug.WriteLine("olv TTN_POP");
                     if (this.CellToolTip.Handle == nmheader.nhdr.hwndFrom)
+                    {
                         isMsgHandled = this.CellToolTip.HandlePop(ref m);
+                    }
+
                     break;
 
                 case ToolTipControl.TTN_GETDISPINFO:
                     //System.Diagnostics.Debug.WriteLine("olv TTN_GETDISPINFO");
                     if (this.CellToolTip.Handle == nmheader.nhdr.hwndFrom)
+                    {
                         isMsgHandled = this.CellToolTip.HandleGetDispInfo(ref m);
+                    }
+
                     break;
 
 //                default:
@@ -7026,7 +7611,9 @@ namespace BrightIdeasSoftware
         /// </summary>
         protected virtual void UpdateCellToolTipHandle() {
             if (this.cellToolTip != null && this.cellToolTip.Handle == IntPtr.Zero)
+            {
                 this.cellToolTip.AssignHandle(NativeMethods.GetTooltipControl(this));
+            }
         }
 
         /// <summary>
@@ -7091,8 +7678,10 @@ namespace BrightIdeasSoftware
             NativeMethods.WINDOWPOS pos = (NativeMethods.WINDOWPOS)m.GetLParam(typeof(NativeMethods.WINDOWPOS));
             if ((pos.flags & SWP_NOSIZE) == 0) {
                 if (pos.cx < this.Bounds.Width) // only when shrinking
+                {
                     // pos.cx is the window width, not the client area width, so we have to subtract the border widths
                     this.ResizeFreeSpaceFillingColumns(pos.cx - (this.Bounds.Width - this.ClientSize.Width));
+                }
             }
 
             return false;
@@ -7113,8 +7702,10 @@ namespace BrightIdeasSoftware
 
             // Did the event handler stop any further processing?
             if (eventArgs.Cancel)
+            {
                 return false;
-            
+            }
+
             return this.ShowHeaderRightClickMenu(columnIndex, eventArgs.MenuStrip, eventArgs.Location);
         }
 
@@ -7145,10 +7736,14 @@ namespace BrightIdeasSoftware
             ToolStripDropDown m = new ContextMenuStrip();
 
             if (columnIndex >= 0 && this.UseFiltering && this.ShowFilterMenuOnRightClick)
+            {
                 m = this.MakeFilteringMenu(m, columnIndex);
+            }
 
-            if (columnIndex >= 0 && this.ShowCommandMenuOnRightClick) 
+            if (columnIndex >= 0 && this.ShowCommandMenuOnRightClick)
+            {
                 m = this.MakeColumnCommandMenu(m, columnIndex);
+            }
 
             if (this.SelectColumnsOnRightClickBehaviour != ColumnSelectBehaviour.None) {
                 m = this.MakeColumnSelectMenu(m);
@@ -7188,7 +7783,10 @@ namespace BrightIdeasSoftware
             ToolStripDropDown m = this.MakeColumnCommandMenu(new ContextMenuStrip(), columnIndex);
             if (this.SelectColumnsOnRightClick) {
                 if (m.Items.Count > 0)
+                {
                     m.Items.Add(new ToolStripSeparator());
+                }
+
                 this.MakeColumnSelectMenu(m);
             }
             m.Show(pt);
@@ -7303,10 +7901,14 @@ namespace BrightIdeasSoftware
         public virtual ToolStripDropDown MakeColumnCommandMenu(ToolStripDropDown strip, int columnIndex) {
             OLVColumn column = this.GetColumn(columnIndex);
             if (column == null)
+            {
                 return strip;
+            }
 
             if (strip.Items.Count > 0)
+            {
                 strip.Items.Add(new ToolStripSeparator());
+            }
 
             string label = String.Format(this.MenuLabelSortAscending, column.Text);
             if (column.Sortable && !String.IsNullOrEmpty(label)) {
@@ -7382,7 +7984,9 @@ namespace BrightIdeasSoftware
 
             // Append a separator if the menu isn't empty and the last item isn't already a separator
             if (strip.Items.Count > 0 && (!(strip.Items[strip.Items.Count-1] is ToolStripSeparator)))
+            {
                 strip.Items.Add(new ToolStripSeparator());
+            }
 
             if (this.SelectColumnsOnRightClickBehaviour == ColumnSelectBehaviour.ModelDialog) {
                 strip.Items.Add(this.MenuLabelSelectColumns, null, delegate(object sender, EventArgs args) {
@@ -7421,7 +8025,9 @@ namespace BrightIdeasSoftware
             foreach (OLVColumn column in this.AllColumns) {
                 displayIndices[column] = column.LastDisplayIndex == -1 ? visibleIndex : column.LastDisplayIndex;
                 if (visibleIndex == 0 || column.IsVisible)
+                {
                     visibleIndex++;
+                }
             }
 
             // Sort columns by display order
@@ -7444,10 +8050,16 @@ namespace BrightIdeasSoftware
             this.contextMenuStaysOpen = false;
             ToolStripMenuItem menuItemClicked = e.ClickedItem as ToolStripMenuItem;
             if (menuItemClicked == null)
+            {
                 return;
+            }
+
             OLVColumn col = menuItemClicked.Tag as OLVColumn;
             if (col == null)
+            {
                 return;
+            }
+
             menuItemClicked.Checked = !menuItemClicked.Checked;
             col.IsVisible = menuItemClicked.Checked;
             this.contextMenuStaysOpen = this.SelectColumnsMenuStaysOpen;
@@ -7469,11 +8081,15 @@ namespace BrightIdeasSoftware
         public virtual ToolStripDropDown MakeFilteringMenu(ToolStripDropDown strip, int columnIndex) {
             OLVColumn column = this.GetColumn(columnIndex);
             if (column == null)
+            {
                 return strip;
+            }
 
             FilterMenuBuilder strategy = this.FilterMenuBuildStrategy;
             if (strategy == null)
+            {
                 return strip;
+            }
 
             return strategy.MakeFilterMenu(strip, this, column);
         }
@@ -7496,7 +8112,9 @@ namespace BrightIdeasSoftware
             // Remember the display indexes so we can put them back at a later date
             foreach (OLVColumn column in this.AllColumns) {
                 if (column.Index >= 0)
+                {
                     column.LastDisplayIndex = column.DisplayIndex;
+                }
             }
         }
 
@@ -7511,9 +8129,13 @@ namespace BrightIdeasSoftware
                 // space that the new column width is going to consume
                 int oldWidth = this.GetColumn(e.ColumnIndex).Width;
                 if (e.NewWidth > oldWidth)
+                {
                     this.ResizeFreeSpaceFillingColumns(this.ClientSize.Width - (e.NewWidth - oldWidth));
+                }
                 else
+                {
                     this.ResizeFreeSpaceFillingColumns();
+                }
             }
         }
 
@@ -7524,7 +8146,9 @@ namespace BrightIdeasSoftware
         /// <param name="e"></param>
         protected virtual void HandleColumnWidthChanged(object sender, ColumnWidthChangedEventArgs e) {
             if (!this.GetColumn(e.ColumnIndex).FillsFreeSpace)
+            {
                 this.ResizeFreeSpaceFillingColumns();
+            }
         }
 
         /// <summary>
@@ -7561,10 +8185,14 @@ namespace BrightIdeasSoftware
         protected virtual void ResizeFreeSpaceFillingColumns(int freeSpace) {
             // It's too confusing to dynamically resize columns at design time.
             if (this.DesignMode)
+            {
                 return;
+            }
 
             if (this.Frozen)
+            {
                 return;
+            }
 
             this.BeginUpdate();
 
@@ -7577,7 +8205,9 @@ namespace BrightIdeasSoftware
                     spaceFillingColumns.Add(col);
                     totalProportion += col.FreeSpaceProportion;
                 } else
+                {
                     freeSpace -= col.Width;
+                }
             }
             freeSpace = Math.Max(0, freeSpace);
 
@@ -7587,11 +8217,17 @@ namespace BrightIdeasSoftware
                 int newWidth = (freeSpace * col.FreeSpaceProportion) / totalProportion;
 
                 if (col.MinimumWidth != -1 && newWidth < col.MinimumWidth)
+                {
                     newWidth = col.MinimumWidth;
+                }
                 else if (col.MaximumWidth != -1 && newWidth > col.MaximumWidth)
+                {
                     newWidth = col.MaximumWidth;
+                }
                 else
+                {
                     newWidth = 0;
+                }
 
                 if (newWidth > 0) {
                     col.Width = newWidth;
@@ -7630,7 +8266,9 @@ namespace BrightIdeasSoftware
         public virtual void CheckHeaderCheckBox(OLVColumn column)
         {
             if (column == null)
+            {
                 return;
+            }
 
             ChangeHeaderCheckBoxState(column, CheckState.Checked);
         }
@@ -7642,7 +8280,9 @@ namespace BrightIdeasSoftware
         public virtual void CheckIndeterminateHeaderCheckBox(OLVColumn column)
         {
             if (column == null)
+            {
                 return;
+            }
 
             ChangeHeaderCheckBoxState(column, CheckState.Indeterminate);
         }
@@ -7669,7 +8309,9 @@ namespace BrightIdeasSoftware
         /// <param name="modelObjects">The model object to be checked</param>
         public virtual void CheckObjects(IEnumerable modelObjects) {
             foreach (object model in modelObjects)
+            {
                 this.CheckObject(model);
+            }
         }
 
         /// <summary>
@@ -7679,7 +8321,9 @@ namespace BrightIdeasSoftware
         /// <param name="column"></param>
         public virtual void CheckSubItem(object rowObject, OLVColumn column) {
             if (column == null || rowObject == null || !column.CheckBoxes)
+            {
                 return;
+            }
 
             column.PutCheckState(rowObject, CheckState.Checked);
             this.RefreshObject(rowObject);
@@ -7692,7 +8336,9 @@ namespace BrightIdeasSoftware
         /// <param name="column"></param>
         public virtual void CheckIndeterminateSubItem(object rowObject, OLVColumn column) {
             if (column == null || rowObject == null || !column.CheckBoxes)
+            {
                 return;
+            }
 
             column.PutCheckState(rowObject, CheckState.Indeterminate);
             this.RefreshObject(rowObject);
@@ -7724,8 +8370,11 @@ namespace BrightIdeasSoftware
         /// <param name="rowObject"></param>
         /// <param name="column"></param>
         public virtual bool IsSubItemChecked(object rowObject, OLVColumn column) {
-            if (column == null || rowObject == null || !column.CheckBoxes) 
+            if (column == null || rowObject == null || !column.CheckBoxes)
+            {
                 return false;
+            }
+
             return (column.GetCheckState(rowObject) == CheckState.Checked);
         }
 
@@ -7736,8 +8385,11 @@ namespace BrightIdeasSoftware
         /// <param name="modelObject"></param>
         /// <returns></returns>
         protected virtual CheckState? GetCheckState(Object modelObject) {
-            if (this.CheckStateGetter != null) 
+            if (this.CheckStateGetter != null)
+            {
                 return this.CheckStateGetter(modelObject);
+            }
+
             return this.PersistentCheckBoxes ? this.GetPersistentCheckState(modelObject) : (CheckState?)null;
         }
 
@@ -7750,8 +8402,11 @@ namespace BrightIdeasSoftware
         /// <returns>The check state that was recorded and that should be used to update
         /// the control.</returns>
         protected virtual CheckState PutCheckState(Object modelObject, CheckState state) {
-            if (this.CheckStatePutter != null) 
+            if (this.CheckStatePutter != null)
+            {
                 return this.CheckStatePutter(modelObject, state);
+            }
+
             return this.PersistentCheckBoxes ? this.SetPersistentCheckState(modelObject, state) : state;
         }
 
@@ -7767,7 +8422,9 @@ namespace BrightIdeasSoftware
         protected virtual bool SetObjectCheckedness(object modelObject, CheckState state) {
 
             if (GetCheckState(modelObject) == state)
+            {
                 return false;
+            }
 
             OLVListItem olvi = this.ModelToItem(modelObject);
 
@@ -7781,7 +8438,9 @@ namespace BrightIdeasSoftware
             ItemCheckEventArgs ice = new ItemCheckEventArgs(olvi.Index, state, olvi.CheckState);
             this.OnItemCheck(ice);
             if (ice.NewValue == olvi.CheckState)
+            {
                 return false;
+            }
 
             olvi.CheckState = this.PutCheckState(modelObject, state);
             this.RefreshItem(olvi);
@@ -7801,7 +8460,9 @@ namespace BrightIdeasSoftware
         public virtual void ToggleCheckObject(object modelObject) {
             OLVListItem olvi = this.ModelToItem(modelObject);
             if (olvi == null)
+            {
                 return;
+            }
 
             CheckState newState = CheckState.Checked;
 
@@ -7809,7 +8470,9 @@ namespace BrightIdeasSoftware
                 newState = this.TriStateCheckBoxes ? CheckState.Indeterminate : CheckState.Unchecked;
             } else {
                 if (olvi.CheckState == CheckState.Indeterminate && this.TriStateCheckBoxes)
+                {
                     newState = CheckState.Unchecked;
+                }
             }
             this.SetObjectCheckedness(modelObject, newState);
         }
@@ -7821,7 +8484,9 @@ namespace BrightIdeasSoftware
         /// <param name="column"></param>
         public virtual void ToggleHeaderCheckBox(OLVColumn column) {
             if (column == null)
+            {
                 return;
+            }
 
             CheckState newState = CalculateToggledCheckState(column.HeaderCheckState, column.HeaderTriStateCheckBox, column.HeaderCheckBoxDisabled);
             ChangeHeaderCheckBoxState(column, newState);
@@ -7835,7 +8500,9 @@ namespace BrightIdeasSoftware
 
             this.OnHeaderCheckBoxChanging(args);
             if (args.Cancel || column.HeaderCheckState == args.NewCheckState)
+            {
                 return;
+            }
 
             Stopwatch sw = Stopwatch.StartNew();
 
@@ -7844,9 +8511,13 @@ namespace BrightIdeasSoftware
 
             if (column.HeaderCheckBoxUpdatesRowCheckBoxes) {
                 if (column.Index == 0)
+                {
                     this.UpdateAllPrimaryCheckBoxes(column);
+                }
                 else
+                {
                     this.UpdateAllSubItemCheckBoxes(column);
+                }
             }
 
             // Debug.WriteLine(String.Format("PERF - Changing row checkboxes on {2} objects took {0}ms / {1} ticks", sw.ElapsedMilliseconds, sw.ElapsedTicks, this.GetItemCount()));
@@ -7854,22 +8525,32 @@ namespace BrightIdeasSoftware
 
         private void UpdateAllPrimaryCheckBoxes(OLVColumn column) {
             if (!this.CheckBoxes || column.HeaderCheckState == CheckState.Indeterminate)
+            {
                 return;
+            }
 
             if (column.HeaderCheckState == CheckState.Checked)
+            {
                 CheckAll();
+            }
             else
+            {
                 UncheckAll();
+            }
         }
 
         private void UpdateAllSubItemCheckBoxes(OLVColumn column) {
             if (!column.CheckBoxes || column.HeaderCheckState == CheckState.Indeterminate)
+            {
                 return;
+            }
 
             IEnumerable source = this.ModelObjects;
             if (source != null) {
                 foreach (object model in source)
+                {
                     column.PutCheckState(model, column.HeaderCheckState);
+                }
             }
             this.BuildList(true);
         }
@@ -7886,7 +8567,9 @@ namespace BrightIdeasSoftware
             SubItemCheckingEventArgs args = new SubItemCheckingEventArgs(column, this.ModelToItem(rowObject), column.Index, currentState, newState);
             this.OnSubItemChecking(args);
             if (args.Canceled)
+            {
                 return;
+            }
 
             switch (args.NewValue) {
                 case CheckState.Checked:
@@ -7923,7 +8606,9 @@ namespace BrightIdeasSoftware
         /// <param name="modelObjects">The model object to be checked</param>
         public virtual void UncheckObjects(IEnumerable modelObjects) {
             foreach (object model in modelObjects)
+            {
                 this.UncheckObject(model);
+            }
         }
 
         /// <summary>
@@ -7933,7 +8618,9 @@ namespace BrightIdeasSoftware
         public virtual void UncheckHeaderCheckBox(OLVColumn column)
         {
             if (column == null)
+            {
                 return;
+            }
 
             ChangeHeaderCheckBoxState(column, CheckState.Unchecked);
         }
@@ -7946,7 +8633,9 @@ namespace BrightIdeasSoftware
         public virtual void UncheckSubItem(object rowObject, OLVColumn column)
         {
             if (column == null || rowObject == null || !column.CheckBoxes)
+            {
                 return;
+            }
 
             column.PutCheckState(rowObject, CheckState.Unchecked);
             this.RefreshObject(rowObject);
@@ -7973,7 +8662,9 @@ namespace BrightIdeasSoftware
         public virtual OLVColumn GetColumn(string name) {
             foreach (ColumnHeader column in this.Columns) {
                 if (column.Text == name)
+                {
                     return (OLVColumn)column;
+                }
             }
             return null;
         }
@@ -8011,9 +8702,11 @@ namespace BrightIdeasSoftware
         /// <param name="index">Index of the item to be returned</param>
         /// <returns>An OLVListItem</returns>
         public virtual OLVListItem GetItem(int index) {
-            if (index < 0 || index >= this.GetItemCount()) 
+            if (index < 0 || index >= this.GetItemCount())
+            {
                 return null;
-            
+            }
+
             return (OLVListItem)this.Items[index];
         }
 
@@ -8038,7 +8731,9 @@ namespace BrightIdeasSoftware
             hitColumn = null;
             ListViewHitTestInfo info = this.HitTest(x, y);
             if (info.Item == null)
+            {
                 return null;
+            }
 
             if (info.SubItem != null) {
                 int subItemIndex = info.Item.SubItems.IndexOf(info.SubItem);
@@ -8077,7 +8772,9 @@ namespace BrightIdeasSoftware
         /// </remarks>
         public virtual void EnsureGroupVisible(ListViewGroup lvg) {
             if (!this.ShowGroups || lvg == null)
+            {
                 return;
+            }
 
             int groupIndex = this.Groups.IndexOf(lvg);
             if (groupIndex <= 0) {
@@ -8104,7 +8801,9 @@ namespace BrightIdeasSoftware
         public virtual void EnsureModelVisible(Object modelObject) {
             int index = this.IndexOf(modelObject);
             if (index >= 0)
+            {
                 this.EnsureVisible(index);
+            }
         }
 
         /// <summary>
@@ -8153,7 +8852,9 @@ namespace BrightIdeasSoftware
         public virtual int IndexOf(Object modelObject) {
             for (int i = 0; i < this.GetItemCount(); i++) {
                 if (this.GetModelAt(i).Equals(modelObject))
+                {
                     return i;
+                }
             }
             return -1;
         }
@@ -8206,8 +8907,7 @@ namespace BrightIdeasSoftware
                 this.Invoke((MethodInvoker)delegate { this.RefreshObjects(modelObjects); });
                 return;
             }
-            if (modelObjects == null)
-                throw new ArgumentNullException("modelObjects");
+            ArgumentNullException.ThrowIfNull(modelObjects, nameof(modelObjects));
 
             ICollection snapshot = this.MaterializeModelObjects(modelObjects);
             foreach (object modelObject in snapshot) {
@@ -8221,7 +8921,9 @@ namespace BrightIdeasSoftware
 
         private void ReplaceModel(OLVListItem olvi, object newModel) {
             if (ReferenceEquals(olvi.RowObject, newModel))
+            {
                 return;
+            }
 
             this.TakeOwnershipOfObjects();
             this.ReplaceStoredModelObject(olvi.RowObject, newModel);
@@ -8235,7 +8937,9 @@ namespace BrightIdeasSoftware
         /// <remarks>This method does not resort or regroup the view.</remarks>
         public virtual void RefreshSelectedObjects() {
             foreach (ListViewItem lvi in this.SelectedItems)
+            {
                 this.RefreshItem((OLVListItem)lvi);
+            }
         }
 
         /// <summary>
@@ -8258,7 +8962,9 @@ namespace BrightIdeasSoftware
             if (olvi != null && olvi.Enabled) {
                 olvi.Selected = true;
                 if (setFocus)
+                {
                     olvi.Focused = true;
+                }
             }
         }
 
@@ -8283,7 +8989,9 @@ namespace BrightIdeasSoftware
             foreach (object modelObject in snapshot) {
                 OLVListItem olvi = this.ModelToItem(modelObject);
                 if (olvi != null && olvi.Enabled)
+                {
                     olvi.Selected = true;
+                }
             }
         }
 
@@ -8306,7 +9014,9 @@ namespace BrightIdeasSoftware
             get { return freezeCount > 0; }
             set {
                 if (value)
+                {
                     Freeze();
+                }
                 else if (freezeCount > 0) {
                     freezeCount = 1;
                     Unfreeze();
@@ -8321,7 +9031,9 @@ namespace BrightIdeasSoftware
         /// <remarks>Freeze()/Unfreeze() calls nest correctly</remarks>
         public virtual void Freeze() {
             if (freezeCount == 0)
+            {
                 DoFreeze();
+            }
 
             freezeCount++;
             this.OnFreezing(new FreezeEventArgs(freezeCount));
@@ -8334,11 +9046,15 @@ namespace BrightIdeasSoftware
         /// <remarks>Freeze()/Unfreeze() calls nest correctly</remarks>
         public virtual void Unfreeze() {
             if (freezeCount <= 0)
+            {
                 return;
+            }
 
             freezeCount--;
             if (freezeCount == 0)
+            {
                 DoUnfreeze();
+            }
 
             this.OnFreezing(new FreezeEventArgs(freezeCount));
         }
@@ -8440,7 +9156,9 @@ namespace BrightIdeasSoftware
         /// <param name="columnToSortIndex">The index of the column whose values will be used for the sorting</param>
         public virtual void Sort(int columnToSortIndex) {
             if (columnToSortIndex >= 0 && columnToSortIndex < this.Columns.Count)
+            {
                 this.Sort(this.GetColumn(columnToSortIndex));
+            }
         }
 
         /// <summary>
@@ -8484,16 +9202,19 @@ namespace BrightIdeasSoftware
                 this.Invoke((MethodInvoker)delegate { this.Sort(columnToSort, order, addToSort); });
                 return;
             }
-            if (columnToSort == null)
-                throw new ArgumentNullException("columnToSort");
+            ArgumentNullException.ThrowIfNull(columnToSort, nameof(columnToSort));
             List<OLVSortDescription> descriptions = addToSort
                 ? new List<OLVSortDescription>(this.SortDescriptions) : new List<OLVSortDescription>();
             int index = descriptions.FindIndex(x => x.Column == columnToSort);
             OLVSortDescription description = new OLVSortDescription(columnToSort, order);
             if (index < 0)
+            {
                 descriptions.Add(description);
+            }
             else
+            {
                 descriptions[index] = description;
+            }
 
             this.Sort(descriptions);
         }
@@ -8528,7 +9249,9 @@ namespace BrightIdeasSoftware
         private void DoSort(SortDescriptionCollection descriptions) {
             // Sanity checks
             if (this.GetItemCount() == 0 || this.Columns.Count == 0)
+            {
                 return;
+            }
 
             // Fill in default values, if the parameters don't make sense
             if (this.ShowGroups) {
@@ -8542,7 +9265,9 @@ namespace BrightIdeasSoftware
             BeforeSortingEventArgs args = this.BuildBeforeSortingEventArgs(descriptions);
             this.OnBeforeSorting(args);
             if (args.Canceled)
+            {
                 return;
+            }
 
             IList<OLVSortDescription> previousDescriptions = this.sortDescriptionsInProgress;
             this.sortDescriptionsInProgress = args.GetActiveSortDescriptions();
@@ -8556,28 +9281,42 @@ namespace BrightIdeasSoftware
                     // An event handler may have already performed the sort.
                     if (!args.Handled) {
                         if (this.sortDescriptionsInProgress.Count == 0 && !this.VirtualMode)
+                        {
                             this.ListViewItemSorter = null;
+                        }
 
                         if (this.sortDescriptionsInProgress.Count > 0) {
                             if (this.ShowGroups)
+                            {
                                 this.BuildGroups(args.ColumnToGroupBy, args.GroupByOrder, args.SortDescriptions);
+                            }
                             else if (this.CustomSorter != null)
+                            {
                                 this.CustomSorter(args.ColumnToSort, args.SortOrder);
+                            }
                             else
+                            {
                                 this.ListViewItemSorter = new ColumnComparer(this.sortDescriptionsInProgress);
+                            }
                         }
                     }
 
                     this.sortDescriptions.ReplaceWith(this.sortDescriptionsInProgress.Count > 0
                         ? this.sortDescriptionsInProgress : args.SortDescriptions);
                     if (this.TintSortColumn)
+                    {
                         this.SelectedColumn = this.sortDescriptions.GetColumn(0);
+                    }
 
                     if (this.ShowSortIndicators)
+                    {
                         this.ShowSortIndicator(args.ColumnToSort, args.SortOrder);
+                    }
 
                     if (selection != null && selection.Count > 0)
+                    {
                         this.SelectedModelObjects = selection;
+                    }
                 } finally {
                     this.ResumeSelectionEvents();
                 }
@@ -8612,7 +9351,9 @@ namespace BrightIdeasSoftware
                 // If we can't use builtin image, we have to make and then locate the index of the
                 // sort indicator we want to use. SortOrder.None doesn't show an image.
                 if (this.SmallImageList == null || !this.SmallImageList.Images.ContainsKey(SORT_INDICATOR_UP_KEY))
+                {
                     MakeSortIndicatorImages();
+                }
 
                 if (this.SmallImageList != null)
                 {
@@ -8624,9 +9365,13 @@ namespace BrightIdeasSoftware
             // Set the image for each column
             for (int i = 0; i < this.Columns.Count; i++) {
                 if (columnToSort != null && i == columnToSort.Index)
+                {
                     NativeMethods.SetColumnImage(this, i, sortOrder, imageIndex);
+                }
                 else
+                {
                     NativeMethods.SetColumnImage(this, i, SortOrder.None, -1);
+                }
             }
             this.HeaderControl.Invalidate();
         }
@@ -8649,7 +9394,9 @@ namespace BrightIdeasSoftware
         protected virtual void MakeSortIndicatorImages() {
             // Don't mess with the image list in design mode
             if (this.DesignMode)
+            {
                 return;
+            }
 
             ImageList il = this.SmallImageList;
             if (il == null) {
@@ -8695,9 +9442,15 @@ namespace BrightIdeasSoftware
             this.ShowGroups = false;
             this.sortDescriptions.Clear();
             if (this.TintSortColumn)
+            {
                 this.SelectedColumn = null;
+            }
+
             if (this.ShowSortIndicators)
+            {
                 this.ShowSortIndicator(null, SortOrder.None);
+            }
+
             this.BuildList();
         }
 
@@ -8708,7 +9461,10 @@ namespace BrightIdeasSoftware
         private static CheckState CalculateToggledCheckState(CheckState currentState, bool isTriState, bool isDisabled)
         {
             if (isDisabled)
+            {
                 return currentState;
+            }
+
             switch (currentState)
             {
                 case CheckState.Checked: return isTriState ? CheckState.Indeterminate : CheckState.Unchecked;
@@ -8748,7 +9504,9 @@ namespace BrightIdeasSoftware
         /// <param name="rowObject">the model object from which values will be taken</param>
         protected virtual void FillInValues(OLVListItem lvi, object rowObject) {
             if (this.Columns.Count == 0)
+            {
                 return;
+            }
 
             OLVListSubItem subItem = this.MakeSubItem(rowObject, this.GetColumn(0));
             lvi.SubItems[0] = subItem;
@@ -8773,7 +9531,9 @@ namespace BrightIdeasSoftware
                     for (int i = 1; i < this.Columns.Count; i++) {
                         OLVColumn column = this.GetColumn(i);
                         if (column.IsTileViewColumn)
+                        {
                             lvi.SubItems.Add(this.MakeSubItem(rowObject, column));
+                        }
                     }
                     break;
             }
@@ -8788,7 +9548,9 @@ namespace BrightIdeasSoftware
             if (this.CheckBoxes) {
                 CheckState? state = this.GetCheckState(lvi.RowObject);
                 if (state.HasValue)
+                {
                     lvi.CheckState = state.Value;
+                }
             }
 
             // Give the RowFormatter a chance to mess with the item
@@ -8822,10 +9584,15 @@ namespace BrightIdeasSoftware
             for (int i = 0; i < this.Columns.Count; i++) {
                 OLVListSubItem subItem = olvi.GetSubItem(i);
                 if (subItem == null)
+                {
                     continue;
+                }
+
                 OLVColumn column = this.GetColumn(i);
-                if (column.Hyperlink && !String.IsNullOrEmpty(subItem.Url)) 
+                if (column.Hyperlink && !String.IsNullOrEmpty(subItem.Url))
+                {
                     this.ApplyCellStyle(olvi, i, this.IsUrlVisited(subItem.Url) ? this.HyperlinkStyle.Visited : this.HyperlinkStyle.Normal);
+                }
             }
         }
 
@@ -8838,7 +9605,9 @@ namespace BrightIdeasSoftware
         protected virtual void ForceSubItemImagesExStyle() {
             // Virtual lists can't show subitem images natively, so don't turn on this flag
             if (!this.VirtualMode)
+            {
                 NativeMethods.ForceSubItemImagesExStyle(this);
+            }
         }
 
         /// <summary>
@@ -8849,14 +9618,20 @@ namespace BrightIdeasSoftware
         /// <returns>Index of the image in the imageList, or -1</returns>
         protected virtual int GetActualImageIndex(Object imageSelector) {
             if (imageSelector == null)
+            {
                 return -1;
+            }
 
             if (imageSelector is Int32)
+            {
                 return (int)imageSelector;
+            }
 
             String imageSelectorAsString = imageSelector as String;
             if (imageSelectorAsString != null && this.SmallImageList != null)
+            {
                 return this.SmallImageList.Images.IndexOfKey(imageSelectorAsString);
+            }
 
             return -1;
         }
@@ -8869,10 +9644,16 @@ namespace BrightIdeasSoftware
         public virtual String GetHeaderToolTip(int columnIndex) {
             OLVColumn column = this.GetColumn(columnIndex);
             if (column == null)
+            {
                 return null;
+            }
+
             String tooltip = column.ToolTipText;
             if (this.HeaderToolTipGetter != null)
+            {
                 tooltip = this.HeaderToolTipGetter(column);
+            }
+
             return tooltip;
         }
 
@@ -8884,14 +9665,18 @@ namespace BrightIdeasSoftware
         /// <returns>A string or null if no tool tip is to be shown</returns>
         public virtual String GetCellToolTip(int columnIndex, int rowIndex) {
             if (this.CellToolTipGetter != null)
+            {
                 return this.CellToolTipGetter(this.GetColumn(columnIndex), this.GetModelAt(rowIndex));
+            }
 
             // Show the URL in the tooltip if it's different to the text
             if (columnIndex >= 0) {
                 OLVListSubItem subItem = this.GetSubItem(rowIndex, columnIndex);
                 if (subItem != null && !String.IsNullOrEmpty(subItem.Url) && subItem.Url != subItem.Text &&
                     this.HotCellHitLocation == HitTestLocation.Text)
+                {
                     return subItem.Url;
+                }
             }
 
             return null;
@@ -8905,11 +9690,15 @@ namespace BrightIdeasSoftware
         /// <remarks>This method has O(n) performance.</remarks>
         public virtual OLVListItem ModelToItem(object modelObject) {
             if (modelObject == null)
+            {
                 return null;
+            }
 
             foreach (OLVListItem olvi in this.Items) {
                 if (olvi.RowObject != null && olvi.RowObject.Equals(modelObject))
+                {
                     return olvi;
+                }
             }
             return null;
         }
@@ -8946,19 +9735,26 @@ namespace BrightIdeasSoftware
         /// </summary>
         protected virtual void PostProcessOneRow(int rowIndex, int displayIndex, OLVListItem olvi) {
             if (this.Columns.Count == 0)
+            {
                 return;
+            }
+
             if (this.UseAlternatingBackColors && this.View == View.Details && olvi.Enabled) {
                 olvi.UseItemStyleForSubItems = true;
                 olvi.BackColor = displayIndex % 2 == 1 ? this.AlternateRowBackColorOrDefault : this.BackColor;
             }
-            if (this.ShowImagesOnSubItems && !this.VirtualMode) 
+            if (this.ShowImagesOnSubItems && !this.VirtualMode)
+            {
                 this.SetSubItemImages(rowIndex, olvi);
+            }
 
             bool needToTriggerFormatCellEvents = this.TriggerFormatRowEvent(rowIndex, displayIndex, olvi);
 
             // We only need cell level events if we are in details view
             if (this.View != View.Details)
+            {
                 return;
+            }
 
             // If we're going to have per cell formatting, we need to copy the formatting
             // of the item into each cell, before triggering the cell format events
@@ -9018,7 +9814,9 @@ namespace BrightIdeasSoftware
         /// <param name="shouldClearImages">will existing images be cleared if no new image is provided?</param>
         protected virtual void SetSubItemImages(int rowIndex, OLVListItem item, bool shouldClearImages) {
             if (!this.ShowImagesOnSubItems || this.OwnerDraw)
+            {
                 return;
+            }
 
             for (int i = 1; i < item.SubItems.Count; i++) {
                 this.SetSubItemImage(rowIndex, i, item.GetSubItem(i), shouldClearImages);
@@ -9035,7 +9833,9 @@ namespace BrightIdeasSoftware
         public virtual void SetSubItemImage(int rowIndex, int subItemIndex, OLVListSubItem subItem, bool shouldClearImages) {
             int imageIndex = this.GetActualImageIndex(subItem.ImageSelector);
             if (shouldClearImages || imageIndex != -1)
+            {
                 NativeMethods.SetSubItemImage(this, rowIndex, subItemIndex, imageIndex);
+            }
         }
 
         /// <summary>
@@ -9095,7 +9895,9 @@ namespace BrightIdeasSoftware
 
             // If we've already done this, don't do it again
             if (olvi.UseItemStyleForSubItems == false)
+            {
                 return;
+            }
 
             // So we have to explicitly give each cell the fore and back colors and the font that it should have.
             olvi.UseItemStyleForSubItems = false;
@@ -9119,7 +9921,10 @@ namespace BrightIdeasSoftware
             this.ClearObjects();
             this.sortDescriptions.Clear();
             if (this.TintSortColumn)
+            {
                 this.SelectedColumn = null;
+            }
+
             this.ClearDisabledObjects();
             this.ClearPersistentCheckState();
             this.ClearUrlVisited();
@@ -9141,16 +9946,25 @@ namespace BrightIdeasSoftware
         void ISupportInitialize.EndInit() {
             this.initializingColumns = false;
             if (this.RowHeight != -1) {
+#pragma warning disable CA2245 // Apply the final designer image list with the configured row height.
                 this.SmallImageList = this.SmallImageList;
+#pragma warning restore CA2245
                 if (this.CheckBoxes)
+                {
                     this.InitializeStateImageList();
+                }
             }
 
             if (this.UseSubItemCheckBoxes || (this.VirtualMode && this.CheckBoxes))
+            {
                 this.SetupSubItemCheckBoxes();
+            }
 
             if (this.IsHandleCreated)
+            {
                 this.RescaleColumnWidthsForDpi(this.GetWindowDpi());
+            }
+
             this.Frozen = false;
         }
 
@@ -9179,14 +9993,18 @@ namespace BrightIdeasSoftware
                 this.resizedImageList = resized ?? (ReferenceEquals(previous, replacement) ? previous : null);
                 attached = true;
                 if (previous != null && !ReferenceEquals(previous, replacement))
+                {
                     previous.Dispose();
+                }
             } finally {
                 if (!attached) {
                     try {
                         base.SmallImageList = previousBase;
                     } finally {
                         if (resized != null)
+                        {
                             resized.Dispose();
+                        }
                     }
                 }
             }
@@ -9214,14 +10032,18 @@ namespace BrightIdeasSoftware
                     for (int i = 0; i < source.Images.Count; i++) {
                         using (Image image = source.Images[i])
                         using (Bitmap bitmap = this.MakeResizedImage(width, height, image, source.TransparentColor))
+                        {
                             il.Images.Add(keys[i], bitmap);
+                        }
                     }
                 }
                 complete = true;
                 return il;
             } finally {
                 if (!complete)
+                {
                     il.Dispose();
+                }
             }
         }
 
@@ -9247,7 +10069,9 @@ namespace BrightIdeasSoftware
                 return bm;
             } finally {
                 if (!complete)
+                {
                     bm.Dispose();
+                }
             }
         }
 
@@ -9256,10 +10080,14 @@ namespace BrightIdeasSoftware
         /// </summary>
         protected virtual void InitializeStateImageList() {
             if (this.DesignMode)
+            {
                 return;
+            }
 
             if (!this.CheckBoxes)
+            {
                 return;
+            }
 
             if (this.StateImageList == null) {
                 this.StateImageList = new ImageList();
@@ -9279,14 +10107,24 @@ namespace BrightIdeasSoftware
             // checkbox is clicked. So we have to get exactly the right number of images in the 
             // image list.
             if (this.StateImageList.Images.Count == 0)
+            {
                 this.AddCheckStateBitmap(this.StateImageList, UNCHECKED_KEY, CheckBoxState.UncheckedNormal);
+            }
+
             if (this.StateImageList.Images.Count <= 1)
+            {
                 this.AddCheckStateBitmap(this.StateImageList, CHECKED_KEY, CheckBoxState.CheckedNormal);
+            }
+
             if (this.TriStateCheckBoxes && this.StateImageList.Images.Count <= 2)
+            {
                 this.AddCheckStateBitmap(this.StateImageList, INDETERMINATE_KEY, CheckBoxState.MixedNormal);
+            }
             else {
                 if (this.StateImageList.Images.ContainsKey(INDETERMINATE_KEY))
+                {
                     this.StateImageList.Images.RemoveByKey(INDETERMINATE_KEY);
+                }
             }
         }
 
@@ -9312,10 +10150,15 @@ namespace BrightIdeasSoftware
         /// <remarks>This gives the ListView a small image list, if it doesn't already have one.</remarks>
         public virtual void SetupSubItemCheckBoxes() {
             if (this.initializingColumns)
+            {
                 return;
+            }
+
             this.ShowImagesOnSubItems = true;
             if (this.SmallImageList == null || !this.SmallImageList.Images.ContainsKey(CHECKED_KEY))
+            {
                 this.InitializeSubItemCheckBoxImages();
+            }
         }
 
         /// <summary>
@@ -9337,7 +10180,9 @@ namespace BrightIdeasSoftware
         protected virtual void InitializeSubItemCheckBoxImages() {
             // Don't mess with the image list in design mode
             if (this.DesignMode)
+            {
                 return;
+            }
 
             // Legacy serialized image lists can have no spare bitmap capacity for appended states.
             ImageList source = this.SmallImageList;
@@ -9346,7 +10191,10 @@ namespace BrightIdeasSoftware
             bool attached = false;
             try {
                 if (source == null)
+                {
                     il.ColorDepth = ColorDepth.Depth32Bit;
+                }
+
                 this.AddCheckStateBitmap(il, CHECKED_KEY, CheckBoxState.CheckedNormal);
                 this.AddCheckStateBitmap(il, UNCHECKED_KEY, CheckBoxState.UncheckedNormal);
                 this.AddCheckStateBitmap(il, INDETERMINATE_KEY, CheckBoxState.MixedNormal);
@@ -9356,7 +10204,9 @@ namespace BrightIdeasSoftware
                 this.subItemCheckBoxImageList = il;
                 attached = true;
                 if (previous != null)
+                {
                     previous.Dispose();
+                }
             } finally {
                 if (!attached) {
                     this.shadowedImageList = source;
@@ -9397,10 +10247,14 @@ namespace BrightIdeasSoftware
         /// <param name="e"></param>
         protected override void OnDrawItem(DrawListViewItemEventArgs e) {
             if (this.View == View.Details)
+            {
                 e.DrawDefault = false;
+            }
             else {
                 if (this.ItemRenderer == null)
+                {
                     e.DrawDefault = true;
+                }
                 else {
                     Object row = ((OLVListItem)e.Item).RowObject;
                     e.DrawDefault = !this.ItemRenderer.RenderItem(e, e.Graphics, e.Bounds, row);
@@ -9408,7 +10262,9 @@ namespace BrightIdeasSoftware
             }
 
             if (e.DrawDefault)
+            {
                 base.OnDrawItem(e);
+            }
         }
 
         /// <summary>
@@ -9449,7 +10305,10 @@ namespace BrightIdeasSoftware
             e.DrawDefault = !renderer.RenderSubItem(e, g, r, rowObject);
 
             if (!e.DrawDefault)
+            {
                 buffer.Render();
+            }
+
             buffer.Dispose();
         }
 
@@ -9479,7 +10338,9 @@ namespace BrightIdeasSoftware
             base.OnMouseLeave(e);
 
             if (!this.Created)
+            {
                 return;
+            }
 
             this.UpdateHotItem(new Point(-1,-1));
         }
@@ -9500,7 +10361,9 @@ namespace BrightIdeasSoftware
             base.OnMouseMove(e);
 
             if (this.Created)
+            {
                 HandleMouseMove(e.Location);
+            }
         }
 
         internal void HandleMouseMove(Point pt) {
@@ -9512,7 +10375,9 @@ namespace BrightIdeasSoftware
             this.MouseMoveHitTest = args.HitTest;
 
             if (!args.Handled)
+            {
                 this.UpdateHotItem(args.HitTest);
+            }
         }
 
         /// <summary>
@@ -9525,7 +10390,9 @@ namespace BrightIdeasSoftware
             base.OnMouseUp(e);
 
             if (!this.Created)
+            {
                 return;
+            }
 
             // Sigh! More complexity. e.Button is not reliable when clicking on group headers.
             // The mouse up event for first click on a group header always reports e.Button as None.
@@ -9554,7 +10421,9 @@ namespace BrightIdeasSoftware
             args.ClickCount = this.lastMouseDownClickCount;
             this.OnCellClick(args);
             if (args.Handled)
+            {
                 return;
+            }
 
             // Did the user click a hyperlink?
             if (this.UseHyperlinks &&
@@ -9568,20 +10437,28 @@ namespace BrightIdeasSoftware
 
             // No one handled it so check to see if we should start editing.
             if (!this.ShouldStartCellEdit(e))
+            {
                 return;
+            }
 
             // We only start the edit if the user clicked on the image or text.
-            if (args.HitTest.HitTestLocation == HitTestLocation.Nothing) 
+            if (args.HitTest.HitTestLocation == HitTestLocation.Nothing)
+            {
                 return;
+            }
 
             // We don't edit the primary column by single clicks -- only subitems.
-            if (this.CellEditActivation == CellEditActivateMode.SingleClick && args.ColumnIndex <= 0) 
+            if (this.CellEditActivation == CellEditActivateMode.SingleClick && args.ColumnIndex <= 0)
+            {
                 return;
+            }
 
             // Don't start a cell edit operation when the user clicks on the background of a checkbox column -- it just looks wrong.
             // If the user clicks on the actual checkbox, changing the checkbox state is handled elsewhere.
             if (args.Column != null && args.Column.CheckBoxes)
+            {
                 return;
+            }
 
             this.EditSubItem(args.Item, args.ColumnIndex);
         }
@@ -9659,7 +10536,10 @@ namespace BrightIdeasSoftware
             args.ColumnIndex = hitTest.ColumnIndex;
             args.Column = hitTest.Column;
             if (hitTest.Item != null)
+            {
                 args.RowIndex = hitTest.Item.Index;
+            }
+
             args.ModifierKeys = Control.ModifierKeys;
 
             // In non-details view, we want any hit on an item to act as if it was a hit
@@ -9679,7 +10559,9 @@ namespace BrightIdeasSoftware
         /// <param name="e"></param>
         protected override void OnSelectedIndexChanged(EventArgs e) {
             if (this.SelectionEventsSuspended)
+            {
                 return;
+            }
 
             base.OnSelectedIndexChanged(e);
 
@@ -9692,7 +10574,9 @@ namespace BrightIdeasSoftware
         /// </summary>
         protected virtual void TriggerDeferredSelectionChangedEvent() {
             if (this.SelectionEventsSuspended)
+            {
                 return;
+            }
 
             // If we haven't already scheduled an event, schedule it to be triggered
             // By using idle time, we will wait until all select events for the same
@@ -9708,13 +10592,21 @@ namespace BrightIdeasSoftware
         /// </summary>
         protected virtual void RescaleColumnWidthsForDpi(int dpi) {
             if (dpi <= 0)
+            {
                 throw new ArgumentOutOfRangeException(nameof(dpi));
+            }
+
             if (this.initializingColumns || this.IsDesignMode || dpi == this.columnDpi)
+            {
                 return;
+            }
 
             var columns = new HashSet<OLVColumn>(this.AllColumns);
             foreach (OLVColumn column in this.Columns)
+            {
                 columns.Add(column);
+            }
+
             foreach (OLVColumn column in columns) {
                 int width = ScaleColumnDimension(column.Width, dpi, this.columnDpi);
                 int minimum = ScaleColumnDimension(column.MinimumWidth, dpi, this.columnDpi);
@@ -9725,9 +10617,13 @@ namespace BrightIdeasSoftware
                 column.MinimumWidth = minimum;
                 column.MaximumWidth = maximum;
                 if (width < 0)
+                {
                     ((ColumnHeader)column).Width = width;
+                }
                 else
+                {
                     column.Width = width;
+                }
             }
             this.columnDpi = dpi;
             this.ResizeFreeSpaceFillingColumns();
@@ -9742,7 +10638,9 @@ namespace BrightIdeasSoftware
         private int GetWindowDpi() {
 #if NETFRAMEWORK
             using (Graphics graphics = Graphics.FromHwnd(this.Handle))
+            {
                 return (int)Math.Round(graphics.DpiX);
+            }
 #else
             return (int)NativeMethods.GetDpiForWindow(this.Handle);
 #endif
@@ -9752,7 +10650,9 @@ namespace BrightIdeasSoftware
         protected override void RescaleConstantsForDpi(int deviceDpiOld, int deviceDpiNew) {
             base.RescaleConstantsForDpi(deviceDpiOld, deviceDpiNew);
             if (this.IsHandleCreated)
+            {
                 this.RescaleColumnWidthsForDpi(deviceDpiNew);
+            }
         }
 #endif
 
@@ -9780,18 +10680,24 @@ namespace BrightIdeasSoftware
             hc.WordWrap = this.HeaderWordWrap;
 
             // Make sure any overlays that are set on the hot item style take effect
+#pragma warning disable CA2245 // Rebind the hot-item overlays to the recreated handle.
             this.HotItemStyle = this.HotItemStyle;
+#pragma warning restore CA2245
 
             // Arrange for any group images to be installed after the control is created
             NativeMethods.SetGroupImageList(this, this.GroupImageList);
 
+#pragma warning disable CA2245 // Reapply the native theme to the recreated handle.
             this.UseExplorerTheme = this.UseExplorerTheme;
+#pragma warning restore CA2245
 
             this.RememberDisplayIndicies();
             this.SetGroupSpacing();
 
             if (this.VirtualMode)
+            {
                 this.ApplyExtendedStyles();
+            }
         }
 
         #endregion
@@ -9805,18 +10711,26 @@ namespace BrightIdeasSoftware
         /// <returns></returns>
         protected virtual bool ShouldStartCellEdit(MouseEventArgs e) {
             if (this.IsCellEditing)
+            {
                 return false;
+            }
 
             if (e.Button != MouseButtons.Left && e.Button != MouseButtons.Right)
+            {
                 return false;
+            }
 
             if ((Control.ModifierKeys & (Keys.Shift | Keys.Control | Keys.Alt)) != 0)
+            {
                 return false;
+            }
 
             if (this.lastMouseDownClickCount == 1 && (
                 this.CellEditActivation == CellEditActivateMode.SingleClick ||
                 this.CellEditActivation == CellEditActivateMode.SingleClickAlways))
+            {
                 return true;
+            }
 
             return (this.lastMouseDownClickCount == 2 && this.CellEditActivation == CellEditActivateMode.DoubleClick);
         }
@@ -9829,8 +10743,10 @@ namespace BrightIdeasSoftware
         /// <returns></returns>
         protected override bool ProcessDialogKey(Keys keyData) {
 
-            if (this.IsCellEditing) 
+            if (this.IsCellEditing)
+            {
                 return this.CellEditKeyEngine.HandleKey(this, keyData);
+            }
 
             // Treat F2 as a request to edit the primary column
             if (keyData == Keys.F2) {
@@ -9868,7 +10784,9 @@ namespace BrightIdeasSoftware
         public virtual void EditModel(object rowModel) {
             OLVListItem olvItem = this.ModelToItem(rowModel);
             if (olvItem == null)
+            {
                 return;
+            }
 
             for (int i = 0; i < olvItem.SubItems.Count; i++) {
                 var olvColumn = this.GetColumn(i);
@@ -9887,17 +10805,25 @@ namespace BrightIdeasSoftware
         /// <param name="subItemIndex">The index of the cell to be edited</param>
         public virtual void EditSubItem(OLVListItem item, int subItemIndex) {
             if (item == null)
+            {
                 return;
+            }
 
             if (this.CellEditActivation == CellEditActivateMode.None)
+            {
                 return;
+            }
 
             OLVColumn olvColumn = this.GetColumn(subItemIndex);
             if (olvColumn == null || !olvColumn.IsEditable)
+            {
                 return;
+            }
 
             if (!item.Enabled)
+            {
                 return;
+            }
 
             this.StartCellEdit(item, subItemIndex);
         }
@@ -9910,7 +10836,10 @@ namespace BrightIdeasSoftware
         public virtual void StartCellEdit(OLVListItem item, int subItemIndex) {
             OLVColumn column = this.GetColumn(subItemIndex);
             if (column == null)
+            {
                 return;
+            }
+
             Control c = this.GetCellEditor(item, subItemIndex);
             ObjectListViewTheme.ApplyCellEditorColors(c);
             Rectangle cellBounds = this.CalculateCellBounds(item, subItemIndex);
@@ -9926,7 +10855,9 @@ namespace BrightIdeasSoftware
             this.CellEditEventArgs = new CellEditEventArgs(column, c, cellBounds, item, subItemIndex);
             this.OnCellEditStarting(this.CellEditEventArgs);
             if (this.CellEditEventArgs.Cancel)
+            {
                 return;
+            }
 
             // The event handler may have completely changed the control, so we need to remember it
             this.cellEditor = this.CellEditEventArgs.Control;
@@ -9970,7 +10901,9 @@ namespace BrightIdeasSoftware
                 : this.ItemRenderer;
 
             if (renderer == null)
+            {
                 return r;
+            }
 
             using (Graphics g = this.CreateGraphics()) {
                 return renderer.GetEditRectangle(g, r, item, subItemIndex, preferredSize);
@@ -9988,25 +10921,35 @@ namespace BrightIdeasSoftware
         /// <returns>A rectangle that is the bounds of the cell editor</returns>
         protected Rectangle CalculateCellEditorBoundsStandard(OLVListItem item, int subItemIndex, Rectangle cellBounds, Size preferredSize) {
             if (this.View == View.Tile)
+            {
                 return cellBounds;
+            }
 
             // Center the editor vertically
             if (cellBounds.Height != preferredSize.Height)
+            {
                 cellBounds.Y += (cellBounds.Height - preferredSize.Height) / 2;
+            }
 
             // Only Details view needs more processing
-            if (this.View != View.Details) 
+            if (this.View != View.Details)
+            {
                 return cellBounds;
+            }
 
             // Allow for image (if there is one). 
             int offset = 0;
             object imageSelector = null;
             if (subItemIndex == 0)
+            {
                 imageSelector = item.ImageSelector;
+            }
             else {
                 // We only check for subitem images if we are owner drawn or showing subitem images
                 if (this.OwnerDraw || this.ShowImagesOnSubItems)
+                {
                     imageSelector = item.GetSubItem(subItemIndex).ImageSelector;
+                }
             }
             if (this.GetActualImageIndex(imageSelector) != -1) {
                 offset += this.SmallImageSize.Width + 2;
@@ -10050,16 +10993,23 @@ namespace BrightIdeasSoftware
             ComboBox cb = control as ComboBox;
             if (cb != null) {
                 if (cb.Created)
+                {
                     cb.SelectedValue = value;
+                }
                 else
+                {
                     this.BeginInvoke(new MethodInvoker(delegate {
                         cb.SelectedValue = value;
                     }));
+                }
+
                 return;
             }
 
             if (Munger.PutProperty(control, "Value", value))
+            {
                 return;
+            }
 
             // There wasn't a Value property, or we couldn't set it, so set the text instead
             try
@@ -10087,23 +11037,33 @@ namespace BrightIdeasSoftware
         /// <returns></returns>
         protected virtual Object GetControlValue(Control control) {
             if (control == null)
+            {
                 return null;
+            }
 
             IOlvEditor olvEditor = control as IOlvEditor;
             if (olvEditor != null)
+            {
                 return olvEditor.Value;
+            }
 
             TextBox box = control as TextBox;
             if (box != null)
+            {
                 return box.Text;
+            }
 
             ComboBox comboBox = control as ComboBox;
             if (comboBox != null)
+            {
                 return comboBox.SelectedValue;
+            }
 
             CheckBox checkBox = control as CheckBox;
             if (checkBox != null)
+            {
                 return checkBox.Checked;
+            }
 
             try {
                 return control.GetType().InvokeMember("Value", BindingFlags.GetProperty, null, control, null);
@@ -10128,7 +11088,9 @@ namespace BrightIdeasSoftware
                 this.CellEditEventArgs.Control.Select();
                 e.Cancel = true;
             } else
+            {
                 FinishCellEdit();
+            }
         }
 
         /// <summary>
@@ -10145,8 +11107,10 @@ namespace BrightIdeasSoftware
             // TODO - Check on XP
 
             if (this.View != View.Details)
+            {
                 return this.GetItemRect(item.Index, ItemBoundsPortion.Label);
-            
+            }
+
             Rectangle r = item.GetSubItemBounds(subItemIndex);
             r.Width -= 1;
             r.Height -= 1;
@@ -10171,7 +11135,9 @@ namespace BrightIdeasSoftware
         private Rectangle CalculateCellBounds(OLVListItem item, int subItemIndex, ItemBoundsPortion portion) {
             // SubItem.Bounds works for every subitem, except the first.
             if (subItemIndex > 0)
+            {
                 return item.GetSubItemBounds(subItemIndex);
+            }
 
             // For non detail views, we just use the requested portion
             Rectangle r = this.GetItemRect(item.Index, portion);
@@ -10179,7 +11145,9 @@ namespace BrightIdeasSoftware
                 r.Y = item.Bounds.Y;
             }
             if (this.View != View.Details)
+            {
                 return r;
+            }
 
             // Finding the bounds of cell 0 should not be a difficult task, but it is. Problems:
             // 1) item.SubItem[0].Bounds is always the full bounds of the entire row, not just cell 0.
@@ -10210,11 +11178,15 @@ namespace BrightIdeasSoftware
                 this.View != System.Windows.Forms.View.Details ||
                 this.GetItemCount() == 0 ||
                 !column.IsVisible)
+            {
                 return Rectangle.Empty;
+            }
 
             Point sides = NativeMethods.GetScrolledColumnSides(this, column.Index);
             if (sides.X == -1)
+            {
                 return Rectangle.Empty;
+            }
 
             Rectangle columnBounds = new Rectangle(sides.X, bounds.Top, sides.Y - sides.X, bounds.Bottom);
 
@@ -10224,7 +11196,9 @@ namespace BrightIdeasSoftware
             {
                 Rectangle lastItemBounds = lastItem.Bounds;
                 if (!lastItemBounds.IsEmpty && lastItemBounds.Bottom < columnBounds.Bottom)
+                {
                     columnBounds.Height = lastItemBounds.Bottom - columnBounds.Top;
+                }
             }
 
             return columnBounds;
@@ -10244,7 +11218,9 @@ namespace BrightIdeasSoftware
             if (column.EditorCreator != null) {
                 Control customEditor = column.EditorCreator(item.RowObject, column, value);
                 if (customEditor != null)
+                {
                     return customEditor;
+                }
             }
 
             // Ask the registry for an instance of the appropriate editor.
@@ -10263,7 +11239,9 @@ namespace BrightIdeasSoftware
             for (int i = 0; i < Math.Min(this.GetItemCount(), 1000); i++) {
                 object value = column.GetValue(this.GetModelAt(i));
                 if (value != null)
+                {
                     return value;
+                }
             }
             return null;
         }
@@ -10276,7 +11254,10 @@ namespace BrightIdeasSoftware
         protected virtual Control MakeDefaultCellEditor(OLVColumn column) {
             TextBox tb = new TextBox();
             if (column.AutoCompleteEditor)
+            {
                 this.ConfigureAutoComplete(tb, column);
+            }
+
             return tb;
         }
 
@@ -10328,7 +11309,9 @@ namespace BrightIdeasSoftware
         /// </summary>
         public virtual void CancelCellEdit() {
             if (!this.IsCellEditing)
+            {
                 return;
+            }
 
             // Let the world know that the user has cancelled the edit operation
             this.CellEditEventArgs.Cancel = true;
@@ -10365,14 +11348,18 @@ namespace BrightIdeasSoftware
         /// edited immediately after this cell finishes editing</param>
         public virtual bool PossibleFinishCellEditing(bool expectingCellEdit) {
             if (!this.IsCellEditing)
+            {
                 return true;
+            }
 
             this.CellEditEventArgs.Cancel = false;
             this.CellEditEventArgs.NewValue = this.GetControlValue(this.cellEditor);
             this.OnCellEditorValidating(this.CellEditEventArgs);
 
             if (this.CellEditEventArgs.Cancel)
+            {
                 return false;
+            }
 
             this.FinishCellEdit(expectingCellEdit);
 
@@ -10397,7 +11384,9 @@ namespace BrightIdeasSoftware
         /// edited immediately after this cell finishes editing</param>
         public virtual void FinishCellEdit(bool expectingCellEdit) {
             if (!this.IsCellEditing)
+            {
                 return;
+            }
 
             this.CellEditEventArgs.Cancel = false;
             this.CellEditEventArgs.NewValue = this.GetControlValue(this.cellEditor);
@@ -10423,7 +11412,9 @@ namespace BrightIdeasSoftware
         /// <param name="disposeOfCellEditor">True if the cell editor should be disposed </param>
         protected virtual void CleanupCellEdit(bool expectingCellEdit, bool disposeOfCellEditor) {
             if (this.cellEditor == null)
+            {
                 return;
+            }
 
             this.cellEditor.Validating -= new CancelEventHandler(CellEditor_Validating);
 
@@ -10440,12 +11431,18 @@ namespace BrightIdeasSoftware
                 Application.Idle -= toBeRun;
                 this.Controls.Remove(soonToBeOldCellEditor);
                 if (disposeOfCellEditor)
+                {
                     soonToBeOldCellEditor.Dispose();
+                }
+
                 this.Invalidate();
 
                 if (!this.IsCellEditing) {
                     if (this.Focused)
+                    {
                         this.Select();
+                    }
+
                     this.PauseAnimations(false);
                 }
             };
@@ -10453,9 +11450,13 @@ namespace BrightIdeasSoftware
             // We only want to delay the removal of the control if we are expecting another cell
             // to be edited. Otherwise, we remove the control immediately.
             if (expectingCellEdit)
+            {
                 this.RunWhenIdle(toBeRun);
-            else 
+            }
+            else
+            {
                 toBeRun(null, null);
+            }
         }
 
         #endregion
@@ -10500,7 +11501,9 @@ namespace BrightIdeasSoftware
             // provide a property (UseHotControls) which lets the programmer say whether to do
             // the hot processing or not.
             if (!this.UseHotItem && !this.UseHyperlinks && !this.UseHotControls)
+            {
                 return;
+            }
 
             int newHotRow = hti.RowIndex;
             int newHotColumn = hti.ColumnIndex;
@@ -10511,7 +11514,9 @@ namespace BrightIdeasSoftware
             // In non-details view, we treat any hit on a row as if it were a hit
             // on column 0 -- which (effectively) it is!
             if (newHotRow >= 0 && this.View != View.Details)
+            {
                 newHotColumn = 0;
+            }
 
             if (this.HotRowIndex == newHotRow &&
                 this.HotColumnIndex == newHotColumn &&
@@ -10544,15 +11549,19 @@ namespace BrightIdeasSoftware
 
             // If the event handler handled it complete, don't do anything else
             if (args.Handled)
+            {
                 return;
+            }
 
-//            System.Diagnostics.Debug.WriteLine(String.Format("Changed hot item: {0}", args));
+            //            System.Diagnostics.Debug.WriteLine(String.Format("Changed hot item: {0}", args));
 
             this.BeginUpdate();
             try {
                 this.Invalidate();
                 if (args.OldHotRowIndex != -1)
+                {
                     this.UnapplyHotItem(args.OldHotRowIndex);
+                }
 
                 if (this.HotRowIndex != -1) {
                     // Virtual lists apply hot item style when fetching their rows
@@ -10590,9 +11599,11 @@ namespace BrightIdeasSoftware
         /// <param name="olvi"></param>
         protected virtual void UpdateHotRow(int rowIndex, int columnIndex, HitTestLocation hitLocation, OLVListItem olvi) {
             if (rowIndex < 0 || columnIndex < 0)
+            {
                 return;
+            }
 
-           // System.Diagnostics.Debug.WriteLine(String.Format("UpdateHotRow: {0}, {1}, {2}", rowIndex, columnIndex, hitLocation));
+            // System.Diagnostics.Debug.WriteLine(String.Format("UpdateHotRow: {0}, {1}, {2}", rowIndex, columnIndex, hitLocation));
 
             if (this.UseHyperlinks) {
                 OLVColumn column = this.GetColumn(columnIndex);
@@ -10619,37 +11630,53 @@ namespace BrightIdeasSoftware
         /// <param name="style"></param>
         public virtual void ApplyRowStyle(OLVListItem olvi, IItemStyle style) {
             if (style == null)
+            {
                 return;
+            }
 
             Font font = style.Font ?? olvi.Font;
 
             if (style.FontStyle != FontStyle.Regular)
+            {
                 font = new Font(font ?? this.Font, style.FontStyle);
+            }
 
             if (!Equals(font, olvi.Font)) {
                 if (olvi.UseItemStyleForSubItems)
+                {
                     olvi.Font = font;
+                }
                 else {
                     foreach (ListViewItem.ListViewSubItem x in olvi.SubItems)
+                    {
                         x.Font = font;
+                    }
                 }
             }
 
             if (!style.ForeColor.IsEmpty) {
                 if (olvi.UseItemStyleForSubItems)
+                {
                     olvi.ForeColor = style.ForeColor;
+                }
                 else {
                     foreach (ListViewItem.ListViewSubItem x in olvi.SubItems)
+                    {
                         x.ForeColor = style.ForeColor;
+                    }
                 }
             }
 
             if (!style.BackColor.IsEmpty) {
                 if (olvi.UseItemStyleForSubItems)
+                {
                     olvi.BackColor = style.BackColor;
+                }
                 else {
                     foreach (ListViewItem.ListViewSubItem x in olvi.SubItems)
+                    {
                         x.BackColor = style.BackColor;
+                    }
                 }
             }
         }
@@ -10662,26 +11689,38 @@ namespace BrightIdeasSoftware
         /// <param name="style"></param>
         protected virtual void ApplyCellStyle(OLVListItem olvi, int columnIndex, IItemStyle style) {
             if (style == null)
+            {
                 return;
+            }
 
             // Don't apply formatting to subitems when not in Details view
             if (this.View != View.Details && columnIndex > 0)
+            {
                 return;
+            }
 
             olvi.UseItemStyleForSubItems = false;
 
             ListViewItem.ListViewSubItem subItem = olvi.SubItems[columnIndex];
             if (style.Font != null)
+            {
                 subItem.Font = style.Font;
+            }
 
             if (style.FontStyle != FontStyle.Regular)
+            {
                 subItem.Font = new Font(subItem.Font ?? olvi.Font ?? this.Font, style.FontStyle);
+            }
 
             if (!style.ForeColor.IsEmpty)
+            {
                 subItem.ForeColor = style.ForeColor;
+            }
 
             if (!style.BackColor.IsEmpty)
+            {
                 subItem.BackColor = style.BackColor;
+            }
         }
 
         /// <summary>
@@ -10693,7 +11732,9 @@ namespace BrightIdeasSoftware
             // Virtual lists will apply the appropriate formatting when the row is fetched
             if (this.VirtualMode) {
                 if (index < this.VirtualListSize)
+                {
                     this.RedrawItems(index, index, true);
+                }
             } else {
                 OLVListItem olvi = this.GetItem(index);
                 if (olvi != null) {
@@ -10716,7 +11757,9 @@ namespace BrightIdeasSoftware
             base.OnItemDrag(e);
 
             if (this.DragSource == null)
+            {
                 return;
+            }
 
             Object data = this.DragSource.StartDrag(this, e.Button, (OLVListItem)e.Item);
             if (data != null) {
@@ -10733,7 +11776,9 @@ namespace BrightIdeasSoftware
             base.OnDragEnter(args);
 
             if (this.DropSink != null)
+            {
                 this.DropSink.Enter(args);
+            }
         }
 
         /// <summary>
@@ -10744,7 +11789,9 @@ namespace BrightIdeasSoftware
             base.OnDragOver(args);
 
             if (this.DropSink != null)
+            {
                 this.DropSink.Over(args);
+            }
         }
 
         /// <summary>
@@ -10757,7 +11804,9 @@ namespace BrightIdeasSoftware
             this.lastMouseDownClickCount = 0;  // prevent drop events from becoming cell edits
 
             if (this.DropSink != null)
+            {
                 this.DropSink.Drop(args);
+            }
         }
 
         /// <summary>
@@ -10768,7 +11817,9 @@ namespace BrightIdeasSoftware
             base.OnDragLeave(e);
 
             if (this.DropSink != null)
+            {
                 this.DropSink.Leave();
+            }
         }
 
         /// <summary>
@@ -10779,7 +11830,9 @@ namespace BrightIdeasSoftware
             base.OnGiveFeedback(args);
 
             if (this.DropSink != null)
+            {
                 this.DropSink.GiveFeedback(args);
+            }
         }
 
         /// <summary>
@@ -10790,7 +11843,9 @@ namespace BrightIdeasSoftware
             base.OnQueryContinueDrag(args);
 
             if (this.DropSink != null)
+            {
                 this.DropSink.QueryContinue(args);
+            }
         }
 
         #endregion
@@ -10806,7 +11861,10 @@ namespace BrightIdeasSoftware
         /// </remarks>
         public virtual void AddDecoration(IDecoration decoration) {
             if (decoration == null)
+            {
                 return;
+            }
+
             this.Decorations.Add(decoration);
             this.Invalidate();
         }
@@ -10817,7 +11875,10 @@ namespace BrightIdeasSoftware
         /// <param name="overlay">The overlay</param>
         public virtual void AddOverlay(IOverlay overlay) {
             if (overlay == null)
+            {
                 return;
+            }
+
             this.Overlays.Add(overlay);
             this.Invalidate();
         }
@@ -10929,6 +11990,8 @@ namespace BrightIdeasSoftware
         /// </summary>
         protected virtual void InitializeEmptyListMsgOverlay() {
             TextOverlay overlay = new TextOverlay();
+            this.standardEmptyListMsgOverlay?.Dispose();
+            this.standardEmptyListMsgOverlay = overlay;
             overlay.Alignment = System.Drawing.ContentAlignment.MiddleCenter;
             overlay.TextColor = ObjectListViewTheme.EmptyListTextColor;
             overlay.BackColor = ObjectListViewTheme.EmptyListBackColor;
@@ -10943,7 +12006,9 @@ namespace BrightIdeasSoftware
         protected virtual void InitializeStandardOverlays() {
             this.OverlayImage = new ImageOverlay();
             this.AddOverlay(this.OverlayImage);
-            this.OverlayText = new TextOverlay();
+            this.standardTextOverlay?.Dispose();
+            this.standardTextOverlay = new TextOverlay();
+            this.OverlayText = this.standardTextOverlay;
             this.AddOverlay(this.OverlayText);
         }
 
@@ -10953,7 +12018,9 @@ namespace BrightIdeasSoftware
         public virtual void ShowOverlays() {
             // If we shouldn't show overlays, then don't create glass panels
             if (!this.ShouldShowOverlays())
+            {
                 return;
+            }
 
             // Make sure that each overlay has its own glass panels
             if (this.Overlays.Count != this.glassPanels.Count) {
@@ -10974,21 +12041,29 @@ namespace BrightIdeasSoftware
         private bool ShouldShowOverlays() {
             // If we are in design mode, we don�t show the overlays
             if (this.DesignMode)
+            {
                 return false;
+            }
 
             // If we are explicitly not using overlays, also don't show them
             if (!this.UseOverlays)
+            {
                 return false;
+            }
 
             // If there are no overlays, guess...
             if (!this.HasOverlays)
+            {
                 return false;
+            }
 
             // If we don't have 32-bit display, alpha blending doesn't work, so again, no overlays
             // TODO: This should actually figure out which screen(s) the control is on, and make sure
             // that each one is 32-bit.
             if (Screen.PrimaryScreen.BitsPerPixel < 32)
+            {
                 return false;
+            }
 
             // Finally, we can show the overlays
             return true;
@@ -11013,7 +12088,9 @@ namespace BrightIdeasSoftware
         public virtual void RefreshOverlay(IOverlay overlay) {
             GlassPanelForm glassPanel = this.FindGlassPanelForOverlay(overlay);
             if (glassPanel != null)
+            {
                 glassPanel.Invalidate();
+            }
         }
 
         /// <summary>
@@ -11022,7 +12099,10 @@ namespace BrightIdeasSoftware
         /// <param name="decoration">The decoration to remove</param>
         public virtual void RemoveDecoration(IDecoration decoration) {
             if (decoration == null)
+            {
                 return;
+            }
+
             this.Decorations.Remove(decoration);
             this.Invalidate();
         }
@@ -11033,7 +12113,10 @@ namespace BrightIdeasSoftware
         /// <param name="overlay">The overlay</param>
         public virtual void RemoveOverlay(IOverlay overlay) {
             if (overlay == null)
+            {
                 return;
+            }
+
             this.Overlays.Remove(overlay);
             GlassPanelForm glassPanel = this.FindGlassPanelForOverlay(overlay);
             if (glassPanel != null) {
@@ -11056,7 +12139,9 @@ namespace BrightIdeasSoftware
             foreach (OLVColumn column in this.Columns) {
                 IModelFilter filter = column.ValueBasedFilter;
                 if (filter != null)
+                {
                     filters.Add(filter);
+                }
             }
             return (filters.Count == 0) ? null : new CompositeAllFilter(filters);
         }
@@ -11077,18 +12162,24 @@ namespace BrightIdeasSoftware
             FilterEventArgs args = new FilterEventArgs(originalObjects);
             this.OnFilter(args);
             if (args.FilteredObjects != null)
+            {
                 return args.FilteredObjects;
+            }
 
             // Apply a filter to the list as a whole
             if (aListFilter != null)
+            {
                 originalObjects = aListFilter.Filter(originalObjects);
+            }
 
             // Apply the object filter if there is one
             if (aModelFilter != null) {
                 ArrayList filteredObjects = new ArrayList();
                 foreach (object model in originalObjects) {
                     if (aModelFilter.Filter(model))
+                    {
                         filteredObjects.Add(model);
+                    }
                 }
                 originalObjects = filteredObjects;
             }
@@ -11121,11 +12212,15 @@ namespace BrightIdeasSoftware
             //this.ModelFilter = filters.Count == 0 ? null : new CompositeAllFilter(filters);
 
             if (this.AdditionalFilter == null)
+            {
                 this.ModelFilter = this.CreateColumnFilter();
+            }
             else {
                 IModelFilter columnFilter = this.CreateColumnFilter();
                 if (columnFilter == null)
+                {
                     this.ModelFilter = this.AdditionalFilter;
+                }
                 else {
                     List<IModelFilter> filters = new List<IModelFilter>();
                     filters.Add(columnFilter);
@@ -11148,12 +12243,16 @@ namespace BrightIdeasSoftware
         protected virtual void NotifyNewModelFilter() {
             IFilterAwareRenderer filterAware = this.DefaultRenderer as IFilterAwareRenderer;
             if (filterAware != null)
+            {
                 filterAware.Filter = this.ModelFilter;
+            }
 
             foreach (OLVColumn column in this.AllColumns) {
                 filterAware = column.Renderer as IFilterAwareRenderer;
                 if (filterAware != null)
+                {
                     filterAware.Filter = this.ModelFilter;
+                }
             }
         }
 
@@ -11169,7 +12268,10 @@ namespace BrightIdeasSoftware
         protected virtual CheckState GetPersistentCheckState(object model) {
             CheckState state;
             if (model != null && this.CheckStateMap.TryGetValue(model, out state))
+            {
                 return state;
+            }
+
             return CheckState.Unchecked;
         }
 
@@ -11181,7 +12283,9 @@ namespace BrightIdeasSoftware
         /// <returns>The state given to the method</returns>
         protected virtual CheckState SetPersistentCheckState(object model, CheckState state) {
             if (model == null)
+            {
                 return CheckState.Unchecked;
+            }
 
             this.CheckStateMap[model] = state;
             return state;

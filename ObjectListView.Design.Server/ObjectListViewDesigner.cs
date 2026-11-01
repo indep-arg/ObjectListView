@@ -26,7 +26,10 @@ namespace BrightIdeasSoftware.Design
             var host = (IDesignerHost)this.GetService(typeof(IDesignerHost));
             var changes = (IComponentChangeService)this.GetService(typeof(IComponentChangeService));
             if (this.behaviorService == null || host == null || changes == null)
+            {
                 throw new InvalidOperationException("ObjectListView requires the WinForms designer behavior and change services.");
+            }
+
             this.headerResize = new HeaderResizeGlyph(this.ListView, this.behaviorService, host, changes);
             this.headerAdorner = new Adorner();
             this.headerAdorner.Glyphs.Add(this.headerResize);
@@ -37,7 +40,9 @@ namespace BrightIdeasSoftware.Design
             if (disposing) {
                 this.headerResize?.Cancel();
                 if (this.headerAdorner != null)
+                {
                     this.behaviorService.Adorners.Remove(this.headerAdorner);
+                }
             }
             base.Dispose(disposing);
         }
@@ -98,8 +103,10 @@ namespace BrightIdeasSoftware.Design
                     "SortGroupItemsByPrimaryColumn", "ShowItemCountOnGroups"
                 }.Contains(name);
                 if (hidden.Contains(name) || name.StartsWith("ToolTip", StringComparison.Ordinal) || treeProperty)
+                {
                     properties[name] = TypeDescriptor.CreateProperty(typeof(ObjectListViewBase),
                         (PropertyDescriptor)properties[name], BrowsableAttribute.No);
+                }
             }
         }
 
@@ -115,8 +122,10 @@ namespace BrightIdeasSoftware.Design
             };
             foreach (string name in events.Keys.Cast<string>().ToArray()) {
                 if (hidden.Contains(name) || (this.ListView is TreeListView && treeEvents.Contains(name)))
+                {
                     events[name] = TypeDescriptor.CreateEvent(typeof(ObjectListViewBase),
                         (EventDescriptor)events[name], BrowsableAttribute.No);
+                }
             }
         }
 

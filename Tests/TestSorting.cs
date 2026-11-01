@@ -134,11 +134,32 @@ namespace BrightIdeasSoftware.Tests
             Assert.AreEqual(SortOrder.Ascending, groupOrder);
         }
 
+        [TestMethod]
+        public void TestGrouping_CountsRepeatedNullKeys() {
+            Person first = new Person("First");
+            Person second = new Person("Second");
+            Person third = new Person("Third");
+            OLVColumn column = this.olv.GetColumn(0);
+            column.GroupKeyGetter = model => ReferenceEquals(model, third) ? "present" : null;
+            this.olv.SetObjects(new[] { first, second, third });
+            this.olv.ShowGroups = true;
+            this.olv.BuildGroups(column, SortOrder.Ascending);
+
+            Assert.AreEqual(2, this.olv.OLVGroups.Count);
+            OLVGroup nullGroup = this.olv.OLVGroups.Single(group => group.Key == null);
+            OLVGroup presentGroup = this.olv.OLVGroups.Single(group => Equals(group.Key, "present"));
+            Assert.AreEqual(2, this.olv.VirtualMode ? nullGroup.VirtualItemCount : nullGroup.Items.Count);
+            Assert.AreEqual(1, this.olv.VirtualMode ? presentGroup.VirtualItemCount : presentGroup.Items.Count);
+        }
+
         private ArrayList GetContents()
         {
             ArrayList contents = new ArrayList();
             for (int i = 0; i < this.olv.GetItemCount(); i++)
+            {
                 contents.Add(this.olv.GetModelObject(i));
+            }
+
             return contents;
         }
 
@@ -247,7 +268,9 @@ namespace BrightIdeasSoftware.Tests
             this.olv.Sort(this.olv.GetColumn(1), SortOrder.Ascending);
             Assert.AreEqual(PersonDb.All.Count, this.olv.SelectedObjects.Count);
             foreach (Object x in this.olv.SelectedObjects)
+            {
                 Assert.Contains(x, PersonDb.All);
+            }
         }
 
         [TestMethod]
@@ -311,7 +334,10 @@ namespace BrightIdeasSoftware.Tests
                     Assert.AreEqual(expectedOrder, list.PrimarySortOrder);
                     Assert.IsNull(list.SecondarySortColumn);
                     for (int column = 0; column < list.Columns.Count; column++)
+                    {
                         Assert.AreEqual(column == clickedColumn ? 1 : 0, list.GetSortPriority(list.GetColumn(column)));
+                    }
+
                     int[] values = Enumerable.Range(0, list.GetItemCount())
                         .Select(i => ((SortRow)list.GetModelObject(i)).Values[clickedColumn]).ToArray();
                     CollectionAssert.AreEqual(expectedOrder == SortOrder.Ascending ?
@@ -463,7 +489,10 @@ namespace BrightIdeasSoftware.Tests
             list.BeforeSorting += delegate(object sender, BeforeSortingEventArgs args) {
                 args.SortDescriptions.Clear();
                 foreach (int index in new[] { 3, 2, 1, 0 })
+                {
                     args.SortDescriptions.Add(new OLVSortDescription(list.GetColumn(index), SortOrder.Ascending));
+                }
+
                 Assert.AreSame(list.GetColumn(3), args.ColumnToSort);
                 Assert.AreSame(list.GetColumn(2), args.SecondaryColumnToSort);
                 args.SortOrder = SortOrder.Descending;
@@ -558,7 +587,9 @@ namespace BrightIdeasSoftware.Tests
             if (fieldCount < 4) {
                 this.ClickHeader(list, 0, Keys.None);
                 if (fieldCount == 2)
+                {
                     this.ClickHeader(list, 1, Keys.Shift);
+                }
             }
             for (int i = 4; i < fieldCount; i++) {
                 OLVColumn column = new OLVColumn("Extra field", "") { AspectGetter = x => 0, Width = 110 };
@@ -588,30 +619,54 @@ namespace BrightIdeasSoftware.Tests
                         Rectangle visibleLabelBounds = Rectangle.Intersect(labelBounds, new Rectangle(Point.Empty, bitmap.Size));
                         int inkPixels = 0;
                         for (int x = visibleLabelBounds.Left; x < visibleLabelBounds.Right; x++)
+                        {
                             for (int y = visibleLabelBounds.Top; y < visibleLabelBounds.Bottom; y++)
+                            {
                                 if (bitmap.GetPixel(x, y) != withoutIndicators.GetPixel(x, y))
+                                {
                                     inkPixels++;
+                                }
+                            }
+                        }
+
                         if (fieldCount > 1) {
                             using (Graphics expectedGraphics = Graphics.FromImage(withoutIndicators))
+                            {
                                 TextRenderer.DrawText(expectedGraphics, label, priorityFont, labelBounds, SystemColors.GrayText,
                                     flags | TextFormatFlags.Right | TextFormatFlags.VerticalCenter | TextFormatFlags.PreserveGraphicsClipping);
+                            }
                         }
                         for (int x = visibleLabelBounds.Left; x < visibleLabelBounds.Right; x++)
+                        {
                             for (int y = visibleLabelBounds.Top; y < visibleLabelBounds.Bottom; y++) {
                                 Assert.AreEqual(withoutIndicators.GetPixel(x, y), bitmap.GetPixel(x, y));
                             }
+                        }
+
                         if (fieldCount > 1)
+                        {
                             Assert.IsGreaterThan(0, inkPixels);
+                        }
                         else
+                        {
                             Assert.AreEqual(0, inkPixels);
+                        }
+
                         Rectangle arrowBounds = Rectangle.Intersect(
                             new Rectangle(bounds.Right - 16, bounds.Top, 16, bounds.Height),
                             new Rectangle(Point.Empty, bitmap.Size));
                         int arrowPixels = 0;
                         for (int x = arrowBounds.Left; x < arrowBounds.Right; x++)
+                        {
                             for (int y = arrowBounds.Top; y < arrowBounds.Bottom; y++)
+                            {
                                 if (bitmap.GetPixel(x, y) != withoutIndicators.GetPixel(x, y))
+                                {
                                     arrowPixels++;
+                                }
+                            }
+                        }
+
                         Assert.IsGreaterThan(0, arrowPixels);
                     }
                 }
@@ -649,11 +704,18 @@ namespace BrightIdeasSoftware.Tests
                 new SortRow("a", 0, 0, 0, 0)
             };
             if (kind == 2)
+            {
                 ((TreeListView)list).Roots = rows;
+            }
             else if (kind == 3)
+            {
                 ((DataListView)list).DataSource = new BindingList<SortRow>(rows.ToList());
+            }
             else
+            {
                 list.SetObjects(rows);
+            }
+
             return list;
         }
 

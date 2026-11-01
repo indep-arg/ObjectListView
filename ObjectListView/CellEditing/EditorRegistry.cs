@@ -145,8 +145,7 @@ namespace BrightIdeasSoftware {
         /// <remarks>Does nothing if the given type doesn't exist</remarks>
         /// <param name="type">The type whose registration is to be removed</param>
         public void Unregister(Type type) {
-            if (this.creatorMap.ContainsKey(type))
-                this.creatorMap.Remove(type);
+            this.creatorMap.Remove(type);
         }
 
         #endregion
@@ -170,24 +169,32 @@ namespace BrightIdeasSoftware {
             if (this.firstChanceCreator != null) {
                 editor = this.firstChanceCreator(model, column, value);
                 if (editor != null)
+                {
                     return editor;
+                }
             }
 
             // Try to find a creator based on the type of the value (or the column)
             Type type = value == null ? column.DataType : value.GetType();
-            if (type != null && this.creatorMap.ContainsKey(type)) {
-                editor = this.creatorMap[type](model, column, value);
+            if (type != null && this.creatorMap.TryGetValue(type, out EditorCreatorDelegate creator)) {
+                editor = creator(model, column, value);
                 if (editor != null)
+                {
                     return editor;
+                }
             }
 
             // Enums without other processing get a special editor
             if (value != null && value.GetType().IsEnum)
+            {
                 return this.CreateEnumEditor(value.GetType());
+            }
 
             // Give any default creator a final chance
             if (this.defaultCreator != null)
+            {
                 return this.defaultCreator(model, column, value);
+            }
 
             return null;
         }

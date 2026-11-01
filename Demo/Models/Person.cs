@@ -55,9 +55,13 @@ namespace ObjectListViewDemo.Models {
         public string Name {
             get { return this.name; }
             set {
-                if (this.name == value) return;
+                if (this.name == value)
+                {
+                    return;
+                }
+
                 this.name = value;
-                this.OnPropertyChanged("Name");
+                this.OnPropertyChanged(nameof(Name));
             }
         }
         private string name;
@@ -66,9 +70,13 @@ namespace ObjectListViewDemo.Models {
         public string Occupation {
             get { return this.occupation; }
             set {
-                if (this.occupation == value) return;
+                if (this.occupation == value)
+                {
+                    return;
+                }
+
                 this.occupation = value;
-                this.OnPropertyChanged("Occupation");
+                this.OnPropertyChanged(nameof(Occupation));
             }
         }
         private string occupation;
@@ -115,7 +123,9 @@ namespace ObjectListViewDemo.Models {
 
         private void OnPropertyChanged(string propertyName) {
             if (this.PropertyChanged != null)
+            {
                 this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }
         }
 
         #endregion

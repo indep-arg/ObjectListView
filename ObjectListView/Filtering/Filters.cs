@@ -133,7 +133,9 @@ namespace BrightIdeasSoftware
         public CompositeFilter(IEnumerable<IModelFilter> filters) {
             foreach (IModelFilter filter in filters) {
                 if (filter != null)
+                {
                     Filters.Add(filter);
+                }
             }
         }
 
@@ -154,7 +156,9 @@ namespace BrightIdeasSoftware
                 foreach (IModelFilter filter in this.Filters) {
                     TextMatchFilter textFilter = filter as TextMatchFilter;
                     if (textFilter != null)
+                    {
                         yield return textFilter;
+                    }
                 }
             }
         }
@@ -166,7 +170,9 @@ namespace BrightIdeasSoftware
         /// <returns>True if the object is included by the filter</returns>
         virtual public bool Filter(object modelObject) {
             if (this.Filters == null || this.Filters.Count == 0)
+            {
                 return true;
+            }
 
             return this.FilterObject(modelObject);
         }
@@ -203,8 +209,12 @@ namespace BrightIdeasSoftware
         /// <returns>True if the object is included by the filter</returns>
         override public bool FilterObject(object modelObject) {
             foreach (IModelFilter filter in this.Filters)
+            {
                 if (!filter.Filter(modelObject))
+                {
                     return false;
+                }
+            }
 
             return true;
         }
@@ -233,8 +243,12 @@ namespace BrightIdeasSoftware
         /// <returns>True if the object is included by the filter</returns>
         override public bool FilterObject(object modelObject) {
             foreach (IModelFilter filter in this.Filters)
+            {
                 if (filter.Filter(modelObject))
+                {
                     return true;
+                }
+            }
 
             return false;
         }
@@ -295,16 +309,22 @@ namespace BrightIdeasSoftware
         /// <returns></returns>
         public virtual bool Filter(object modelObject) {
             if (this.ValueGetter == null || this.PossibleValues == null || this.PossibleValues.Count == 0)
+            {
                 return false;
+            }
 
             object result = this.ValueGetter(modelObject);
             IEnumerable enumerable = result as IEnumerable;
             if (result is string || enumerable == null)
+            {
                 return this.DoesValueMatch(result);
+            }
 
             foreach (object x in enumerable) {
                 if (this.DoesValueMatch(x))
+                {
                     return true;
+                }
             }
             return false;
         }
@@ -352,7 +372,9 @@ namespace BrightIdeasSoftware
         private void ConvertPossibleValues() {
             this.possibleValuesAsUlongs = new List<UInt64>();
             foreach (object x in this.PossibleValues)
+            {
                 this.possibleValuesAsUlongs.Add(Convert.ToUInt64(x));
+            }
         }
 
         /// <summary>
@@ -365,7 +387,9 @@ namespace BrightIdeasSoftware
                 UInt64 value = Convert.ToUInt64(result);
                 foreach (ulong flag in this.possibleValuesAsUlongs) {
                     if ((value & flag) == flag)
+                    {
                         return true;
+                    }
                 }
                 return false;
             }
@@ -432,7 +456,9 @@ namespace BrightIdeasSoftware
         /// <returns></returns>
         public override IEnumerable Filter(IEnumerable modelObjects) {
             if (this.Function == null)
+            {
                 return modelObjects;
+            }
 
             return this.Function(modelObjects);
         }
@@ -474,12 +500,16 @@ namespace BrightIdeasSoftware
         /// <returns></returns>
         public override IEnumerable Filter(IEnumerable modelObjects) {
             if (this.Count <= 0)
+            {
                 return modelObjects;
+            }
 
             ArrayList list = ObjectListViewBase.EnumerableToArray(modelObjects, false);
 
             if (this.Count > list.Count)
+            {
                 return list;
+            }
 
             object[] tail = new object[this.Count];
             list.CopyTo(list.Count - this.Count, tail, 0, this.Count);
