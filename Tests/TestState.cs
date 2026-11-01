@@ -95,8 +95,145 @@ namespace BrightIdeasSoftware.Tests
                 list.SelectColumnsOnRightClickBehaviour = ObjectListViewBase.ColumnSelectBehaviour.InlineMenu;
                 list.MakeColumnSelectMenu(menu);
                 CollectionAssert.AreEqual(
-                    new[] { list.AllColumns[1], list.AllColumns[2], list.AllColumns[0] },
+                    new[] { list.AllColumns[2], list.AllColumns[0], list.AllColumns[1] },
                     menu.Items.Cast<ToolStripMenuItem>().Select(item => (OLVColumn)item.Tag).ToArray());
+                Assert.AreEqual(-1, list.AllColumns[1].LastDisplayIndex);
+            }
+        }
+
+        [TestMethod]
+        [DataRow(0, false, 1)]
+        [DataRow(1, false, 2)]
+        [DataRow(2, false, 4)]
+        [DataRow(0, true, 4)]
+        [DataRow(1, true, 1)]
+        [DataRow(2, true, 2)]
+        public void Test_ColumnSelectMenu_NeverShownColumnsMatchEnabledOrder(int kind, bool submenu, int enabledIndex) {
+            using (var list = CreateList(kind))
+            using (var menu = new ContextMenuStrip()) {
+                list.AllColumns.Insert(2, new OLVColumn("Second hidden", "Name") { IsVisible = false });
+                list.AllColumns.Add(new OLVColumn("Last hidden", "Name") { IsVisible = false });
+                list.SelectColumnsOnRightClickBehaviour = submenu ?
+                    ObjectListViewBase.ColumnSelectBehaviour.Submenu :
+                    ObjectListViewBase.ColumnSelectBehaviour.InlineMenu;
+
+                list.MakeColumnSelectMenu(menu);
+                ToolStripItemCollection items = submenu ?
+                    ((ToolStripMenuItem)menu.Items[0]).DropDownItems : menu.Items;
+                OLVColumn[] menuColumns = items.Cast<ToolStripMenuItem>()
+                    .Select(item => (OLVColumn)item.Tag).ToArray();
+                CollectionAssert.AreEqual(list.AllColumns.ToArray(), menuColumns);
+                foreach (OLVColumn column in list.AllColumns.Where(column => !column.IsVisible))
+                    Assert.AreEqual(-1, column.LastDisplayIndex);
+
+                list.AllColumns[enabledIndex].IsVisible = true;
+                list.RebuildColumns();
+                CollectionAssert.AreEqual(menuColumns.Where(column => column.IsVisible).ToArray(),
+                    list.ColumnsInDisplayOrder.ToArray());
+            }
+        }
+
+        [TestMethod]
+        [DataRow(0, false)]
+        [DataRow(1, false)]
+        [DataRow(2, false)]
+        [DataRow(0, true)]
+        [DataRow(1, true)]
+        [DataRow(2, true)]
+        public void Test_ColumnSelectMenu_UsesCurrentOrderAndPreservesHiddenPosition(int kind, bool submenu) {
+            using (var list = CreateList(kind))
+            using (var menu = new ContextMenuStrip()) {
+                OLVColumn hidden = list.AllColumns[1];
+                hidden.LastDisplayIndex = 2;
+                list.AllColumns[2].DisplayIndex = 0;
+                list.SelectColumnsOnRightClickBehaviour = submenu ?
+                    ObjectListViewBase.ColumnSelectBehaviour.Submenu :
+                    ObjectListViewBase.ColumnSelectBehaviour.InlineMenu;
+
+                list.MakeColumnSelectMenu(menu);
+                ToolStripItemCollection items = submenu ?
+                    ((ToolStripMenuItem)menu.Items[0]).DropDownItems : menu.Items;
+                CollectionAssert.AreEqual(
+                    new[] { list.AllColumns[2], list.AllColumns[0], hidden },
+                    items.Cast<ToolStripMenuItem>().Select(item => (OLVColumn)item.Tag).ToArray());
+                Assert.AreEqual(2, hidden.LastDisplayIndex);
+                Assert.IsFalse(((ToolStripMenuItem)items[2]).Checked);
+
+                hidden.IsVisible = true;
+                list.RebuildColumns();
+                Assert.AreEqual(0, list.AllColumns[2].DisplayIndex);
+                Assert.AreEqual(1, list.AllColumns[0].DisplayIndex);
+                Assert.AreEqual(2, hidden.DisplayIndex);
+            }
+        }
+
+        [TestMethod]
+        public void Test_ColumnSelectMenu_TiedPositionsPreserveAllColumnsOrder() {
+            using (var list = CreateList(0))
+            using (var menu = new ContextMenuStrip()) {
+                list.SaveState();
+                list.AllColumns[1].LastDisplayIndex = 0;
+                for (int i = 0; i < 20; i++)
+                    list.AllColumns.Add(new OLVColumn("Hidden " + i, "Name") {
+                        IsVisible = false, LastDisplayIndex = 0
+                    });
+                OLVColumn[] expected = list.AllColumns.Where(column => column != list.AllColumns[2])
+                    .Concat(new[] { list.AllColumns[2] }).ToArray();
+
+                list.MakeColumnSelectMenu(menu);
+                CollectionAssert.AreEqual(
+                    expected,
+                    menu.Items.Cast<ToolStripMenuItem>().Select(item => (OLVColumn)item.Tag).ToArray());
+                Assert.AreEqual(0, list.AllColumns[1].LastDisplayIndex);
+
+                foreach (OLVColumn column in list.AllColumns)
+                    column.IsVisible = true;
+                list.RebuildColumns();
+                CollectionAssert.AreEqual(expected,
+                    list.Columns.Cast<OLVColumn>().OrderBy(column => column.DisplayIndex).ToArray());
+            }
+        }
+
+        [TestMethod]
+        [DataRow(false)]
+        [DataRow(true)]
+        public void Test_ColumnOrderCapture_PreservesHiddenPosition(bool recreateHandle) {
+            using (var list = new ColumnOrderObjectListView { View = View.Details, ShowGroups = false }) {
+                list.AllColumns.Add(new OLVColumn("Name", "Name"));
+                list.AllColumns.Add(new OLVColumn("Rating", "CulinaryRating"));
+                list.AllColumns.Add(new OLVColumn("Occupation", "Occupation"));
+                list.RebuildColumns();
+                mainForm.Controls.Add(list);
+                list.CreateControl();
+                OLVColumn hidden = list.AllColumns[2];
+                hidden.IsVisible = false;
+                list.RebuildColumns();
+                list.AllColumns[1].DisplayIndex = 0;
+
+                if (recreateHandle)
+                    list.RecreateNativeHandle();
+                else {
+                    list.NotifyColumnReordered();
+                    Application.DoEvents();
+                }
+
+                Assert.AreEqual(2, hidden.LastDisplayIndex);
+                Assert.AreEqual(0, list.AllColumns[1].LastDisplayIndex);
+                Assert.AreEqual(1, list.AllColumns[0].LastDisplayIndex);
+                hidden.IsVisible = true;
+                list.RebuildColumns();
+                Assert.AreEqual(2, hidden.DisplayIndex);
+                Assert.AreEqual(0, list.AllColumns[1].DisplayIndex);
+                Assert.AreEqual(1, list.AllColumns[0].DisplayIndex);
+            }
+        }
+
+        private sealed class ColumnOrderObjectListView : ObjectListView
+        {
+            public void RecreateNativeHandle() { this.RecreateHandle(); }
+
+            public void NotifyColumnReordered() {
+                this.OnColumnReordered(new ColumnReorderedEventArgs(1, 0, this.AllColumns[1]));
             }
         }
 

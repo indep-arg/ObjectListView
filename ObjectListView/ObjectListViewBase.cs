@@ -596,6 +596,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using MethodInvoker = System.Windows.Forms.MethodInvoker;
 using System.Runtime.InteropServices;
@@ -4527,8 +4528,7 @@ namespace BrightIdeasSoftware
                 // LastDisplayIndex isn't guaranteed to be unique, so we just sort the columns by
                 // the last position they were displayed and use that to generate a sequence 
                 // we can use for the DisplayIndex values.
-                List<OLVColumn> columnsInDisplayOrder = new List<OLVColumn>(columns);
-                columnsInDisplayOrder.Sort(delegate(OLVColumn x, OLVColumn y) { return (x.LastDisplayIndex - y.LastDisplayIndex); });
+                IEnumerable<OLVColumn> columnsInDisplayOrder = columns.OrderBy(column => column.LastDisplayIndex);
                 int i = 0;
                 foreach (OLVColumn col in columnsInDisplayOrder)
                     col.DisplayIndex = i++;
@@ -5522,13 +5522,7 @@ namespace BrightIdeasSoftware
         /// </remarks>
         /// <returns>A byte array representing the state of the ObjectListView</returns>
         public virtual byte[] SaveState() {
-            if (this.AllColumns.Count > 0 && this.AllColumns[0].LastDisplayIndex == -1)
-                this.RememberDisplayIndicies();
-
-            foreach (OLVColumn column in this.AllColumns) {
-                if (column.Index >= 0)
-                    column.LastDisplayIndex = column.DisplayIndex;
-            }
+            this.RememberDisplayIndicies();
 
             using (MemoryStream stream = new MemoryStream())
             using (BinaryWriter writer = new BinaryWriter(stream)) {
@@ -7390,9 +7384,6 @@ namespace BrightIdeasSoftware
             if (strip.Items.Count > 0 && (!(strip.Items[strip.Items.Count-1] is ToolStripSeparator)))
                 strip.Items.Add(new ToolStripSeparator());
 
-            if (this.AllColumns.Count > 0 && this.AllColumns[0].LastDisplayIndex == -1)
-                this.RememberDisplayIndicies();
-
             if (this.SelectColumnsOnRightClickBehaviour == ColumnSelectBehaviour.ModelDialog) {
                 strip.Items.Add(this.MenuLabelSelectColumns, null, delegate(object sender, EventArgs args) {
                     (new ColumnSelectionForm()).OpenOn(this);
@@ -7422,9 +7413,19 @@ namespace BrightIdeasSoftware
         /// <param name="items"></param>
         protected void AddItemsToColumnSelectMenu(ToolStripItemCollection items) {
 
+            this.RememberDisplayIndicies();
+
+            // Predict the filtered-list position assigned when a never-shown column is enabled.
+            Dictionary<OLVColumn, int> displayIndices = new Dictionary<OLVColumn, int>();
+            int visibleIndex = 0;
+            foreach (OLVColumn column in this.AllColumns) {
+                displayIndices[column] = column.LastDisplayIndex == -1 ? visibleIndex : column.LastDisplayIndex;
+                if (visibleIndex == 0 || column.IsVisible)
+                    visibleIndex++;
+            }
+
             // Sort columns by display order
-            List<OLVColumn> columns = new List<OLVColumn>(this.AllColumns);
-            columns.Sort(delegate(OLVColumn x, OLVColumn y) { return x.LastDisplayIndex.CompareTo(y.LastDisplayIndex); });
+            IEnumerable<OLVColumn> columns = this.AllColumns.OrderBy(column => displayIndices[column]);
 
             // Build menu from sorted columns
             foreach (OLVColumn col in columns) {
@@ -7493,8 +7494,10 @@ namespace BrightIdeasSoftware
 
         private void RememberDisplayIndicies() {
             // Remember the display indexes so we can put them back at a later date
-            foreach (OLVColumn x in this.AllColumns)
-                x.LastDisplayIndex = x.DisplayIndex;
+            foreach (OLVColumn column in this.AllColumns) {
+                if (column.Index >= 0)
+                    column.LastDisplayIndex = column.DisplayIndex;
+            }
         }
 
         /// <summary>
